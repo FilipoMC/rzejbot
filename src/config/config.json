@@ -1,0 +1,10 @@
+{
+  "guildId": "1375760699199848529",
+  "testingChannelId": "1513960651343794368",
+  "icons": {
+    "warning": "⚠️",
+    "x": "❌",
+    "checkmark": "✅",
+    "loading": "<a:loading:1514364865299611719>"
+  }
+}

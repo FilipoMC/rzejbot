@@ -1,0 +1,36 @@
+{
+  "name": "commandkit-basic-ts",
+  "description": "A CommandKit project using TypeScript",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "commandkit dev",
+    "build": "npm run lint && commandkit build",
+    "start": "commandkit start",
+    "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
+    "lint": "eslint src/**",
+    "fix": "eslint --fix src/**"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^2.0.0",
+    "@types/lodash": "^4.17.24",
+    "@types/node": "^24.13.1",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
+    "jiti": "^2.7.0",
+    "lodash": "^4.18.1",
+    "pino": "^10.3.1",
+    "prettier": "3.8.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.61.0"
+  },
+  "dependencies": {
+    "@commandkit/devtools": "^1.2.1",
+    "commandkit": "^1.2.1",
+    "discord.js": "^14.26.4",
+    "dotenv": "^17.4.2"
+  }
+}
