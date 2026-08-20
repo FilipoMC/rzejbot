@@ -1,12 +1,15 @@
 import {
+  ActivityType,
   Client,
-  EmbedBuilder,
   GuildMember,
   PermissionFlagsBits,
   PermissionResolvable,
+  PresenceUpdateStatus,
   User,
 } from "discord.js";
-import { Logger } from "commandkit";
+import { COMMANDKIT_IS_DEV, Logger } from "commandkit";
+import kv from "./kv";
+import config from "@/config/config.json";
 
 export async function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -68,6 +71,29 @@ export async function promiseResult<T>(
   return result;
 }
 
+export function updateBotPresence(client: Client) {
+  if (!client.user) return;
+  if (kv.get("devlock")) {
+    client.user.setActivity(
+      kv.get("devlock-status")?.toString() ?? config.devlock_status,
+    );
+    client.user.setStatus(PresenceUpdateStatus.DoNotDisturb);
+    return;
+  }
+  if (COMMANDKIT_IS_DEV) {
+    client.user.setActivity(
+      kv.get("dev-status")?.toString() ?? config.dev_status,
+    );
+    client.user.setStatus(PresenceUpdateStatus.Idle);
+  } else {
+    client.user.setActivity({
+      type: ActivityType.Watching,
+      name: kv.get("bot-status")?.toString() ?? config.bot_status,
+    });
+    client.user.setStatus(PresenceUpdateStatus.Online);
+  }
+}
+
 export async function logCommandUsage(
   executor: User,
   commandType: "interaction" | "message" | "custom",
@@ -78,7 +104,6 @@ export async function logCommandUsage(
   for (const [key, value] of Object.entries(customMessage)) {
     extraValues.push(`**${key}:** ${value}`);
   }
-
 
   // const customLogsChnl = await client.channels.fetch(channels.customLogs);
   // if (!customLogsChnl?.isSendable()) return;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Logger } from "commandkit"
+import { Logger } from "commandkit";
 
 import _ from "lodash";
 
@@ -18,23 +18,43 @@ export function prettyStringifyObject(obj: Record<string, any>): string {
     .join("\n");
 }
 
-export interface throwLogger_params {
-  msg?: string,
-  desc?: string,
-  type: "debug" | "error" | "info" | "log" | "warn"
-  err?: string | Record<string, any>
+interface params_throwLogger {
+  msg?: string;
+  desc?: string;
+  type: "debug" | "error" | "info" | "log" | "warn";
+  err?: string | Record<string, any>;
 }
-export function throwLogger({msg, desc, type, err}: throwLogger_params) {
+export function throwLogger({ msg, desc, type, err }: params_throwLogger) {
   switch (type) {
     case "debug":
-      return Logger.debug({message: msg || null, description: desc || null, error: err || null})
+      return Logger.debug({
+        msg: msg || null,
+        description: desc || null,
+        error: err || null,
+      });
     case "error":
-      return Logger.error({message: msg || null, description: desc || null, error: err || null})
+      return Logger.error({
+        msg: msg || null,
+        description: desc || null,
+        error: err || null,
+      });
     case "info":
-      return Logger.info({message: msg || null, description: desc || null, error: err || null})
+      return Logger.info({
+        msg: msg || null,
+        description: desc || null,
+        error: err || null,
+      });
     case "log":
-      return Logger.log({message: msg || null, description: desc || null, error: err || null})
+      return Logger.log({
+        msg: msg || null,
+        description: desc || null,
+        error: err || null,
+      });
     case "warn":
-      return Logger.warn({message: msg || null, description: desc || null, error: err || null})
+      return Logger.warn({
+        msg: msg || null,
+        description: desc || null,
+        error: err || null,
+      });
   }
 }

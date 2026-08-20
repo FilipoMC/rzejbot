@@ -1,17 +1,43 @@
 import { CustomCommandMetadata } from "@/types/commands";
-import { middlewareCheckPerms } from "@/utils/middleWareUtils";
 import { MiddlewareContext, stopMiddlewares } from "commandkit";
-import config from "@/config/config.json"
-import { noPermissions } from "@/utils/commandResponses";
-import { ChatInputCommandInteraction } from "discord.js";
+import config from "@/config/config.json";
+import { middlewareReply } from "@/utils/commandResponses";
+import { middlewareCheckPerms } from "@/utils/middlewareUtils";
+import kv from "@/utils/kv";
+import { EmbedBuilder } from "discord.js";
+import emoji from "@/config/emoji.json";
 
-export async function beforeExecute(ctx: MiddlewareContext) {
+export function beforeExecute(ctx: MiddlewareContext) {
   const metadata = ctx.command.metadata as CustomCommandMetadata;
+  const commandUser =
+    ctx.isMessage() ? ctx.message.author : ctx.interaction.user;
 
-  const wasRunInTestChnl = ctx.isMessage() ? (ctx.message.channel?.id !== config.testingChannelId) : (ctx.interaction.channel?.id !== config.testingChannelId && ctx.interaction instanceof ChatInputCommandInteraction)
-  if (wasRunInTestChnl) {
-    await noPermissions({interactionOrMsg: ctx.interaction})
-    stopMiddlewares()
+  if (kv.get("devlock")) {
+    const devlockMessage = kv.get("devlock-message") || "N/A";
+
+    if (!config.devs.includes(commandUser.id)) {
+      const embed = new EmbedBuilder()
+        .setDescription(
+          `${emoji.warning} The bot is currently under developer lockdown` +
+            (devlockMessage ?
+              `\n\nMessage from developers: ${devlockMessage}`
+            : ""),
+        )
+        .setFooter({ text: "Track this bot's status for updates" })
+        .setColor("Blurple");
+
+      middlewareReply(ctx, embed);
+
+      stopMiddlewares();
+    }
+  }
+
+  if (metadata.devonly) {
+    if (!config.devs.includes(commandUser.id)) {
+      middlewareReply(ctx);
+
+      stopMiddlewares();
+    }
   }
 
   if (metadata.permissions) {
