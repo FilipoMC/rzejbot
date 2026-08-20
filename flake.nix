@@ -28,8 +28,16 @@
             packages = with pkgs; [
               nodejs_22
               pnpm
-              prisma_6
+              prisma_7
+              prisma-engines_7
             ];
+
+            shellHook = ''
+              export PRISMA_SCHEMA_ENGINE_BINARY="${pkgs.prisma-engines_7}/bin/schema-engine"
+              export PRISMA_QUERY_ENGINE_BINARY="${pkgs.prisma-engines_7}/bin/query-engine"
+              export PRISMA_QUERY_ENGINE_LIBRARY="${pkgs.prisma-engines_7}/lib/libquery_engine.node"
+              export PRISMA_FMT_BINARY="${pkgs.prisma-engines_7}/bin/prisma-fmt"
+            '';
           };
         }
       );
