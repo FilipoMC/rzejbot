@@ -17,7 +17,8 @@ model Employee {
 }
 
 model Shift {
-  id               String     @id
+  id               Int        @id @default(autoincrement())
+  shiftNumber      String     @unique
   date             DateTime
   duration         Int        @default(60)
   briefingDuration Int        @default(15)
