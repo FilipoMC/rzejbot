@@ -1,6 +1,6 @@
 # Custom
 sum.js
-store.db*
+*.db*
 
 # dependencies
 node_modules/
