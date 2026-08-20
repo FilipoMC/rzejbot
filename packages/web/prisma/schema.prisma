@@ -6,3 +6,26 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Employee {
+  discordID      String  @id
+  robloxID       String  @unique
+  nameIC         String
+  rank           String
+  shiftsHosted   Shift[] @relation("EmployeeShiftsHosted")
+  shiftsAttended Shift[] @relation("EmployeeShiftsAttended")
+}
+
+model Shift {
+  id               String     @id
+  date             DateTime
+  duration         Int        @default(60)
+  briefingDuration Int        @default(15)
+  hostID           String
+  attendees        Employee[] @relation("EmployeeShiftsAttended")
+  unit             String
+  shortDesc        String
+  shiftGoal        String
+  notes            String
+  host             Employee   @relation(name: "EmployeeShiftsHosted", fields: [hostID], references: [discordID])
+}

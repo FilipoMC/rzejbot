@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "format": "prisma format"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
