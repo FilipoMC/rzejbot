@@ -1,4 +1,4 @@
-import { GroupMap, SubcommandMap } from "@/types/commands";
+import { GroupMap, SubcommandMap } from "@types/commands";
 import { ChatInputCommandContext } from "commandkit";
 
 export const UNGROUPED_SUBCOMMAND_GROUP_NAME = "not grouped";

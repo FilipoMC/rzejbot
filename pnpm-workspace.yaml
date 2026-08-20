@@ -1,6 +1,6 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - "packages/bot"
+  - "packages/web"
 allowBuilds:
   esbuild: true
   unrs-resolver: true

@@ -22,9 +22,16 @@
     "jsxImportSource": "commandkit",
     "paths": {
       "@/*": ["./src/*"],
+      "@subcommands/*": ["./src/subcommands/*"],
+      "@types/*": ["./src/types/*", "../shared-types/*"],
       "discord.js": ["./node_modules/discord.js"]
     }
   },
-  "include": ["src", "commandkit.config.ts", "commandkit-env.d.ts"],
+  "include": [
+    "src",
+    "commandkit.config.ts",
+    "commandkit-env.d.ts",
+    "../shared-types"
+  ],
   "exclude": ["dist", "node_modules", ".commandkit"]
 }
