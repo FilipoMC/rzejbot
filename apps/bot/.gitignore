@@ -1,5 +1,6 @@
 # Custom
 sum.js
+store.db*
 
 # dependencies
 node_modules/
@@ -19,7 +20,6 @@ compiled-commandkit.config.mjs
 !**/*.env.example*
 
 # logging
-logs
 *.log
 npm-debug.log*
 yarn-debug.log*
