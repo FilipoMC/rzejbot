@@ -23,7 +23,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@subcommands/*": ["./src/subcommands/*"],
-      "@types/*": ["./src/types/*", "../shared-types/*"],
+      "@type/*": ["./src/types/*", "../shared-types/*"],
       "discord.js": ["./node_modules/discord.js"]
     }
   },

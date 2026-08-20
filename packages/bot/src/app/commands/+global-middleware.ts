@@ -1,4 +1,4 @@
-import { CustomCommandMetadata } from "@types/commands";
+import { CustomCommandMetadata } from "@type/commands";
 import { MiddlewareContext, stopMiddlewares } from "commandkit";
 import config from "@/config/config.json";
 import { middlewareReply } from "@/utils/commandResponses";
