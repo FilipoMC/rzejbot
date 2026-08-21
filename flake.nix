@@ -30,6 +30,7 @@
               pnpm
               prisma_6
               prisma-engines_6
+              openssl
             ];
 
             shellHook = ''
