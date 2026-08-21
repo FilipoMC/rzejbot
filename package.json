@@ -10,11 +10,12 @@
     "clean": "pnpm -r clean",
     "type-check": "pnpm -r type-check",
     "studio": "pnpm --filter ./packages/web studio",
-    "format": "pnpm --filter ./packages/web format",
-    "commit": "pnpm --filter ./packages/web format; git commit"
+    "format": "prettier --write \"packages/**/src/**/*.{js,ts,tsx}\" && pnpm --filter ./packages/web format",
+    "commit": "pnpm --filter ./packages/web format && git commit"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "prettier": "3.8.4"
   }
 }
