@@ -3,7 +3,7 @@ import snowflake from "./snowflake";
 
 export const shiftPostSchema = z.object({
   shiftNumber: z.string().regex(/\d{3}-\d{2}/),
-  date: z.string().transform((input) => new Date(input)),
+  date: z.iso.datetime({ offset: true }).transform((input) => new Date(input)),
   duration: z.optional(z.int()),
   briefingDuration: z.optional(z.int()),
   host: snowflake,
