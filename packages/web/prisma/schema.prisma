@@ -9,7 +9,7 @@ datasource db {
 
 model Employee {
   discordID      String  @id
-  robloxID       String  @unique
+  robloxID       Int     @unique
   nameIC         String
   rank           String
   shiftsHosted   Shift[] @relation("EmployeeShiftsHosted")
@@ -23,10 +23,10 @@ model Shift {
   duration         Int        @default(60)
   briefingDuration Int        @default(15)
   hostID           String
+  host             Employee   @relation(name: "EmployeeShiftsHosted", fields: [hostID], references: [discordID])
   attendees        Employee[] @relation("EmployeeShiftsAttended")
   unit             String
   shortDesc        String
   shiftGoal        String
   notes            String
-  host             Employee   @relation(name: "EmployeeShiftsHosted", fields: [hostID], references: [discordID])
 }
