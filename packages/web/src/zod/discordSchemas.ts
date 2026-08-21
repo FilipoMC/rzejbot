@@ -1,6 +1,6 @@
 import z from "zod";
 
-export default z
+export const snowflakeSchema = z
   .string()
   .min(16)
   .max(20)

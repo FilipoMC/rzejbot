@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { employeePostSchema } from "@/zod/employeePostSchema";
+import { employeePostSchema } from "@/zod/employeeSchemas";
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _req: NextRequest,
-  { params }: RouteContext<"/api/employee/[id]">,
+  { params }: RouteContext<"/api/employees/[id]">,
 ) {
   const { id } = await params;
 
