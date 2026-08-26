@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const res = await prisma.shift.create({
       data: {
         ...bodyParsed.data,
-        host: { connect: { discordID: bodyParsed.data.host } },
+        host: { connect: { discordId: bodyParsed.data.host } },
       },
     });
 
