@@ -8,25 +8,90 @@ datasource db {
 }
 
 model Employee {
-  discordID      String  @id
-  robloxID       Int     @unique
-  nameIC         String
-  rank           String
-  shiftsHosted   Shift[] @relation("EmployeeShiftsHosted")
-  shiftsAttended Shift[] @relation("EmployeeShiftsAttended")
+  id           Int                @id @default(autoincrement())
+  discordId    String             @unique
+  robloxId     Int                @unique
+  nameIC       String
+  rank         String
+  shiftsHosted Shift[]            @relation("EmployeeShiftsHosted")
+  shiftLogs    ShiftEmployeeLog[] @relation
+  shiftReports ShiftReport[]      @relation
+}
+
+model ShiftEmployeeLog {
+  id Int @id @default(autoincrement())
+
+  shift    Shift    @relation(fields: [shiftId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  absence     Boolean?
+  clockedIn   DateTime?
+  clockedTime Int?
+
+  exposureTime Int?
+  dose         Int?
+
+  stations String[]
+  rating   String[]
+
+  accidents Accident[] @relation
+
+  shiftId    Int
+  employeeId Int
+
+  @@unique([shiftId, employeeId])
 }
 
 model Shift {
-  id               Int        @id @default(autoincrement())
-  shiftNumber      String     @unique
+  id Int @id @default(autoincrement())
+
+  shiftNumber             String             @unique
+  plannedDate             DateTime
+  plannedDuration         Int                @default(60)
+  plannedBriefingDuration Int                @default(15)
+  employeeLogs            ShiftEmployeeLog[] @relation
+  host                    Employee           @relation(name: "EmployeeShiftsHosted", fields: [hostId], references: [id])
+  unit                    String
+  shortDesc               String
+  shiftGoal               String
+  notes                   String
+
+  report ShiftReport? @relation
+
+  hostId Int
+}
+
+model ShiftReport {
+  shiftId Int   @id
+  shift   Shift @relation(fields: [shiftId], references: [id], onDelete: Restrict)
+
   date             DateTime
-  duration         Int        @default(60)
-  briefingDuration Int        @default(15)
-  hostID           String
-  host             Employee   @relation(name: "EmployeeShiftsHosted", fields: [hostID], references: [discordID])
-  attendees        Employee[] @relation("EmployeeShiftsAttended")
-  unit             String
-  shortDesc        String
-  shiftGoal        String
-  notes            String
+  duration         Int
+  briefingDuration Int
+  cohost           Employee? @relation(fields: [employeeId], references: [id])
+  cohostLocation   String?
+
+  goalMet    Boolean
+  rodBalance RodBalance
+  summary    String
+
+  accidents  Accident[] @relation
+  employeeId Int
+}
+
+enum RodBalance {
+  Auto
+  Manual
+  None
+}
+
+model Accident {
+  id          Int         @id @default(autoincrement())
+  shiftReport ShiftReport @relation(fields: [shiftReportId], references: [shiftId])
+
+  date                 DateTime
+  involvedEmployeeLogs ShiftEmployeeLog[] @relation
+  description          String
+
+  shiftReportId Int
 }
