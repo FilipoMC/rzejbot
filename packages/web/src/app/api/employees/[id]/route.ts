@@ -8,7 +8,7 @@ export async function GET(
   const { id } = await params;
 
   const res = await prisma.employee.findUnique({
-    where: { discordID: id },
+    where: { discordId: id },
   });
   if (!res) {
     return NextResponse.json("Not Found", { status: 404 });
