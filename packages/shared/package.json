@@ -1,0 +1,10 @@
+{
+  "name": "@rzej/shared",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {},
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

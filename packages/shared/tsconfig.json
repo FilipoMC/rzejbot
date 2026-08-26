@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noUncheckedIndexedAccess": true,
+    "removeComments": true,
+    "allowJs": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "noEmit": true,
+    "declaration": false,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "commandkit",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@web/*": ["../web/src/*"],
+      "@bot/*": ["../bot/src/*"]
+    }
+  },
+  "include": ["src", "../web/src", "../bot/src"],
+  "exclude": ["node_modules"]
+}
