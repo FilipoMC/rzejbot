@@ -11,7 +11,10 @@ export async function POST(
   const bodyParsed = shiftLogAbsencePostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {
-    return NextResponse.json("Invalid body", { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid body" },
+      { status: 400 },
+    );
   }
 
   const body = bodyParsed.data;
@@ -20,11 +23,14 @@ export async function POST(
   const shiftId = Number(idParam);
 
   if (!Number.isInteger(shiftId)) {
-    return NextResponse.json("Invalid shift ID", { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid shift ID" },
+      { status: 400 },
+    );
   }
 
   try {
-    await prisma.shiftEmployeeLog.create({
+    const res = await prisma.shiftEmployeeLog.create({
       data: {
         employee: { connect: { discordId: body.employeeDiscordId } },
         shift: { connect: { id: shiftId } },
@@ -32,7 +38,7 @@ export async function POST(
       },
     });
 
-    return NextResponse.json("Created shift log", { status: 201 });
+    return NextResponse.json({ ok: true, data: res }, { status: 201 });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
@@ -43,13 +49,19 @@ export async function POST(
       }
 
       if (err.code === "P2025") {
-        return NextResponse.json("Invalid employee or shift", { status: 404 });
+        return NextResponse.json(
+          { ok: false, error: "Invalid employee or shift" },
+          { status: 404 },
+        );
       }
     }
 
     console.error(err);
-    return NextResponse.json("Error accessing the database", {
-      status: 500,
-    });
+    return NextResponse.json(
+      { ok: false, error: "Error accessing the database" },
+      {
+        status: 500,
+      },
+    );
   }
 }

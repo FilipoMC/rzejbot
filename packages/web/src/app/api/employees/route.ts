@@ -9,7 +9,10 @@ export async function POST(req: NextRequest) {
   const parsedBody = employeePostSchema.safeParse(body);
 
   if (!parsedBody.success) {
-    return NextResponse.json("Invalid body", { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid body" },
+      { status: 400 },
+    );
   }
 
   try {
@@ -17,19 +20,25 @@ export async function POST(req: NextRequest) {
       data: parsedBody.data,
     });
 
-    return NextResponse.json({ data: res }, { status: 201 });
+    return NextResponse.json({ ok: true, data: res }, { status: 201 });
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
       err.code === "P2002"
     ) {
       return NextResponse.json(
-        `This ${(err.meta?.target as string[]).join(", ")} is already tied to an employee`,
+        {
+          ok: false,
+          error: `This ${(err.meta?.target as string[]).join(", ")} is already tied to an employee`,
+        },
         { status: 409 },
       );
     } else {
       console.error(err);
-      return NextResponse.json("Error accessing the database", { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: "Error accessing the database" },
+        { status: 500 },
+      );
     }
   }
 }

@@ -9,9 +9,12 @@ export async function GET(req: NextRequest) {
   const shiftNumberParsed = shiftNumberSchema.safeParse(shiftNumberUnparsed);
 
   if (!shiftNumberParsed.success) {
-    return NextResponse.json("Invalid number query parameter", {
-      status: 400,
-    });
+    return NextResponse.json(
+      { ok: false, error: "Invalid number query parameter" },
+      {
+        status: 400,
+      },
+    );
   }
 
   const shiftNumber = shiftNumberParsed.data;
@@ -21,7 +24,10 @@ export async function GET(req: NextRequest) {
   });
 
   if (!res) {
-    return NextResponse.json("Not found", { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Not found" },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json(res);
@@ -33,7 +39,10 @@ export async function POST(req: NextRequest) {
   const bodyParsed = shiftPostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {
-    return NextResponse.json("Invalid body", { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid body" },
+      { status: 400 },
+    );
   }
 
   const body = bodyParsed.data;
@@ -46,7 +55,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(res, { status: 201 });
+    return NextResponse.json({ ok: true, data: res }, { status: 201 });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
@@ -62,6 +71,9 @@ export async function POST(req: NextRequest) {
     }
 
     console.error(err);
-    return NextResponse.json("Error accessing the database", { status: 500 });
+    return NextResponse.json(
+      { ok: false, errpr: "Error accessing the database" },
+      { status: 500 },
+    );
   }
 }

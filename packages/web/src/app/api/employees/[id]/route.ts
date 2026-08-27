@@ -11,10 +11,13 @@ export async function GET(
     where: { discordId: id },
   });
   if (!res) {
-    return NextResponse.json("Not Found", { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Not Found" },
+      { status: 404 },
+    );
   }
 
-  return NextResponse.json({ data: res });
+  return NextResponse.json({ ok: true, data: res });
 }
 
 // export async function PATCH(_req: NextRequest) { TODO: implementation

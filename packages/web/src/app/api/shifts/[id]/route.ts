@@ -10,7 +10,10 @@ export async function GET(
   const shiftId = Number(idParam);
 
   if (!Number.isInteger(shiftId)) {
-    return NextResponse.json("Invalid shift ID", { status: 400 });
+    return NextResponse.json(
+      { ok: false, error: "Invalid shift ID" },
+      { status: 400 },
+    );
   }
 
   const shift = await prisma.shift.findUnique({
@@ -18,7 +21,10 @@ export async function GET(
   });
 
   if (!shift) {
-    return NextResponse.json("Not found", { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Not found" },
+      { status: 404 },
+    );
   }
 
   return NextResponse.json(shift);

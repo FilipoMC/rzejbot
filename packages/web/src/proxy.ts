@@ -14,11 +14,17 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith("/api")) {
     const authHeader = request.headers.get("Authorization");
     if (!authHeader) {
-      return NextResponse.json("Unauthorized", { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     if (authHeader !== `Bearer ${process.env.API_TOKEN}`) {
-      return NextResponse.json("Forbidden", { status: 403 });
+      return NextResponse.json(
+        { ok: false, error: "Forbidden" },
+        { status: 403 },
+      );
     }
   }
 
