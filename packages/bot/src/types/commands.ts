@@ -1,5 +1,9 @@
 import { hasPermissions } from "@/utils/utilityFunctions";
-import { ChatInputCommandContext, CommandMetadata } from "commandkit";
+import {
+  AutocompleteCommandContext,
+  ChatInputCommandContext,
+  CommandMetadata,
+} from "commandkit";
 import { UnwrapTuple, Prettify } from "./utils";
 
 export interface CustomCommandMetadata extends CommandMetadata {
@@ -17,3 +21,10 @@ export type SubcommandHandler<T = void> = (
 
 export type SubcommandMap<T = void> = Record<string, SubcommandHandler<T>>;
 export type GroupMap<T = void> = Record<string, SubcommandMap<T>>;
+
+export type AutocompleteHandler<T = void> = (
+  ctx: AutocompleteCommandContext,
+) => Promise<T>;
+
+export type AutocompleteMap<T = void> = Record<string, AutocompleteHandler<T>>;
+export type AutocompleteGroupMap<T = void> = Record<string, AutocompleteMap<T>>;

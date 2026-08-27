@@ -1,8 +1,14 @@
-import { SubcommandMap } from "@/types/commands";
-import zaplanuj from "./src/zaplanuj";
+import { AutocompleteMap, SubcommandMap } from "@/types/commands";
+import zaplanuj, {
+  scheduleShiftAutocompleteHandler as zaplanujAC,
+} from "./src/zaplanuj";
 
-const shiftSubCommands: SubcommandMap = {
+const shiftSubcommands: SubcommandMap = {
   zaplanuj,
 };
 
-export default shiftSubCommands;
+export default shiftSubcommands;
+
+export const shiftAutocomplete: AutocompleteMap<string | undefined> = {
+  zaplanuj: zaplanujAC,
+};
