@@ -4,15 +4,15 @@ import emoji from "@/config/emoji.json";
 /** @config Configuration function, returns only embed  */
 export function createNoPermissionEmbed(): EmbedBuilder {
   return new EmbedBuilder()
-    .setTitle(`${emoji.no} You are not permitted to run this!`)
-    .setDescription("You are missing the required roles/permissions.")
+    .setTitle(`${emoji.no} Brak uprawnień!`)
+    .setDescription("Nie masz wystarczajacych uprawnień aby użyć tego.")
     .setColor("DarkRed");
 }
 
 /** @config Configuration function, returns only embed  */
 export function createCommandErrorEmbed(description?: string): EmbedBuilder {
   return new EmbedBuilder().setDescription(
-    `${emoji.warning} There was an error while executing this command${description ? `:\n\n${description}` : "."}`,
+    `${emoji.warning} Wystąpił błąd podczas wykonywania tej komendy${description ? `:\n\n${description}` : "."}`,
   );
 }
 
@@ -27,7 +27,7 @@ export function createLoadingEmbed(description?: string) {
 export function createSuccessEmbed(description?: string) {
   return new EmbedBuilder()
     .setDescription(
-      `${emoji.yes} ${description || "Command executed successfully"}`,
+      `${emoji.yes} ${description || "Proces wykonywania komendy został zakończony z wynikiem pozytywnym."}`,
     )
     .setColor("Green");
 }
