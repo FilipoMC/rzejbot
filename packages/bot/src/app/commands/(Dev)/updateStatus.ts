@@ -1,4 +1,4 @@
-import { CustomCommandMetadata } from "@type/commands";
+import { CustomCommandMetadata } from "@/types/commands";
 import kv from "@/utils/kv";
 import { updateBotPresence } from "@/utils/utilityFunctions";
 import { CommandData, COMMANDKIT_IS_DEV, MessageCommand } from "commandkit";

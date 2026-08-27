@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "commandkit dev",
-    "build": "npm run lint && commandkit build",
+    "build": "pnpm run lint && commandkit build",
     "start": "commandkit start",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "lint": "eslint src/**",

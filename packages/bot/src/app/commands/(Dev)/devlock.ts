@@ -1,4 +1,4 @@
-import { CustomCommandMetadata } from "@type/commands";
+import { CustomCommandMetadata } from "@/types/commands";
 import { createFailEmbed } from "@/utils/embeds";
 import kv from "@/utils/kv";
 import { updateBotPresence } from "@/utils/utilityFunctions";

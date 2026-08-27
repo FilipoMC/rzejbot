@@ -9,7 +9,9 @@ const GIF006 = [
 ];
 
 export default function Zmiana006NieIstnieje() {
+  // eslint-disable-next-line
   const [random] = useState<number>(Math.floor(Math.random() * 3));
 
+  // eslint-disable-next-line
   return <img src={GIF006[random]} />;
 }

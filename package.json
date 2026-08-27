@@ -11,7 +11,7 @@
     "type-check": "pnpm -r type-check",
     "studio": "pnpm --filter ./packages/web studio",
     "format": "prettier --write \"packages/**/src/**/*.{js,ts,tsx}\" && pnpm --filter ./packages/web format",
-    "commit": "pnpm format && git commit"
+    "commit": "pnpm format && pnpm lint && git commit"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

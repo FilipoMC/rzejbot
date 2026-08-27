@@ -9,6 +9,6 @@ const shiftSubcommands: SubcommandMap = {
 
 export default shiftSubcommands;
 
-export const shiftAutocomplete: AutocompleteMap<string | undefined> = {
+export const shiftAutocomplete: AutocompleteMap = {
   zaplanuj: zaplanujAC,
 };

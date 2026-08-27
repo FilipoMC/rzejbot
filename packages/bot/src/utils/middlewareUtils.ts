@@ -1,7 +1,7 @@
 import { MiddlewareContext, stopMiddlewares } from "commandkit";
 import { middlewareReply } from "./commandResponses";
 import { hasPermissions } from "./utilityFunctions";
-import { CustomCommandMetadata } from "@type/commands";
+import { CustomCommandMetadata } from "@/types/commands";
 import { GuildMember } from "discord.js";
 import _ from "lodash";
 import config from "@/config/config.json";

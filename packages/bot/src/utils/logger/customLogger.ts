@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { COMMANDKIT_IS_DEV, DefaultLogger, ILogger } from "commandkit";

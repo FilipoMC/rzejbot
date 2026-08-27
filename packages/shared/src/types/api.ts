@@ -1,6 +1,9 @@
 import z from "zod";
-import { shiftLogAbsencePostSchema, shiftPostSchema } from "@/zod/shiftSchemas";
-import { employeePostSchema } from "@/zod/employeeSchemas";
+import {
+  shiftLogAbsencePostSchema,
+  shiftPostSchema,
+} from "../zod/shiftSchemas";
+import { employeePostSchema } from "../zod/employeeSchemas";
 
 export type ShiftPost = z.infer<typeof shiftPostSchema>;
 export type EmployeePost = z.infer<typeof employeePostSchema>;

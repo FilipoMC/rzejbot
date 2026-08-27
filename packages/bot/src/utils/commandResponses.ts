@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   APIEmbed,
   Interaction,
@@ -122,8 +121,10 @@ export async function middlewareReply(
       embeds: [embed ?? embeds.createNoPermissionEmbed()],
     });
   } else if (ctx.interaction instanceof BaseInteraction) {
-    embed ?
-      await conditionalReply(embed, true, ctx.interaction)
-    : await noPermissions({ interactionOrMsg: ctx.interaction });
+    if (embed) {
+      await conditionalReply(embed, true, ctx.interaction);
+    } else {
+      await noPermissions({ interactionOrMsg: ctx.interaction });
+    }
   }
 }
