@@ -5,16 +5,16 @@ export async function GET(
   _req: NextRequest,
   { params }: RouteContext<"/api/shifts/[id]">,
 ) {
-  const { id } = await params;
+  const { id: idParam } = await params;
 
-  const shiftID = parseInt(id);
+  const shiftId = Number(idParam);
 
-  if (isNaN(shiftID)) {
-    return NextResponse.json("Invalid ID", { status: 400 });
+  if (!Number.isInteger(shiftId)) {
+    return NextResponse.json("Invalid shift ID", { status: 400 });
   }
 
   const shift = await prisma.shift.findUnique({
-    where: { id: shiftID },
+    where: { id: shiftId },
   });
 
   if (!shift) {

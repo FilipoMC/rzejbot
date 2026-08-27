@@ -21,11 +21,9 @@
     "jsx": "react-jsx",
     "jsxImportSource": "commandkit",
     "paths": {
-      "@/*": ["./src/*"],
-      "@web/*": ["../web/src/*"],
-      "@bot/*": ["../bot/src/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "../web/src", "../bot/src"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

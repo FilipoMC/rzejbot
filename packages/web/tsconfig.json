@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@type/*": ["./src/types/*", "../shared-types/*"]
+      "@shared/*": ["../shared/src/*"]
     }
   },
   "include": [
@@ -30,7 +30,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "../shared-types"
+    "../shared"
   ],
   "exclude": ["node_modules"]
 }

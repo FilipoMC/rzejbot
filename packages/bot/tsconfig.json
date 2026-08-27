@@ -23,7 +23,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@subcommands/*": ["./src/subcommands/*"],
-      "@type/*": ["./src/types/*", "../shared-types/*"],
+      "@shared/*": ["../shared/src/*"],
       "discord.js": ["./node_modules/discord.js"]
     }
   },
@@ -31,7 +31,7 @@
     "src",
     "commandkit.config.ts",
     "commandkit-env.d.ts",
-    "../shared-types"
+    "../shared"
   ],
   "exclude": ["dist", "node_modules", ".commandkit"]
 }

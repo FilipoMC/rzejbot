@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { employeePostSchema } from "@/zod/employeeSchemas";
+import { employeePostSchema } from "@shared/zod/employeeSchemas";
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       data: parsedBody.data,
     });
 
-    return NextResponse.json({ data: res });
+    return NextResponse.json({ data: res }, { status: 201 });
   } catch (err) {
     if (
       err instanceof Prisma.PrismaClientKnownRequestError &&
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         `This ${(err.meta?.target as string[]).join(", ")} is already tied to an employee`,
-        { status: 400 },
+        { status: 409 },
       );
     } else {
       console.error(err);

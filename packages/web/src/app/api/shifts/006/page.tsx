@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const GIF006 = [
   "https://cdn.discordapp.com/attachments/1461796259613507614/1536067105542377562/togif.gif?ex=6a9076f8&is=6a8f2578&hm=1d2b86ab6c1af7f3f1deb14e6b8dbc47050c310909992a65dd351d615db45086&",
@@ -9,11 +9,7 @@ const GIF006 = [
 ];
 
 export default function Zmiana006NieIstnieje() {
-  const [random, setRandom] = useState<number>(0);
-
-  useEffect(() => {
-    setRandom(Math.floor(Math.random() * 3));
-  }, []);
+  const [random] = useState<number>(Math.floor(Math.random() * 3));
 
   return <img src={GIF006[random]} />;
 }

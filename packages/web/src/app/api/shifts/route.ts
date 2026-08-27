@@ -1,12 +1,12 @@
 import { prisma } from "@/lib/prisma";
-import { shiftNumberSchema, shiftPostSchema } from "@/zod/shiftSchemas";
+import { shiftNumberSchema, shiftPostSchema } from "@shared/zod/shiftSchemas";
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const shiftNumber = req.nextUrl.searchParams.get("number");
+  const shiftNumberUnparsed = req.nextUrl.searchParams.get("number");
 
-  const shiftNumberParsed = shiftNumberSchema.safeParse(shiftNumber);
+  const shiftNumberParsed = shiftNumberSchema.safeParse(shiftNumberUnparsed);
 
   if (!shiftNumberParsed.success) {
     return NextResponse.json("Invalid number query parameter", {
@@ -14,8 +14,10 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  const shiftNumber = shiftNumberParsed.data;
+
   const res = await prisma.shift.findUnique({
-    where: { shiftNumber: shiftNumberParsed.data },
+    where: { shiftNumber },
   });
 
   if (!res) {
@@ -26,40 +28,40 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
+  const bodyUnparsed = await req.json().catch(() => null);
 
-  const bodyParsed = shiftPostSchema.safeParse(body);
+  const bodyParsed = shiftPostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {
     return NextResponse.json("Invalid body", { status: 400 });
   }
 
+  const body = bodyParsed.data;
+
   try {
     const res = await prisma.shift.create({
       data: {
-        ...bodyParsed.data,
-        host: { connect: { discordId: bodyParsed.data.host } },
+        ...body,
+        host: { connect: { discordId: body.host } },
       },
     });
 
-    return NextResponse.json(res);
+    return NextResponse.json(res, { status: 201 });
   } catch (err) {
-    if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
-      err.code === "P2002"
-    ) {
-      return NextResponse.json(
-        `This ${(err.meta?.target as string[]).join(", ")} is already tied to a shift`,
-        { status: 400 },
-      );
-    } else if (
-      err instanceof Prisma.PrismaClientKnownRequestError &&
-      err.code === "P2025"
-    ) {
-      return NextResponse.json("Invalid employee", { status: 404 });
-    } else {
-      console.error(err);
-      return NextResponse.json("Error accessing the database", { status: 500 });
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2002") {
+        return NextResponse.json(
+          `This ${(err.meta?.target as string[]).join(", ")} is already tied to a shift`,
+          { status: 409 },
+        );
+      }
+
+      if (err.code === "P2025") {
+        return NextResponse.json("Invalid employee", { status: 404 });
+      }
     }
+
+    console.error(err);
+    return NextResponse.json("Error accessing the database", { status: 500 });
   }
 }
