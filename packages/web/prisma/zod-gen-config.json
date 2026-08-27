@@ -1,0 +1,7 @@
+{
+  "$schema": "../node_modules/prisma-zod-generator/lib/config/schema.json",
+  "mode": "full",
+  "pureModels": true,
+  "useMultipleFiles": true,
+  "output": "../../shared/src/generated/prisma/"
+}

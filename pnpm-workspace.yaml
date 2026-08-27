@@ -6,4 +6,5 @@ allowBuilds:
   '@prisma/engines': true
   esbuild: true
   prisma: true
+  prisma-zod-generator: true
   unrs-resolver: true

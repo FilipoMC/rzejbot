@@ -2,5 +2,6 @@ allowBuilds:
   "@prisma/client": true
   "@prisma/engines": true
   prisma: true
+  prisma-zod-generator: true
   sharp: false
   unrs-resolver: true
