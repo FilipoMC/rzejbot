@@ -21,6 +21,9 @@ model Employee {
   shiftsHosted Shift[]            @relation("EmployeeShiftsHosted")
   shiftLogs    ShiftEmployeeLog[] @relation
   shiftReports ShiftReport[]      @relation
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 model ShiftEmployeeLog {
@@ -44,6 +47,9 @@ model ShiftEmployeeLog {
   shiftId    Int
   employeeId Int
 
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
   @@unique([shiftId, employeeId])
 }
 
@@ -64,6 +70,9 @@ model Shift {
   report ShiftReport? @relation
 
   hostId Int
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 model ShiftReport {
@@ -82,6 +91,9 @@ model ShiftReport {
 
   accidents  Accident[] @relation
   employeeId Int
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 enum RodBalance {
@@ -99,4 +111,7 @@ model Accident {
   description          String
 
   shiftReportId Int
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }

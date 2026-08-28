@@ -10,18 +10,21 @@ export const command: CommandData = {
 
 export const message: MessageCommand = async (ctx) => {
   // const res = await ApiHelper.shifts.create({
-  //   host: "725981321196732436",
+  //   host: "705701074975195178",
   //   notes: "asdf",
   //   plannedDate: new Date(),
   //   shiftGoal: "asdf",
-  //   shiftNumber: "000-26",
+  //   shiftNumber: "000/26",
   //   shortDesc: "asfsa",
   //   unit: "III",
   // });
 
-  const res = await ApiHelper.shifts.logEmployeeAbsence(3, {
+  const res = await ApiHelper.shifts.logEmployeeAbsence(1, {
     employeeDiscordId: "725981321196732436",
   });
+
+  // const res = await ApiHelper.shifts.getById(1);
+  // const res = await ApiHelper.shifts.getByShiftNumber("000/26");
 
   await success({
     interactionOrMsg: ctx.message,

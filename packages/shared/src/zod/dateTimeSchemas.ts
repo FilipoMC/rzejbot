@@ -17,9 +17,11 @@ export const dateStringSchema = z
 
 export const isoDateStringSchema = z.iso
   .datetime()
-  .transform((input) => fromZonedTime(input, config.timezone));
+  .transform((input) => new Date(input));
 
 export const anyDateStringSchema = z.union([
   dateStringSchema,
   isoDateStringSchema,
 ]);
+
+export const anyDateSchema = z.union([anyDateStringSchema, z.date()]);

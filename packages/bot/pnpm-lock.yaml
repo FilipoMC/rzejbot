@@ -17,6 +17,9 @@ importers:
       commandkit:
         specifier: ^1.2.1
         version: 1.2.1(typescript@5.9.3)
+      date-fns:
+        specifier: ^4.4.0
+        version: 4.4.0
       date-fns-tz:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.4.0)
@@ -33,6 +36,9 @@ importers:
       '@eslint/json':
         specifier: ^2.0.0
         version: 2.0.0
+      '@types/date-fns':
+        specifier: ^2.6.3
+        version: 2.6.3
       '@types/lodash':
         specifier: ^4.17.24
         version: 4.17.24
@@ -503,6 +509,10 @@ packages:
 
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
+
+  '@types/date-fns@2.6.3':
+    resolution: {integrity: sha512-Ke1lw2Ni1t/wMUoLtKFmSNCLozcTBd6vmMqFP4hRzXn6qzkNt97bPAX0x5Y/c15DP43kKvwW1ycStD5+43jVQA==}
+    deprecated: This is a stub types definition. date-fns provides its own type definitions, so you do not need this installed.
 
   '@types/esrecurse@4.3.1':
     resolution: {integrity: sha512-xJBAbDifo5hpffDBuHl0Y8ywswbiAp/Wi7Y/GtAgSlZyIABppyurxVueOPE8LUQOxdlgi6Zqce7uoEpqNTeiUw==}
@@ -2053,6 +2063,10 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.29.7
+
+  '@types/date-fns@2.6.3':
+    dependencies:
+      date-fns: 4.4.0
 
   '@types/esrecurse@4.3.1': {}
 

@@ -12,7 +12,7 @@ export function createNoPermissionEmbed(): EmbedBuilder {
 /** @config Configuration function, returns only embed  */
 export function createCommandErrorEmbed(description?: string): EmbedBuilder {
   return new EmbedBuilder().setDescription(
-    `${emoji.warning} Wystąpił błąd podczas wykonywania tej komendy${description ? `:\n\n${description}` : "."}`,
+    `${emoji.warning} Wystąpił błąd podczas wykonywania tej komendy, spróbuj ponownie lub skontaktuj się z deweloperem${description ? `:\n\n${description}` : "."}`,
   );
 }
 

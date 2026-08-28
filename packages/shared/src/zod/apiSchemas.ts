@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const ApiResponseSchema = <
+export const apiResponseSchema = <
   T extends z.ZodType,
   E extends z.ZodType = z.ZodString,
 >(

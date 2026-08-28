@@ -1,3 +1,7 @@
 # Ignore artifacts:
 build
 coverage
+packages/shared/src/generated
+packages/bot/.commandkit
+packages/bot/dist
+packages/web/.next

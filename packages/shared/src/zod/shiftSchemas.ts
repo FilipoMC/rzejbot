@@ -1,12 +1,18 @@
 import z from "zod";
 import { snowflakeSchema } from "./discordSchemas";
-import { anyDateStringSchema } from "./dateTimeSchemas";
+import { anyDateSchema } from "./dateTimeSchemas";
 
-export const shiftNumberSchema = z.string().regex(/^\d{3}-\d{2}$/);
+export const shiftNumberSchema = z.union([
+  z.string().regex(/^\d{3}-\d{2}$/),
+  z
+    .string()
+    .regex(/^\d{3}\/\d{2}$/)
+    .transform((v) => v.replace("/", "-")),
+]);
 
 export const shiftPostSchema = z.object({
   shiftNumber: shiftNumberSchema,
-  plannedDate: anyDateStringSchema,
+  plannedDate: anyDateSchema,
   plannedDuration: z.int().nonnegative().optional(),
   plannedBriefingDuration: z.int().nonnegative().optional(),
   host: snowflakeSchema,

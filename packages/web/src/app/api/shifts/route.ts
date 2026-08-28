@@ -37,7 +37,10 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ ok: true, data: res });
+  return NextResponse.json({
+    ok: true,
+    data: res,
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -61,26 +64,42 @@ export async function POST(req: NextRequest) {
         ...body,
         host: { connect: { discordId: body.host } },
       },
+      include: {
+        host: { select: { discordId: true } },
+      },
     });
 
-    return NextResponse.json({ ok: true, data: res }, { status: 201 });
+    return NextResponse.json(
+      {
+        ok: true,
+        data: res,
+      },
+      { status: 201 },
+    );
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
         return NextResponse.json(
-          `This ${(err.meta?.target as string[]).join(", ")} is already tied to a shift`,
+          {
+            ok: false,
+            error: `This shiftNumber is already tied to a shift`,
+          },
+
           { status: 409 },
         );
       }
 
       if (err.code === "P2025") {
-        return NextResponse.json("Invalid employee", { status: 404 });
+        return NextResponse.json(
+          { ok: false, error: "Invalid employee" },
+          { status: 404 },
+        );
       }
     }
 
     console.error(err);
     return NextResponse.json(
-      { ok: false, errpr: "Error accessing the database" },
+      { ok: false, error: "Error accessing the database" },
       { status: 500 },
     );
   }

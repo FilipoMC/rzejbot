@@ -16,7 +16,7 @@ export async function GET(
     );
   }
 
-  const shift = await prisma.shift.findUnique({
+  const res = await prisma.shift.findUnique({
     where: { id: shiftId },
     include: {
       host: {
@@ -27,14 +27,17 @@ export async function GET(
     },
   });
 
-  if (!shift) {
+  if (!res) {
     return NextResponse.json(
       { ok: false, error: "Not found" },
       { status: 404 },
     );
   }
 
-  return NextResponse.json({ ok: true, data: shift });
+  return NextResponse.json({
+    ok: true,
+    data: res,
+  });
 }
 //
 // export async function PATCH(_req: NextRequest) { TODO: implementation

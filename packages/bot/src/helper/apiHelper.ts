@@ -1,28 +1,58 @@
-import { ApiResponse, ShiftLogAbsencePost, ShiftPost } from "@shared/types/api";
+import { ApiHelperReturnType } from "@/types/apiHelper";
 import {
   ShiftAPIResponse,
-  ShiftAPIResponseSchema,
-  ShiftEmployeeAbsenceAPIResponse,
-} from "@shared/types/ApiResponses/shifts";
+  ShiftEmployeeLogAPIResponse,
+  ShiftLogAbsencePost,
+  ShiftPost,
+} from "@shared/types/api";
+import {
+  shiftAPIResponseSchema,
+  shiftEmployeeLogAPIResponseSchema,
+} from "@shared/zod/apiResponses/shifts";
+import { apiResponseSchema } from "@shared/zod/apiSchemas";
 import {
   shiftLogAbsencePostSchema,
+  shiftNumberSchema,
   shiftPostSchema,
 } from "@shared/zod/shiftSchemas";
 import { Logger } from "commandkit";
-import z, { ZodSafeParseResult } from "zod";
+import z from "zod";
 
-function getRequestURL(route: string) {
-  const requestBasePath = `http://${process.env.SERVER_IP}:${process.env.SERVER_PORT}/api/`;
-  return `${requestBasePath}${route}`;
+/**
+ * Creates a URL for the internal API
+ * @param route endpoint
+ * @param forceRelative make the function throw if the route param starts with /, making it absolute; default = true
+ */
+function getRequestURL(
+  route: string,
+  searchParams: Record<string, string> = {},
+  forceRelative: boolean = true,
+) {
+  const requestBasePath = `http://${process.env.SERVER_IP}${process.env.SERVER_PORT ? `:${process.env.SERVER_PORT}` : ""}/api/`;
+
+  if (forceRelative && route.startsWith("/"))
+    throw new Error("Absolute route passed to getRequestURL");
+
+  if (route.includes("?"))
+    throw new Error("Search params passed to getRequestURL in the URL");
+
+  const url = new URL(route, requestBasePath);
+
+  for (const [k, v] of Object.entries(searchParams)) {
+    url.searchParams.set(k, v);
+  }
+
+  return url;
 }
 
 function requestOptions(
   method: "POST" | "GET" | "PATCH" | "PUT" | "DELETE",
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  body: any = null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  headers: any = { Authorization: `Bearer ${process.env.API_TOKEN}` },
-) {
+  body?: string,
+  headers: HeadersInit = {
+    Authorization: `Bearer ${process.env.API_TOKEN}`,
+    "Content-Type": "application/json",
+  },
+): RequestInit {
   return {
     method,
     body,
@@ -39,25 +69,13 @@ interface ApiHelper {
      */
     create: (
       req: ShiftPost,
-    ) => Promise<
-      ApiResponse<
-        ShiftAPIResponse,
-        string | ZodSafeParseResult<ShiftAPIResponse>
-      >
-    >;
+    ) => Promise<ApiHelperReturnType<ShiftAPIResponse, z.ZodError<ShiftPost>>>;
 
     /**
      * Fetches a shift
      * @param shiftId numeric Auto-Incremented shift ID
      */
-    getById: (
-      id: number,
-    ) => Promise<
-      ApiResponse<
-        ShiftAPIResponse,
-        string | ZodSafeParseResult<ShiftAPIResponse>
-      >
-    >;
+    getById: (id: number) => Promise<ApiHelperReturnType<ShiftAPIResponse>>;
     /**
      * Fetches a shift
      * @param shiftNumber The shift number, e.g "006/26"
@@ -65,16 +83,12 @@ interface ApiHelper {
      */
     getByShiftNumber: (
       shiftNumber: string,
-    ) => Promise<
-      ApiResponse<
-        ShiftAPIResponse,
-        string | ZodSafeParseResult<ShiftAPIResponse>
-      >
-    >;
+    ) => Promise<ApiHelperReturnType<ShiftAPIResponse, string>>;
+
     logEmployeeAbsence: (
       shiftId: number,
       request: ShiftLogAbsencePost,
-    ) => Promise<ApiResponse<ShiftEmployeeAbsenceAPIResponse>>;
+    ) => Promise<ApiHelperReturnType<ShiftEmployeeLogAPIResponse, string>>;
   };
   //   employee: {
   //     create: (req: EmployeePost) => Promise<ApiResponse<Omit<EmployeePureType,
@@ -87,76 +101,191 @@ export const ApiHelper = {
 } as ApiHelper;
 
 ApiHelper.shifts.create = async (request) => {
-  const parsedBody = shiftPostSchema.safeParse(request);
-  if (!parsedBody.success) {
-    Logger.error(parsedBody.error);
-    return { ok: false, error: z.treeifyError(parsedBody.error) };
+  const requestParsed = shiftPostSchema.safeParse(request);
+  if (!requestParsed.success) {
+    Logger.error(z.treeifyError(requestParsed.error));
+    return { status: "badArgument", error: requestParsed.error };
   }
 
-  const json = await fetch(
-    getRequestURL("shifts/"),
-    requestOptions(
-      "POST",
-      typeof request === "string" ? request : JSON.stringify(request),
-    ),
+  const res = await fetch(
+    getRequestURL("shifts"),
+    requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
-  const res = await json.json().catch(() => null);
-  return res;
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 409:
+        return {
+          status: "apiError",
+          errorStatus: "conflict",
+          error: "Zmiana z tym numerem już istnieje.",
+        };
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Nie znaleziono pracownika pod tym ID konta na discordzie",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
 };
 
 ApiHelper.shifts.getById = async (shiftId) => {
-  const json = await fetch(
+  const res = await fetch(
     getRequestURL(`shifts/${shiftId}`),
     requestOptions("GET"),
   );
-  const res = await json.json().catch(() => null);
 
-  if (!res.ok) {
-    return res;
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
   }
-  const parsed = ShiftAPIResponseSchema.safeParse(res.data);
-  if (!parsed.success) {
-    Logger.error(parsed);
-    return { ok: false, error: parsed };
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana o podanym ID nie istnieje",
+        };
+
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
   }
-  return { ok: true, data: parsed.data };
 };
 
 ApiHelper.shifts.getByShiftNumber = async (shiftNumber) => {
-  const json = await fetch(
-    getRequestURL(`shifts?number=${shiftNumber}`),
+  const shiftNumberParsed = shiftNumberSchema.safeParse(shiftNumber);
+
+  if (!shiftNumberParsed.success) {
+    return {
+      status: "badArgument",
+      error: "Format numeru zmiany jest nieprawidłowy",
+    };
+  }
+
+  const res = await fetch(
+    getRequestURL(`shifts`, { number: shiftNumberParsed.data }),
     requestOptions("GET"),
   );
-  const res: ApiResponse<ShiftAPIResponse> = await json
-    .json()
-    .catch(() => null);
-  if (!res.ok) {
-    return res;
+
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
   }
-  const parsed = ShiftAPIResponseSchema.safeParse(res.data);
-  if (!parsed.success) {
-    Logger.error(parsed);
-    return { ok: false, error: parsed };
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana o podanym numerze nie istnieje",
+        };
+
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
   }
-  return { ok: true, data: parsed.data };
 };
 
 ApiHelper.shifts.logEmployeeAbsence = async (shiftId, request) => {
-  const parsedBody = shiftLogAbsencePostSchema.safeParse(request);
-  if (!parsedBody.success) {
-    Logger.error(parsedBody.error);
-    return { ok: false, error: z.treeifyError(parsedBody.error) };
+  const requestParsed = shiftLogAbsencePostSchema.safeParse(request);
+  if (!requestParsed.success) {
+    Logger.error(z.treeifyError(requestParsed.error));
+    return {
+      status: "badArgument",
+      error: "Niepoprawne ID konta na discordzie",
+    };
   }
 
-  const json = await fetch(
+  const res = await fetch(
     getRequestURL(`shifts/${shiftId}/logs/absence`),
-    requestOptions(
-      "POST",
-      typeof request === "string" ? request : JSON.stringify(request),
-    ),
+    requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
-  const res = await json.json().catch(() => null);
-  return res;
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(
+    shiftEmployeeLogAPIResponseSchema,
+  ).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 409:
+        return {
+          status: "apiError",
+          errorStatus: "conflict",
+          error: "Istnieje już wpis o tym pracowniku do rejestru tej zmiany",
+        };
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana lub pracownik nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
 };
 
 // ApiHelper.employee.create = async () => {

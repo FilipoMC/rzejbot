@@ -29,6 +29,9 @@ importers:
       commandkit:
         specifier: ^1.2.1
         version: 1.2.1(rollup@4.62.4)(supports-color@7.2.0)(typescript@5.9.3)
+      date-fns:
+        specifier: ^4.4.0
+        version: 4.4.0
       date-fns-tz:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.4.0)
@@ -48,6 +51,9 @@ importers:
       '@eslint/json':
         specifier: ^2.0.0
         version: 2.0.1
+      '@types/date-fns':
+        specifier: ^2.6.3
+        version: 2.6.3
       '@types/lodash':
         specifier: ^4.17.24
         version: 4.17.25
@@ -1325,6 +1331,10 @@ packages:
 
   '@types/cors@2.8.19':
     resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
+
+  '@types/date-fns@2.6.3':
+    resolution: {integrity: sha512-Ke1lw2Ni1t/wMUoLtKFmSNCLozcTBd6vmMqFP4hRzXn6qzkNt97bPAX0x5Y/c15DP43kKvwW1ycStD5+43jVQA==}
+    deprecated: This is a stub types definition. date-fns provides its own type definitions, so you do not need this installed.
 
   '@types/esrecurse@4.3.1':
     resolution: {integrity: sha512-xJBAbDifo5hpffDBuHl0Y8ywswbiAp/Wi7Y/GtAgSlZyIABppyurxVueOPE8LUQOxdlgi6Zqce7uoEpqNTeiUw==}
@@ -5277,6 +5287,10 @@ snapshots:
   '@types/cors@2.8.19':
     dependencies:
       '@types/node': 20.19.43
+
+  '@types/date-fns@2.6.3':
+    dependencies:
+      date-fns: 4.4.0
 
   '@types/esrecurse@4.3.1': {}
 
