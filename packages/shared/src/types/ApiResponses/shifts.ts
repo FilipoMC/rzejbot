@@ -32,5 +32,7 @@ export const ShiftEmployeeAbsenceAPIResponseSchema = z.object({
   employeeId: z.int().nonnegative(),
 });
 
-export type ShiftEmployeeAbsenceAPIResponse = z.infer<typeof ShiftEmployeeAbsenceAPIResponseSchema>;
+export type ShiftEmployeeAbsenceAPIResponse = z.infer<
+  typeof ShiftEmployeeAbsenceAPIResponseSchema
+>;
 export type ShiftAPIResponse = z.infer<typeof ShiftAPIResponseSchema>;

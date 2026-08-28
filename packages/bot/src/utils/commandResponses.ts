@@ -53,6 +53,11 @@ interface params_generic {
   ephemeral?: boolean;
 }
 
+/**
+ * Use this when there's an error during runtime, e.g issue with config
+ * @param param0
+ * @returns
+ */
 export async function commandError({
   description,
   interactionOrMsg: interaction,
@@ -65,6 +70,11 @@ export async function commandError({
   );
 }
 
+/**
+ * Use this when the user fucked up, e.g bad arg input
+ * @param param0
+ * @returns
+ */
 export async function failedToExecute({
   description,
   interactionOrMsg: interaction,
@@ -77,6 +87,11 @@ export async function failedToExecute({
   );
 }
 
+/**
+ * User does not have permission to use the command
+ * @param param0
+ * @returns
+ */
 export async function noPermissions({
   interactionOrMsg: interaction,
   ephemeral = true,
