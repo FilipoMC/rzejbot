@@ -18,6 +18,13 @@ export async function GET(
 
   const shift = await prisma.shift.findUnique({
     where: { id: shiftId },
+    include: {
+      host: {
+        select: {
+          discordId: true,
+        },
+      },
+    },
   });
 
   if (!shift) {
@@ -27,7 +34,7 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(shift);
+  return NextResponse.json({ ok: true, data: shift });
 }
 //
 // export async function PATCH(_req: NextRequest) { TODO: implementation

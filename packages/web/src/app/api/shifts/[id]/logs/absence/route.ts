@@ -11,6 +11,7 @@ export async function POST(
   const bodyParsed = shiftLogAbsencePostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {
+    console.error(bodyParsed.error);
     return NextResponse.json(
       { ok: false, error: "Invalid body" },
       { status: 400 },
@@ -43,7 +44,10 @@ export async function POST(
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
         return NextResponse.json(
-          "The shift log for this employee already exists",
+          {
+            ok: false,
+            error: "The shift log for this employee already exists",
+          },
           { status: 409 },
         );
       }
@@ -64,4 +68,36 @@ export async function POST(
       },
     );
   }
+}
+
+export async function GET(
+  req: NextRequest,
+  { params }: RouteContext<"/api/shifts/[id]/logs/absence">,
+) {
+  const { id: shiftId } = await params;
+
+  const employeeId = req.nextUrl.searchParams.get("employeeId");
+  if (!employeeId) {
+    return NextResponse.json(
+      { ok: false, error: "Invalid query parameter 'employeeId' (discord ID)" },
+      { status: 400 },
+    );
+  }
+
+  const res = await prisma.shiftEmployeeLog.findFirst({
+    where: {
+      employee: {
+        discordId: employeeId,
+      },
+      shiftId: parseInt(shiftId) || 0,
+    },
+  });
+
+  if (!res) {
+    return NextResponse.json(
+      { ok: false, error: "Not found" },
+      { status: 404 },
+    );
+  }
+  return NextResponse.json({ ok: true, data: res }, { status: 200 });
 }

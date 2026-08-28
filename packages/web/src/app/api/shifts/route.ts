@@ -21,6 +21,13 @@ export async function GET(req: NextRequest) {
 
   const res = await prisma.shift.findUnique({
     where: { shiftNumber },
+    include: {
+      host: {
+        select: {
+          discordId: true,
+        },
+      },
+    },
   });
 
   if (!res) {
@@ -30,7 +37,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json(res);
+  return NextResponse.json({ ok: true, data: res });
 }
 
 export async function POST(req: NextRequest) {
@@ -39,6 +46,7 @@ export async function POST(req: NextRequest) {
   const bodyParsed = shiftPostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {
+    console.error(bodyParsed.error);
     return NextResponse.json(
       { ok: false, error: "Invalid body" },
       { status: 400 },
