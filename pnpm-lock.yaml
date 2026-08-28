@@ -27,7 +27,7 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
       commandkit:
-        specifier: ^1.2.1
+        specifier: ^1.2.1-dev.20260414125348
         version: 1.2.1(rollup@4.62.4)(supports-color@7.2.0)(typescript@5.9.3)
       date-fns:
         specifier: ^4.4.0
