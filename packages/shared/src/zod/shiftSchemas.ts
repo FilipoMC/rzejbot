@@ -10,7 +10,7 @@ export const shiftPostSchema = z.object({
   plannedDuration: z.int().nonnegative().optional(),
   plannedBriefingDuration: z.int().nonnegative().optional(),
   host: snowflakeSchema,
-  unit: z.string().max(10).trim(),
+  unit: z.string().trim().max(10),
   shortDesc: z.string().trim().min(1).max(1000),
   shiftGoal: z.string().trim().max(5000),
   notes: z.string().trim().max(10_000),
