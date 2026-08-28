@@ -3,11 +3,11 @@ import { snowflakeSchema } from "./discordSchemas";
 import { anyDateSchema } from "./dateTimeSchemas";
 
 export const shiftNumberSchema = z.union([
-  z.string().regex(/^\d{3}-\d{2}$/),
+  z.string().regex(/^\d{3}\/\d{2}$/),
   z
     .string()
-    .regex(/^\d{3}\/\d{2}$/)
-    .transform((v) => v.replace("/", "-")),
+    .regex(/^\d{3}-\d{2}$/)
+    .transform((v) => v.replace("-", "/")),
 ]);
 
 export const shiftPostSchema = z.object({
