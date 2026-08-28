@@ -36,7 +36,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "prisma": "^6.19.3",
-    "prisma-zod-generator": "^3.3.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
