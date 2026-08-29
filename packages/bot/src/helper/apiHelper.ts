@@ -111,6 +111,12 @@ interface ApiHelper {
       shiftNumber: string,
     ) => Promise<ApiHelperReturnType<ShiftAPIResponse, string>>;
 
+    /**
+     * Fetches the current active shift
+     * @returns
+     */
+    getActive: () => Promise<ApiHelperReturnType<ShiftAPIResponse>>;
+
     logEmployeeAbsence: (
       shiftId: number,
       request: ShiftLogAbsencePost,
@@ -267,6 +273,46 @@ ApiHelper.shifts.getByShiftNumber = async (shiftNumber) => {
           status: "apiError",
           errorStatus: "notFound",
           error: "Zmiana o podanym numerze nie istnieje",
+        };
+
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.getActive = async () => {
+  const res = await fetch(
+    getRequestURL(`shifts/active`),
+    requestOptions("GET"),
+  );
+
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Nie ma aktualnie żadnej aktywniej zmiany",
         };
 
       default:
