@@ -16,28 +16,36 @@ export async function GET(
     );
   }
 
-  const res = await prisma.shift.findUnique({
-    where: { id: shiftId },
-    include: {
-      host: {
-        select: {
-          discordId: true,
+  try {
+    const res = await prisma.shift.findUnique({
+      where: { id: shiftId },
+      include: {
+        host: {
+          select: {
+            discordId: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!res) {
+    if (!res) {
+      return NextResponse.json(
+        { ok: false, error: "Not found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      data: res,
+    });
+  } catch (err) {
+    console.error(err);
     return NextResponse.json(
-      { ok: false, error: "Not found" },
-      { status: 404 },
+      { ok: false, error: "Error accessing the database" },
+      { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    ok: true,
-    data: res,
-  });
 }
 //
 // export async function PATCH(_req: NextRequest) { TODO: implementation

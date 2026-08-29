@@ -30,30 +30,36 @@ export async function GET(
     );
   }
 
-  const res = await prisma.shiftEmployeeLog.findFirst({
-    where: {
-      employee: {
-        discordId: employeeDiscordIdParsed.data,
+  try {
+    const res = await prisma.shiftEmployeeLog.findFirst({
+      where: {
+        employee: {
+          discordId: employeeDiscordIdParsed.data,
+        },
+        shiftId,
       },
-      shiftId,
-    },
-    include: {
-      employee: { select: { discordId: true } },
-      shift: { select: { shiftNumber: true } },
-    },
-  });
+      include: {
+        employee: { select: { discordId: true } },
+        shift: { select: { shiftNumber: true } },
+      },
+    });
 
-  if (!res) {
-    return NextResponse.json(
-      { ok: false, error: "Not found" },
-      { status: 404 },
-    );
-  }
-  return NextResponse.json(
-    {
+    if (!res) {
+      return NextResponse.json(
+        { ok: false, error: "Not found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json({
       ok: true,
       data: res,
-    },
-    { status: 200 },
-  );
+    });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { ok: false, error: "Error accessing the database" },
+      { status: 500 },
+    );
+  }
 }
