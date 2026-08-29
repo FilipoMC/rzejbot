@@ -4,7 +4,12 @@ export type ApiResponseError =
   | "badRequest"
   | "serverError";
 
-export type ApiHelperReturnType<T, TArgError = never, TApiErr = string> =
+export type ApiHelperReturnType<
+  T,
+  TArgError = never,
+  TApiErr = string,
+  TOtherErr = string,
+> =
   | {
       status: "ok";
       data: T;
@@ -20,4 +25,9 @@ export type ApiHelperReturnType<T, TArgError = never, TApiErr = string> =
     }
   | {
       status: "apiResponseParsingError";
+    }
+  | {
+      status: "otherError";
+      errorStatus: "invalidData";
+      error: TOtherErr;
     };

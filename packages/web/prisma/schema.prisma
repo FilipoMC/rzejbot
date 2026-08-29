@@ -77,15 +77,15 @@ model ShiftReport {
   date             DateTime
   duration         Int?
   briefingDuration Int?
-  cohost           Employee? @relation(fields: [employeeId], references: [id])
+  cohost           Employee? @relation(fields: [cohostId], references: [id])
   cohostLocation   String?
 
   goalMet    Boolean?
   rodBalance RodBalance?
   summary    String?
 
-  accidents  Accident[] @relation
-  employeeId Int
+  accidents Accident[] @relation
+  cohostId  Int?
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

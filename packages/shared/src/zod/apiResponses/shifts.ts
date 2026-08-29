@@ -41,3 +41,25 @@ export const shiftEmployeeLogAPIResponseSchema = z.object({
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });
+
+export const shiftReportAPIResponseSchema = z.object({
+  shiftId: z.number().nonnegative(),
+  shift: z.object({
+    shiftNumber: shiftNumberSchema,
+  }),
+  date: isoDateStringSchema,
+  duration: z.int().nonnegative().nullable(),
+  briefingDuration: z.int().nonnegative().nullable(),
+  cohostId: z.int().nonnegative().nullable(),
+  cohost: z
+    .object({
+      discordId: snowflakeSchema,
+    })
+    .nullable(),
+  cohostLocation: z.string().nullable(),
+  goalMet: z.boolean().nullable(),
+  rodBalance: z.enum(["Auto", "Manual", "None"]).nullable(),
+  summary: z.string().nullable(),
+  updatedAt: isoDateStringSchema,
+  createdAt: isoDateStringSchema,
+});

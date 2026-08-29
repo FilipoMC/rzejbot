@@ -25,3 +25,25 @@ export const shiftPostSchema = z.object({
 export const shiftLogAbsencePostSchema = z.object({
   employeeDiscordId: snowflakeSchema,
 });
+
+export const shiftReportPostSchema = z.object({
+  date: anyDateSchema,
+  duration: z.int().nonnegative().optional(),
+  briefingDuration: z.int().nonnegative().optional(),
+  cohost: snowflakeSchema.optional(),
+  cohostLocation: z.string().optional(),
+  goalMet: z.boolean().optional(),
+  rodBalance: z.enum(["Auto", "Manual", "None"]).optional(),
+  summary: z.string().optional(),
+});
+
+export const shiftReportPatchSchema = z.object({
+  date: anyDateSchema.optional(),
+  duration: z.int().nonnegative().nullish(),
+  briefingDuration: z.int().nonnegative().nullish(),
+  cohost: snowflakeSchema.nullish(),
+  cohostLocation: z.string().nullish(),
+  goalMet: z.boolean().nullish(),
+  rodBalance: z.enum(["Auto", "Manual", "None"]).nullish(),
+  summary: z.string().nullish(),
+});
