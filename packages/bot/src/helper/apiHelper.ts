@@ -30,11 +30,13 @@ function getRequestURL(
 ) {
   const requestBasePath = `http://${process.env.SERVER_IP}${process.env.SERVER_PORT ? `:${process.env.SERVER_PORT}` : ""}/api/`;
 
-  if (forceRelative && route.startsWith("/"))
+  if (forceRelative && route.startsWith("/")) {
     throw new Error("Absolute route passed to getRequestURL");
+  }
 
-  if (route.includes("?"))
+  if (route.includes("?")) {
     throw new Error("Search params passed to getRequestURL in the URL");
+  }
 
   const url = new URL(route, requestBasePath);
 
@@ -44,6 +46,25 @@ function getRequestURL(
 
   return url;
 }
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type ApiHelperData<T> = T extends { status: "ok"; data: infer D } ? D : never;
+
+export async function apiHelperUnsafe<
+  T extends (...args: any[]) => Promise<any>,
+>(
+  fn: T,
+  ...args: Parameters<T>
+): Promise<ApiHelperData<Awaited<ReturnType<T>>>> {
+  const res = await fn(...args);
+
+  if (res.status !== "ok") {
+    throw res;
+  }
+
+  return res.data;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 function requestOptions(
   method: "POST" | "GET" | "PATCH" | "PUT" | "DELETE",

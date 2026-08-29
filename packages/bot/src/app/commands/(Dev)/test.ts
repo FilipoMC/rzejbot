@@ -1,3 +1,4 @@
+import { sendShiftManageEmbed } from "@/app/components/zmiana/manageShiftEmbed";
 import { ApiHelper } from "@/helper/apiHelper";
 import { success } from "@/utils/commandResponses";
 import { CommandData, MessageCommand } from "commandkit";
@@ -19,15 +20,17 @@ export const message: MessageCommand = async (ctx) => {
   //   unit: "III",
   // });
 
-  const res = await ApiHelper.shifts.logEmployeeAbsence(1, {
-    employeeDiscordId: "725981321196732436",
-  });
+  // const res = await ApiHelper.shifts.logEmployeeAbsence(1, {
+  //   employeeDiscordId: "725981321196732436",
+  // });
 
   // const res = await ApiHelper.shifts.getById(1);
   // const res = await ApiHelper.shifts.getByShiftNumber("000/26");
 
-  await success({
-    interactionOrMsg: ctx.message,
-    description: codeBlock("json", JSON.stringify(res, null, 2)),
-  });
+  // await success({
+  //   interactionOrMsg: ctx.message,
+  //   description: codeBlock("json", JSON.stringify(res, null, 2)),
+  // });
+
+  await sendShiftManageEmbed({ client: ctx.client, shiftId: 1 });
 };
