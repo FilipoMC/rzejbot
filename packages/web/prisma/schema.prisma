@@ -75,14 +75,14 @@ model ShiftReport {
   shift   Shift @relation(fields: [shiftId], references: [id], onDelete: Restrict)
 
   date             DateTime
-  duration         Int
-  briefingDuration Int
+  duration         Int?
+  briefingDuration Int?
   cohost           Employee? @relation(fields: [employeeId], references: [id])
   cohostLocation   String?
 
-  goalMet    Boolean
-  rodBalance RodBalance
-  summary    String
+  goalMet    Boolean?
+  rodBalance RodBalance?
+  summary    String?
 
   accidents  Accident[] @relation
   employeeId Int
