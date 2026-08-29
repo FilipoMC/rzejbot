@@ -7,8 +7,9 @@ import _ from "lodash";
 import config from "@/config/config.json";
 
 export function middlewareCheckPerms(ctx: MiddlewareContext) {
-  if (ctx.isMessage() ? !ctx.message.guild : !ctx.interaction.inCachedGuild())
+  if (ctx.isMessage() ? !ctx.message.guild : !ctx.interaction.inCachedGuild()) {
     stopMiddlewares();
+  }
 
   const metadata = ctx.command.metadata as CustomCommandMetadata;
   const commandMember =
@@ -42,8 +43,9 @@ export function localMiddleware(
     _.isEmpty(ctx.command.metadata) ||
     (_.keys(ctx.command.metadata).length === 1 &&
       ctx.command.metadata.aliases !== undefined)
-  )
+  ) {
     return;
+  }
   if (params.permissions) {
     _.merge(ctx.command.metadata, params);
     middlewareCheckPerms(ctx);

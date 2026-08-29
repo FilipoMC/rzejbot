@@ -22,7 +22,9 @@ async function conditionalReply(
   const message =
     interactionOrMessage instanceof Message ? interactionOrMessage : null;
   if (interaction) {
-    if (!interaction.isRepliable()) return;
+    if (!interaction.isRepliable()) {
+      return;
+    }
 
     if (interaction.replied || interaction.deferred) {
       return await interaction.editReply({ embeds: [embed] });
@@ -39,8 +41,9 @@ async function conditionalReply(
       }
     }
   } else if (message) {
-    if (!message)
+    if (!message) {
       return throwLogger({ msg: "Message not found", desc: "", type: "error" });
+    }
     await message.reply({ embeds: [embed] });
   } else {
     return embed;

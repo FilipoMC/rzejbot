@@ -19,8 +19,11 @@ export const message: MessageCommand = async (ctx) => {
     : COMMANDKIT_IS_DEV ? "dev-status"
     : "bot-status";
 
-  if (unset) kv.delete(key);
-  else if (args.length) kv.set(key, newStatus);
+  if (unset) {
+    kv.delete(key);
+  } else if (args.length) {
+    kv.set(key, newStatus);
+  }
   updateBotPresence(client);
   message.reply("Status updated");
 };

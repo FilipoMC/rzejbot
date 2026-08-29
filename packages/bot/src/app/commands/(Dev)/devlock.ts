@@ -54,7 +54,9 @@ export const message: MessageCommand = async (ctx) => {
     actionBy: message.author.id,
   });
 
-  if (action !== "UNSET") kv.set("devlock", nextState);
+  if (action !== "UNSET") {
+    kv.set("devlock", nextState);
+  }
   updateBotPresence(client);
 
   message.reply(`Devlock status is now: **${nextState ? "ON" : "OFF"}**`);

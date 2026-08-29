@@ -30,7 +30,9 @@ export function rotateFileLog(
   log: boolean | undefined = true,
   manual?: boolean,
 ) {
-  if (log) logLogRotation("END", manual);
+  if (log) {
+    logLogRotation("END", manual);
+  }
   destination.end();
 
   const ts = new Date().toISOString().replaceAll(":", "-");
@@ -40,7 +42,9 @@ export function rotateFileLog(
   destination = pino.destination({ dest: filePath, sync: false });
   FileLogger = pino({ level: logLevel, customLevels }, destination);
 
-  if (log) logLogRotation("BEGIN", manual, name);
+  if (log) {
+    logLogRotation("BEGIN", manual, name);
+  }
 
   return name;
 }

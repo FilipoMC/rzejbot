@@ -7,6 +7,7 @@
     "test": "pnpm -r test",
     "dev": "pnpm -r --parallel dev",
     "lint": "pnpm -r lint",
+    "fix": "pnpm -r fix",
     "clean": "pnpm -r clean",
     "type-check": "pnpm -r type-check",
     "studio": "pnpm --filter ./packages/web studio",

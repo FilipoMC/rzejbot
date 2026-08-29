@@ -58,7 +58,9 @@ export async function promiseResult<T>(
     .then((data) => data)
     .catch(async (err) => {
       const errorString = err instanceof Error ? err.message : String(err);
-      if (executeOnFail) await executeOnFail(err);
+      if (executeOnFail) {
+        await executeOnFail(err);
+      }
       if (useErrorWithPath && logError) {
         Logger.error(
           "UTILITYFUNCS ERRWITHPATH", // errorWithPath(useErrorWithPath[0], useErrorWithPath[1], err),
@@ -72,7 +74,9 @@ export async function promiseResult<T>(
 }
 
 export function updateBotPresence(client: Client) {
-  if (!client.user) return;
+  if (!client.user) {
+    return;
+  }
   if (kv.get("devlock")) {
     client.user.setActivity(
       kv.get("devlock-status")?.toString() ?? config.devlock_status,

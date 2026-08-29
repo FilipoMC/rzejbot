@@ -121,7 +121,9 @@ export const autocomplete: AutocompleteCommand = async ({ interaction }) => {
       }
 
       const dateHelper = (num: number) => {
-        if (num < 10) return `0${num}`;
+        if (num < 10) {
+          return `0${num}`;
+        }
         return num;
       };
 

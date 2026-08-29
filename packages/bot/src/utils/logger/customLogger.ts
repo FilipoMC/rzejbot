@@ -16,7 +16,9 @@ export class CustomLogger extends DefaultLogger implements ILogger {
     FileLogger.debug(messageOrStrings, ...values);
 
     // Don't print DEBUG level in prod
-    if (!COMMANDKIT_IS_DEV) return;
+    if (!COMMANDKIT_IS_DEV) {
+      return;
+    }
 
     if (_.isPlainObject(messageOrStrings)) {
       super.debug(prettyStringifyObject(messageOrStrings));
