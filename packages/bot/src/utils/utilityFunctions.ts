@@ -1,7 +1,11 @@
 import {
   ActivityType,
+  ChannelResolvable,
   Client,
+  Guild,
   GuildMember,
+  GuildMemberResolvable,
+  messageLink,
   PermissionFlagsBits,
   PermissionResolvable,
   PresenceUpdateStatus,
@@ -114,10 +118,20 @@ export async function logCommandUsage(
   // await customLogsChnl.send({ embeds: [embed] });
 }
 
-export function getMessageUrl(
-  guildId: string,
-  channelId: string,
-  messageId: string,
+export async function fetchChannelResolvable(
+  channel: ChannelResolvable,
+  client: Client,
 ) {
-  return `https://discord.com/channels/${guildId}/${channelId}/${messageId}`;
+  return await client.channels.fetch(
+    typeof channel === "string" ? channel : channel.id,
+  );
+}
+
+export async function fetchMemberResolvable(
+  member: GuildMemberResolvable,
+  guild: Guild,
+) {
+  return await guild.members.fetch(
+    typeof member === "string" ? member : member.id,
+  );
 }

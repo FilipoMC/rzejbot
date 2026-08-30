@@ -24,7 +24,10 @@ export async function GET(
   try {
     const res = await prisma.shiftReport.findUnique({
       where: { shiftId },
-      include: { cohost: { select: { discordId: true } } },
+      include: {
+        cohost: { select: { discordId: true } },
+        shift: { select: { shiftNumber: true } },
+      },
     });
 
     if (!res) {
@@ -84,6 +87,7 @@ export async function POST(
       },
       include: {
         cohost: { select: { discordId: true } },
+        shift: { select: { shiftNumber: true } },
       },
     });
 
@@ -96,7 +100,7 @@ export async function POST(
     );
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
-      if (err.code === "P2002") {
+      if (err.code === "P2014") {
         return NextResponse.json(
           {
             ok: false,
@@ -168,6 +172,7 @@ export async function PATCH(
       },
       include: {
         cohost: { select: { discordId: true } },
+        shift: { select: { shiftNumber: true } },
       },
     });
 

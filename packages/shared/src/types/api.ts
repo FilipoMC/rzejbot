@@ -26,6 +26,6 @@ export type ShiftEmployeeLogAPIResponse = z.infer<
   typeof shiftEmployeeLogAPIResponseSchema
 >;
 export type ShiftAPIResponse = z.infer<typeof shiftAPIResponseSchema>;
-export type ShiftReportAPIReponse = z.infer<
+export type ShiftReportAPIResponse = z.infer<
   typeof shiftReportAPIResponseSchema
 >;

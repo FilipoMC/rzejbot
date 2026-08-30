@@ -4,7 +4,7 @@ import {
   ShiftEmployeeLogAPIResponse,
   ShiftLogAbsencePost,
   ShiftPost,
-  ShiftReportAPIReponse,
+  ShiftReportAPIResponse,
   ShiftReportPatch,
   ShiftReportPost,
 } from "@shared/types/api";
@@ -18,6 +18,7 @@ import {
   shiftLogAbsencePostSchema,
   shiftNumberSchema,
   shiftPostSchema,
+  shiftReportPostSchema,
 } from "@shared/zod/shiftSchemas";
 import { Logger } from "commandkit";
 import { addMinutes, differenceInMinutes } from "date-fns";
@@ -125,19 +126,23 @@ interface ApiHelper {
     report: {
       get: (
         shiftId: number,
-      ) => Promise<ApiHelperReturnType<ShiftReportAPIReponse>>;
+      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
+      update: (
+        shiftId: number,
+        request: ShiftReportPatch,
+      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
       markBriefingStart: (
         shiftId: number,
         date?: Date,
-      ) => Promise<ApiHelperReturnType<ShiftReportAPIReponse>>;
+      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
       markShiftStart: (
         shiftId: number,
         date?: Date,
-      ) => Promise<ApiHelperReturnType<ShiftReportAPIReponse>>;
+      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
       markShiftEnd: (
         shiftId: number,
         date?: Date,
-      ) => Promise<ApiHelperReturnType<ShiftReportAPIReponse>>;
+      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
     };
   };
   //   employee: {
@@ -420,6 +425,50 @@ ApiHelper.shifts.report.get = async (shiftId) => {
   }
 };
 
+ApiHelper.shifts.report.update = async (shiftId, request) => {
+  const requestParsed = shiftReportPostSchema.safeParse(request);
+  if (!requestParsed.success) {
+    Logger.error(z.treeifyError(requestParsed.error));
+    return { status: "badArgument" };
+  }
+
+  const res = await fetch(
+    getRequestURL(`shifts/${shiftId}/report`),
+    requestOptions("PATCH", JSON.stringify(requestParsed.data)),
+  );
+
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
+    body,
+  );
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana lub pracownik nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
 ApiHelper.shifts.report.markBriefingStart = async (shiftId, date) => {
   date ??= new Date();
 
@@ -480,44 +529,7 @@ ApiHelper.shifts.report.markShiftStart = async (shiftId, date) => {
 
   const briefingDuration = differenceInMinutes(date, shiftReport.data.date);
 
-  const request: ShiftReportPatch = {
-    briefingDuration,
-  };
-
-  const res = await fetch(
-    getRequestURL(`shifts/${shiftId}/report`),
-    requestOptions("PATCH", JSON.stringify(request)),
-  );
-  const body: unknown = await res.json().catch(() => null);
-
-  const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
-    body,
-  );
-
-  if (!bodyParsed.success) {
-    Logger.error(z.treeifyError(bodyParsed.error));
-    return { status: "apiResponseParsingError" };
-  }
-
-  if (bodyParsed.data.ok) {
-    return { status: "ok", data: bodyParsed.data.data };
-  } else {
-    switch (res.status) {
-      case 404:
-        return {
-          status: "apiError",
-          errorStatus: "notFound",
-          error: "Raport do podanej zmiany nie istnieje",
-        };
-      default:
-        Logger.error(bodyParsed.data.error);
-        return {
-          status: "apiError",
-          errorStatus: "serverError",
-          error: "Wystąpił błąd podczas komunikacji z serwerem.",
-        };
-    }
-  }
+  return await ApiHelper.shifts.report.update(shiftId, { briefingDuration });
 };
 
 ApiHelper.shifts.report.markShiftEnd = async (shiftId, date) => {
@@ -542,44 +554,7 @@ ApiHelper.shifts.report.markShiftEnd = async (shiftId, date) => {
     addMinutes(shiftReport.data.date, shiftReport.data.briefingDuration),
   );
 
-  const request: ShiftReportPatch = {
-    duration,
-  };
-
-  const res = await fetch(
-    getRequestURL(`shifts/${shiftId}/report`),
-    requestOptions("PATCH", JSON.stringify(request)),
-  );
-  const body: unknown = await res.json().catch(() => null);
-
-  const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
-    body,
-  );
-
-  if (!bodyParsed.success) {
-    Logger.error(z.treeifyError(bodyParsed.error));
-    return { status: "apiResponseParsingError" };
-  }
-
-  if (bodyParsed.data.ok) {
-    return { status: "ok", data: bodyParsed.data.data };
-  } else {
-    switch (res.status) {
-      case 404:
-        return {
-          status: "apiError",
-          errorStatus: "notFound",
-          error: "Raport do podanej zmiany nie istnieje",
-        };
-      default:
-        Logger.error(bodyParsed.data.error);
-        return {
-          status: "apiError",
-          errorStatus: "serverError",
-          error: "Wystąpił błąd podczas komunikacji z serwerem.",
-        };
-    }
-  }
+  return await ApiHelper.shifts.report.update(shiftId, { duration });
 };
 
 // ApiHelper.employee.create = async () => {

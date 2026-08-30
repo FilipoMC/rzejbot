@@ -6,7 +6,7 @@ export type ApiResponseError =
 
 export type ApiHelperReturnType<
   T,
-  TArgError = never,
+  TArgError = undefined,
   TApiErr = string,
   TOtherErr = string,
 > =
@@ -21,7 +21,7 @@ export type ApiHelperReturnType<
     }
   | {
       status: "badArgument";
-      error: TArgError;
+      error?: TArgError;
     }
   | {
       status: "apiResponseParsingError";
