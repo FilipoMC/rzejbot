@@ -70,6 +70,7 @@ export class CustomLogger extends DefaultLogger implements ILogger {
   info(strings: TemplateStringsArray, ...values: any[]): void;
   info(messageOrStrings: any | TemplateStringsArray, ...values: any[]): void {
     if (
+      !COMMANDKIT_IS_DEV &&
       typeof messageOrStrings === "string" &&
       messageOrStrings.includes("Command executed successfully")
     ) {

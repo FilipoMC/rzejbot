@@ -14,6 +14,7 @@ async function conditionalReply(
   embed: EmbedBuilder | APIEmbed,
   ephemeral: boolean,
   interactionOrMessage: Message | Interaction,
+  useFollowUp: boolean,
 ) {
   const interaction =
     interactionOrMessage instanceof BaseInteraction ? interactionOrMessage : (
@@ -27,33 +28,46 @@ async function conditionalReply(
     }
 
     if (interaction.replied || interaction.deferred) {
-      return await interaction.editReply({ embeds: [embed] });
+      if (!useFollowUp) {
+        await interaction.editReply({ embeds: [embed] });
+      } else {
+        await interaction.followUp({ embeds: [embed] });
+      }
+      return;
     } else {
       if (ephemeral) {
-        return await interaction.reply({
+        await interaction.reply({
           embeds: [embed],
           flags: MessageFlags.Ephemeral,
         });
+
+        return;
       } else {
-        return await interaction.reply({
+        await interaction.reply({
           embeds: [embed],
         });
+
+        return;
       }
     }
   } else if (message) {
     if (!message) {
-      return throwLogger({ msg: "Message not found", desc: "", type: "error" });
+      throwLogger({ msg: "Message not found", desc: "", type: "error" });
+
+      return;
     }
     await message.reply({ embeds: [embed] });
-  } else {
-    return embed;
   }
 }
 
-interface params_generic {
-  description: string;
+/**
+ * @param DescOptional whether to allow description to be undefined
+ */
+interface params_generic<DescOptional extends boolean = false> {
+  description: string | (DescOptional extends true ? undefined : string);
   interactionOrMsg: Interaction | Message;
   ephemeral?: boolean;
+  useFollowUp?: boolean;
 }
 
 /**
@@ -62,14 +76,16 @@ interface params_generic {
  * @returns
  */
 export async function commandError({
-  description,
+  description = undefined,
   interactionOrMsg: interaction,
   ephemeral = true,
-}: params_generic) {
-  return await conditionalReply(
+  useFollowUp = false,
+}: params_generic<true>) {
+  await conditionalReply(
     embeds.createCommandErrorEmbed(description),
     ephemeral,
     interaction,
+    useFollowUp,
   );
 }
 
@@ -82,11 +98,13 @@ export async function failedToExecute({
   description,
   interactionOrMsg: interaction,
   ephemeral = true,
+  useFollowUp = false,
 }: params_generic) {
-  return await conditionalReply(
+  await conditionalReply(
     embeds.createFailEmbed(description),
     ephemeral,
     interaction,
+    useFollowUp,
   );
 }
 
@@ -98,11 +116,13 @@ export async function failedToExecute({
 export async function noPermissions({
   interactionOrMsg: interaction,
   ephemeral = true,
+  useFollowUp = false,
 }: Omit<params_generic, "description">) {
-  return await conditionalReply(
+  await conditionalReply(
     embeds.createNoPermissionEmbed(),
     ephemeral,
     interaction,
+    useFollowUp,
   );
 }
 
@@ -110,23 +130,27 @@ export async function loading({
   description,
   interactionOrMsg: interaction,
   ephemeral = true,
+  useFollowUp = false,
 }: params_generic) {
-  return await conditionalReply(
+  await conditionalReply(
     embeds.createLoadingEmbed(description),
     ephemeral,
     interaction,
+    useFollowUp,
   );
 }
 
 export async function success({
-  description,
+  description = undefined,
   interactionOrMsg: interaction,
   ephemeral = true,
-}: params_generic) {
-  return await conditionalReply(
+  useFollowUp = false,
+}: params_generic<true>) {
+  await conditionalReply(
     embeds.createSuccessEmbed(description),
     ephemeral,
     interaction,
+    useFollowUp,
   );
 }
 
@@ -140,7 +164,7 @@ export async function middlewareReply(
     });
   } else if (ctx.interaction instanceof BaseInteraction) {
     if (embed) {
-      await conditionalReply(embed, true, ctx.interaction);
+      await conditionalReply(embed, true, ctx.interaction, false);
     } else {
       await noPermissions({ interactionOrMsg: ctx.interaction });
     }
