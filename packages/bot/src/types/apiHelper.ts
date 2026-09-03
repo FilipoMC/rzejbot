@@ -25,6 +25,7 @@ export type ApiHelperReturnType<
     }
   | {
       status: "apiResponseParsingError";
+      error?: undefined;
     }
   | {
       status: "otherError";

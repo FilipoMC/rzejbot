@@ -1,6 +1,7 @@
 import z from "zod";
 import { snowflakeSchema } from "./discordSchemas";
 import { anyDateSchema } from "./dateTimeSchemas";
+import { employeeIdentifierSchema } from "./employeeSchemas";
 
 export const shiftNumberSchema = z.union([
   z.string().regex(/^\d{3}\/\d{2}$/),
@@ -47,3 +48,11 @@ export const shiftReportPatchSchema = z.object({
   rodBalance: z.enum(["Auto", "Manual", "None"]).nullish(),
   summary: z.string().nullish(),
 });
+
+export const shiftLogStationsPostSchema = z.array(
+  z.object({
+    employee: employeeIdentifierSchema,
+    station: z.string(),
+    date: anyDateSchema.optional(),
+  }),
+);

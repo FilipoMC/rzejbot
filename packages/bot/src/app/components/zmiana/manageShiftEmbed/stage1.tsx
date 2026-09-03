@@ -12,8 +12,6 @@ export function createManageShiftEmbedStage1Components(
     interaction,
     ctx,
   ) => {
-    await interaction.deferUpdate();
-
     const shiftReport = await apiHelperUnsafe(
       ApiHelper.shifts.report.markBriefingStart,
       shift.id,
@@ -21,10 +19,13 @@ export function createManageShiftEmbedStage1Components(
 
     const newEmbed = getShiftManageEmbed(shift, shiftReport);
 
-    await interaction.message.edit({
-      embeds: [newEmbed],
-      components: createManageShiftEmbedStage2Components(shift),
-    });
+    await Promise.all([
+      interaction.message.edit({
+        embeds: [newEmbed],
+        components: createManageShiftEmbedStage2Components(shift, shiftReport),
+      }),
+      interaction.deferUpdate(),
+    ]);
 
     ctx.dispose();
   };

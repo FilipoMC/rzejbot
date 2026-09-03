@@ -11,7 +11,7 @@ model Employee {
   id           Int                @id @default(autoincrement())
   discordId    String             @unique
   robloxId     Int                @unique
-  nameIC       String
+  nameIC       String             @unique
   rank         String
   shiftsHosted Shift[]            @relation("EmployeeShiftsHosted")
   shiftLogs    ShiftEmployeeLog[] @relation
@@ -34,8 +34,9 @@ model ShiftEmployeeLog {
   exposureTime Int?
   dose         Int?
 
-  stations String[]
-  rating   String[]
+  stations     String[]
+  stationTimes DateTime[]
+  rating       String[]
 
   accidents Accident[] @relation
 

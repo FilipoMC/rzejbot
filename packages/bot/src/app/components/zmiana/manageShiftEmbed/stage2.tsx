@@ -1,5 +1,5 @@
-import { ApiHelper, apiHelperUnsafe } from "@/helper/apiHelper";
-import { ShiftAPIResponse } from "@shared/types/api";
+import { ApiHelper } from "@/helper/apiHelper";
+import { ShiftAPIResponse, ShiftReportAPIResponse } from "@shared/types/api";
 import {
   OnButtonKitClick,
   Button,
@@ -7,32 +7,40 @@ import {
   Modal,
   UserSelectMenu,
   Label,
-  ModalKit,
   Logger,
   OnModalKitSubmit,
 } from "commandkit";
-import {
-  ActionRowBuilder,
-  ButtonStyle,
-  MessageFlags,
-  ModalSubmitInteraction,
-} from "discord.js";
+import { ActionRowBuilder, ButtonStyle, MessageFlags } from "discord.js";
 import { getShiftManageEmbed } from ".";
 import { createManageShiftEmbedStage3Components } from "./stage3";
+import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
+import { commandError } from "@/utils/commandResponses";
 
 export function createManageShiftEmbedStage2Components(
   shift: ShiftAPIResponse,
+  shiftReport: ShiftReportAPIResponse,
 ) {
   const startShiftButtonCallback: OnButtonKitClick = async (
     interaction,
     ctx,
   ) => {
-    await interaction.deferUpdate();
-
-    const shiftReport = await apiHelperUnsafe(
-      ApiHelper.shifts.report.markShiftStart,
+    const shiftReportRes = await ApiHelper.shifts.report.markShiftStart(
       shift.id,
     );
+
+    if (shiftReportRes.status !== "ok") {
+      Logger.error(shiftReportRes);
+      await commandError({
+        interactionOrMsg: interaction,
+        description:
+          shiftReportRes.error ?? "Błąd podczas komunikacji z serwerem.",
+      });
+      return;
+    }
+
+    const shiftReport = shiftReportRes.data;
+
+    await interaction.deferUpdate();
 
     const newEmbed = getShiftManageEmbed(shift, shiftReport);
 
@@ -59,14 +67,19 @@ export function createManageShiftEmbedStage2Components(
     interaction,
     ctx,
   ) => {
+    if (interaction.replied) {
+      console.log("hi");
+      return;
+    }
     const onModalSubmit: OnModalKitSubmit = async (
       modalInteraction,
       modalCtx,
     ) => {
-      console.log("aaa");
       const selectedCohost = modalInteraction.fields
         .getSelectedUsers("cohost", true)
         .first();
+
+      await modalInteraction.deferUpdate();
 
       const shiftReportRes = await ApiHelper.shifts.report.update(shift.id, {
         cohost: selectedCohost!.id,
@@ -80,19 +93,22 @@ export function createManageShiftEmbedStage2Components(
           content: "Ten użytkownik nie jest powiązany z żadnym pracownikiem.",
           flags: MessageFlags.Ephemeral,
         });
+
         return;
       } else if (shiftReportRes.status !== "ok") {
         Logger.error(shiftReportRes);
-        throw shiftReportRes;
+        await commandError({
+          interactionOrMsg: modalInteraction,
+          description:
+            shiftReportRes.error ?? "Błąd podczas komunikacji z serwerem.",
+          useFollowUp: true,
+        });
+        return;
       }
 
-      const newEmbed = getShiftManageEmbed(shift, shiftReportRes.data);
-
       await interaction.message.edit({
-        embeds: [newEmbed],
-        components: createManageShiftEmbedStage2Components(shift),
+        embeds: [getShiftManageEmbed(shift, shiftReportRes.data)],
       });
-
       modalCtx.dispose();
     };
 
@@ -101,6 +117,7 @@ export function createManageShiftEmbedStage2Components(
         title="Wskaż przełożonego nadzorującego"
         customId={`cohost-modal_${shift.id}`}
         onSubmit={onModalSubmit}
+        options={{ once: false }}
       >
         <Label label="Przełożony">
           <UserSelectMenu
@@ -114,15 +131,21 @@ export function createManageShiftEmbedStage2Components(
       </Modal>
     );
 
-    interaction.showModal(modal);
+    await interaction.showModal(modal);
 
     ctx.dispose();
+
+    setImmediate(() => {
+      interaction.message.edit({
+        components: createManageShiftEmbedStage2Components(shift, shiftReport),
+      });
+    });
   };
 
   const setCohostButton = (
     <Button
       customId={`set-cohost_${shift.id}`}
-      style={ButtonStyle.Primary}
+      style={ButtonStyle.Secondary}
       onClick={setCohostButtonCallback}
       options={{ once: true }}
     >
@@ -130,10 +153,38 @@ export function createManageShiftEmbedStage2Components(
     </Button>
   );
 
+  const setStationsButtonCallback: OnButtonKitClick = async (
+    interaction,
+    ctx,
+  ) => {
+    await interaction.deferUpdate();
+
+    await interaction.message.edit({
+      components: createManageShiftEmbedSetStationsComponents(
+        shift,
+        shiftReport,
+      ),
+    });
+
+    ctx.dispose();
+  };
+
+  const setStationsButton = (
+    <Button
+      customId={`goto-stations_${shift.id}`}
+      style={ButtonStyle.Secondary}
+      onClick={setStationsButtonCallback}
+      options={{ once: true }}
+    >
+      Stanowiska
+    </Button>
+  );
+
   return [
     new ActionRowBuilder<ButtonKit>().addComponents(
       startShiftButton,
       setCohostButton,
+      setStationsButton,
     ),
   ];
 }

@@ -5,7 +5,6 @@ import {
   Guild,
   GuildMember,
   GuildMemberResolvable,
-  messageLink,
   PermissionFlagsBits,
   PermissionResolvable,
   PresenceUpdateStatus,
@@ -42,7 +41,7 @@ export function hasPermissions({
 }
 
 export const delay = (ms: number) => {
-  new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export const capitalise = (text: string): string =>

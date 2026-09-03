@@ -18,7 +18,7 @@ import {
   shiftLogAbsencePostSchema,
   shiftNumberSchema,
   shiftPostSchema,
-  shiftReportPostSchema,
+  shiftReportPatchSchema,
 } from "@shared/zod/shiftSchemas";
 import { Logger } from "commandkit";
 import { addMinutes, differenceInMinutes } from "date-fns";
@@ -426,7 +426,7 @@ ApiHelper.shifts.report.get = async (shiftId) => {
 };
 
 ApiHelper.shifts.report.update = async (shiftId, request) => {
-  const requestParsed = shiftReportPostSchema.safeParse(request);
+  const requestParsed = shiftReportPatchSchema.safeParse(request);
   if (!requestParsed.success) {
     Logger.error(z.treeifyError(requestParsed.error));
     return { status: "badArgument" };

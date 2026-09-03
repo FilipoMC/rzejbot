@@ -2,6 +2,7 @@ import z from "zod";
 import { shiftNumberSchema } from "../shiftSchemas";
 import { isoDateStringSchema } from "../dateTimeSchemas";
 import { snowflakeSchema } from "../discordSchemas";
+import { nameICSchema } from "../employeeSchemas";
 
 export const shiftAPIResponseSchema = z.object({
   id: z.int().nonnegative(),
@@ -63,3 +64,23 @@ export const shiftReportAPIResponseSchema = z.object({
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });
+
+export const shiftLogStationsPostAPIResponseSchema = z.array(
+  z.union([
+    z.object({
+      found: z.literal(true),
+      employeeDiscordId: snowflakeSchema,
+      employeeNameIC: nameICSchema,
+    }),
+    z.object({
+      found: z.literal(false),
+      employeeDiscordId: snowflakeSchema,
+      employeeNameIC: z.null(),
+    }),
+    z.object({
+      found: z.literal(false),
+      employeeDiscordId: z.null(),
+      employeeNameIC: nameICSchema,
+    }),
+  ]),
+);

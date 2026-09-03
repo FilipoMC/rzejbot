@@ -1,3 +1,16 @@
 {
-  "timezone": "Europe/Warsaw"
+  "timezone": "Europe/Warsaw",
+  "stations": {
+    "Kierownik Zmiany": 0,
+    "Kontrola Mocy": 1,
+    "Kontrola Turbin (MCR)": 2,
+    "Kontrola Turbin (TCR)": 3,
+    "Kontrola Chłodzenia": 4,
+    "Kontrola Skraplacza": 5,
+    "Kontrola Deaeratora": 6,
+    "Kontrola Temperatur Pomp Zasilających": 7,
+    "Kontrola Generatorów Awaryjnych Diesla": 8,
+    "Operator Polowy": 9,
+    "Nadzór nad Blokiem I.": 10
+  }
 }
