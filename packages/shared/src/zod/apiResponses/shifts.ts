@@ -65,6 +65,19 @@ export const shiftReportAPIResponseSchema = z.object({
   createdAt: isoDateStringSchema,
 });
 
+export const shiftLogStationsGetAPIResponseSchema = z.array(
+  z.object({
+    station: z.string(),
+    operators: z.array(
+      z.object({
+        employeeDiscordId: snowflakeSchema,
+        employeeNameIC: nameICSchema,
+        time: isoDateStringSchema,
+      }),
+    ),
+  }),
+);
+
 export const shiftLogStationsPostAPIResponseSchema = z.array(
   z.union([
     z.object({
