@@ -1,18 +1,23 @@
 import config from "./config.json";
 
+const station = (name: keyof typeof config.stations) => ({
+  name,
+  order: (config.stations as Record<string, number>)[name],
+});
+
 export const stationsGrouped = {
-  u2_mcr: [
-    config.stations["Kontrola Mocy"],
-    config.stations["Kontrola Chłodzenia"],
-    config.stations["Kontrola Turbin (TCR)"],
-    config.stations["Kontrola Skraplacza"],
-    config.stations["Kontrola Deaeratora"],
+  U2_MCR: [
+    station("Kontrola Mocy"),
+    station("Kontrola Chłodzenia"),
+    station("Kontrola Turbin (MCR)"),
+    station("Kontrola Skraplacza"),
+    station("Kontrola Deaeratora"),
   ],
-  other: [
-    config.stations["Kontrola Turbin (TCR)"],
-    config.stations["Kontrola Temperatur Pomp Zasilających"],
-    config.stations["Kontrola Generatorów Awaryjnych Diesla"],
-    config.stations["Operator Polowy"],
-    config.stations["Nadzór nad Blokiem I."],
+  Inne: [
+    station("Kontrola Turbin (TCR)"),
+    station("Kontrola Temperatur Pomp Zasilających"),
+    station("Kontrola Generatorów Awaryjnych Diesla"),
+    station("Operator Polowy"),
+    station("Nadzór nad Blokiem I."),
   ],
 };

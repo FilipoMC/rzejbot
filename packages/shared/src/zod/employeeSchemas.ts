@@ -19,6 +19,16 @@ export const employeeIdentifierSchema = z.union([
     discordId: null,
     nameIC,
   })),
+
+  z.object({
+    discordId: snowflakeSchema,
+    nameIC: z.null(),
+  }),
+
+  z.object({
+    discordId: null,
+    nameIC: z.null(),
+  }),
 ]);
 
 export const employeePostSchema = z.object({
