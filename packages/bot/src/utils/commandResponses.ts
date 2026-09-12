@@ -31,7 +31,10 @@ async function conditionalReply(
       if (!useFollowUp) {
         await interaction.editReply({ embeds: [embed] });
       } else {
-        await interaction.followUp({ embeds: [embed] });
+        await interaction.followUp({
+          embeds: [embed],
+          flags: MessageFlags.Ephemeral,
+        });
       }
       return;
     } else {

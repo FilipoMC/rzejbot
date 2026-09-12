@@ -1,9 +1,10 @@
-import { ApiHelper, apiHelperUnsafe } from "@/helper/apiHelper";
+import { ApiHelper } from "@/helper/apiHelper";
 import { ShiftAPIResponse } from "@shared/types/api";
-import { OnButtonKitClick, Button, ButtonKit } from "commandkit";
+import { OnButtonKitClick, Button, ButtonKit, Logger } from "commandkit";
 import { ActionRowBuilder, ButtonStyle } from "discord.js";
-import { getShiftManageEmbed } from ".";
 import { createManageShiftEmbedStage2Components } from "./stage2";
+import { commandError } from "@/utils/commandResponses";
+import { getShiftManageEmbed, shiftManageEmbedComponentsFilter } from "./utils";
 
 export function createManageShiftEmbedStage1Components(
   shift: ShiftAPIResponse,
@@ -12,17 +13,33 @@ export function createManageShiftEmbedStage1Components(
     interaction,
     ctx,
   ) => {
-    const shiftReport = await apiHelperUnsafe(
-      ApiHelper.shifts.report.markBriefingStart,
+    const shiftReportRes = await ApiHelper.shifts.report.markBriefingStart(
       shift.id,
     );
 
-    const newEmbed = getShiftManageEmbed(shift, shiftReport);
+    if (shiftReportRes.status !== "ok") {
+      Logger.error(shiftReportRes);
+      await commandError({
+        interactionOrMsg: interaction,
+        description:
+          shiftReportRes.error ?? "Błąd podczas komunikacji z serwerem.",
+        useFollowUp: true,
+      });
+      return;
+    }
+
+    const shiftReport = shiftReportRes.data;
+
+    const newEmbed = getShiftManageEmbed(shift, shiftReport, []);
 
     await Promise.all([
       interaction.message.edit({
         embeds: [newEmbed],
-        components: createManageShiftEmbedStage2Components(shift, shiftReport),
+        components: createManageShiftEmbedStage2Components(
+          shift,
+          shiftReport,
+          [],
+        ),
       }),
       interaction.deferUpdate(),
     ]);
@@ -35,7 +52,7 @@ export function createManageShiftEmbedStage1Components(
       customId={`start-briefing_${shift.id}`}
       style={ButtonStyle.Success}
       onClick={startBriefingButtonCallback}
-      options={{ once: true }}
+      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
     >
       Rozpocznij briefing
     </Button>

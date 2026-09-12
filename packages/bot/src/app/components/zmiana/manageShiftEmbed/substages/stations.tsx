@@ -1,5 +1,8 @@
-import { ApiHelper } from "@/helper/apiHelper";
-import { ShiftAPIResponse, ShiftReportAPIResponse } from "@shared/types/api";
+import {
+  ShiftAPIResponse,
+  ShiftLogStationsGetAPIResponse,
+  ShiftReportAPIResponse,
+} from "@shared/types/api";
 import {
   OnButtonKitClick,
   Button,
@@ -14,22 +17,47 @@ import {
 import {
   ActionRowBuilder,
   ButtonStyle,
-  MessageFlags,
+  ComponentType,
   TextInputStyle,
+  User,
+  userMention,
 } from "discord.js";
-import { getShiftManageEmbed } from "..";
-import { createManageShiftEmbedStage2Components } from "../stage2";
+import type { createManageShiftEmbedStage2Components } from "../stage2";
+import type { createManageShiftEmbedStage3Components } from "../stage3";
+import { stationsGrouped } from "@shared/config/script";
+import { ApiHelper } from "@/helper/apiHelper";
+import { commandError, success } from "@/utils/commandResponses";
+import { deferAfter } from "@/utils/utilityFunctions";
+import { Tuple } from "@shared/types/utils";
+import {
+  disposeShiftHandlers,
+  shiftManageEmbedComponentsFilter,
+  registerButtonHandler,
+  getShiftManageEmbed,
+  replaceModalHandler,
+} from "../utils";
+import { nameICSchema } from "@shared/zod/employeeSchemas";
 
 export function createManageShiftEmbedSetStationsComponents(
   shift: ShiftAPIResponse,
   shiftReport: ShiftReportAPIResponse,
+  stations: ShiftLogStationsGetAPIResponse,
+  createCurrentStageComponents:
+    | typeof createManageShiftEmbedStage2Components
+    | typeof createManageShiftEmbedStage3Components,
+  date?: Date,
 ) {
-  const backButtonCallback: OnButtonKitClick = async (interaction, ctx) => {
-    await interaction.deferUpdate();
+  date ??= new Date();
 
-    await interaction.message.edit({
-      components: createManageShiftEmbedStage2Components(shift, shiftReport),
-    });
+  disposeShiftHandlers(shift.id);
+
+  const backButtonCallback: OnButtonKitClick = async (interaction, ctx) => {
+    await Promise.all([
+      interaction.deferUpdate(),
+      interaction.message.edit({
+        components: createCurrentStageComponents(shift, shiftReport, stations),
+      }),
+    ]);
 
     ctx.dispose();
   };
@@ -39,199 +67,356 @@ export function createManageShiftEmbedSetStationsComponents(
       customId={`back-stations_${shift.id}`}
       style={ButtonStyle.Secondary}
       onClick={backButtonCallback}
-      options={{ once: true }}
+      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
     >
       « Powrót
     </Button>
   );
 
-  const setCohostButtonCallback: OnButtonKitClick = async (
-    interaction,
-    ctx,
-  ) => {
+  registerButtonHandler(shift.id, backButton);
+
+  const createButtonCallback = (
+    stationNames: Set<string>,
+    group: string,
+  ): OnButtonKitClick => {
+    return async (interaction, ctx) => {
+      const onModalSubmit: OnModalKitSubmit = async (
+        modalInteraction,
+        modalCtx,
+      ) => {
+        const entries = modalInteraction.fields.fields
+          .map((v, station) => {
+            if (v.type !== ComponentType.UserSelect) {
+              throw new Error(
+                "this doesnt happen thanks to the filter above... i hope at least",
+              );
+            }
+
+            return { station, user: v.users?.at(0) };
+          })
+          .filter(
+            (v): v is { station: string; user: User } => v.user !== undefined,
+          );
+
+        const [logRes, newStationsRes] = await deferAfter(
+          modalInteraction,
+          (async () => {
+            return [
+              await ApiHelper.shifts.stations.log(
+                shift.id,
+                entries.map((v) => {
+                  return {
+                    employee: v.user.id,
+                    station: v.station,
+                    date,
+                  };
+                }),
+              ),
+              await ApiHelper.shifts.stations.get(shift.id),
+            ];
+          })(),
+        );
+
+        if (logRes.status !== "ok") {
+          Logger.error(logRes);
+          await commandError({
+            interactionOrMsg: interaction,
+            description: logRes.error ?? "Błąd podczas komunikacji z serwerem.",
+            useFollowUp: true,
+          });
+        }
+
+        if (newStationsRes.status !== "ok") {
+          Logger.error(newStationsRes);
+          await commandError({
+            interactionOrMsg: interaction,
+            description:
+              newStationsRes.error ?? "Błąd podczas komunikacji z serwerem.",
+            useFollowUp: true,
+          });
+        }
+
+        if (logRes.status !== "ok" || newStationsRes.status !== "ok") {
+          return;
+        }
+
+        const newStations = newStationsRes.data;
+
+        const usersNotFound = logRes.data
+          .filter((v) => !v.found)
+          .map((v) =>
+            v.employeeDiscordId ?
+              userMention(v.employeeDiscordId)
+            : v.employeeNameIC,
+          )
+          .join(", ");
+
+        if (usersNotFound.length > 0) {
+          await success({
+            description:
+              usersNotFound +
+              " nie są w rejestrze pracowników. Pozostałe stanowiska zostały przydzielone.",
+            interactionOrMsg: modalInteraction,
+            useFollowUp: true,
+          });
+        }
+
+        modalCtx.dispose();
+
+        await interaction.message.edit({
+          embeds: [getShiftManageEmbed(shift, shiftReport, newStations)],
+          components: createManageShiftEmbedSetStationsComponents(
+            shift,
+            shiftReport,
+            newStations,
+            createCurrentStageComponents,
+            date,
+          ),
+        });
+      };
+
+      const stationNamesArr = [...stationNames];
+
+      if (stationNamesArr.length > 5) {
+        Logger.error({
+          msg: "more than 5 station names passed in group",
+          component: "zmiana/stations",
+          group,
+        });
+      }
+
+      const modal = (
+        <Modal
+          title="Przydziel stanowiska"
+          customId={`stations-${group}-modal_${shift.id}`}
+          onSubmit={onModalSubmit}
+          options={{ once: false, filter: shiftManageEmbedComponentsFilter }}
+        >
+          {stationNamesArr.slice(0, 5).map((station) => {
+            return (
+              <Label label={station}>
+                <UserSelectMenu
+                  customId={station}
+                  placeholder="Wybierz pracownika"
+                  minValues={1}
+                  maxValues={1}
+                />
+              </Label>
+            );
+          })}
+        </Modal>
+      );
+
+      replaceModalHandler(shift.id, modal);
+
+      await interaction.showModal(modal);
+
+      ctx.dispose();
+
+      setImmediate(() => {
+        interaction.message.edit({
+          components: createManageShiftEmbedSetStationsComponents(
+            shift,
+            shiftReport,
+            stations,
+            createCurrentStageComponents,
+            date,
+          ),
+        });
+      });
+    };
+  };
+
+  const customButtonCallback: OnButtonKitClick = async (interaction, ctx) => {
     const onModalSubmit: OnModalKitSubmit = async (
       modalInteraction,
       modalCtx,
     ) => {
-      const selectedCohost = modalInteraction.fields
-        .getSelectedUsers("cohost", true)
-        .first();
+      const entries = modalInteraction.fields.getTextInputValue("input");
 
-      const shiftReportRes = await ApiHelper.shifts.report.update(shift.id, {
-        cohost: selectedCohost!.id,
-      });
+      const [logRes, newStationsRes] = await deferAfter(
+        modalInteraction,
+        (async () => {
+          return [
+            await ApiHelper.shifts.stations.log(
+              shift.id,
+              entries
+                .split("\n")
+                .filter((v) => {
+                  const split = v.split(" - ");
 
-      let newEmbed;
+                  return (
+                    split.length === 2 &&
+                    nameICSchema.safeParse(split[1]).success
+                  );
+                })
+                .map((v) => {
+                  const [station, employee] = v.split(" - ") as Tuple<
+                    string,
+                    2
+                  >;
 
-      if (
-        shiftReportRes.status === "apiError" &&
-        shiftReportRes.errorStatus === "notFound"
-      ) {
-        newEmbed = getShiftManageEmbed(shift, shiftReport);
-        await modalInteraction.reply({
-          content: "Ten użytkownik nie jest powiązany z żadnym pracownikiem.",
-          flags: MessageFlags.Ephemeral,
+                  return {
+                    employee,
+                    station,
+                    date,
+                  };
+                }),
+            ),
+            await ApiHelper.shifts.stations.get(shift.id),
+          ];
+        })(),
+      );
+
+      if (logRes.status !== "ok") {
+        Logger.error(logRes);
+        await commandError({
+          interactionOrMsg: interaction,
+          description: logRes.error ?? "Błąd podczas komunikacji z serwerem.",
+          useFollowUp: true,
         });
-      } else if (shiftReportRes.status !== "ok") {
-        Logger.error(shiftReportRes);
-        throw shiftReportRes;
       }
 
-      if (shiftReportRes.status === "ok") {
-        newEmbed = getShiftManageEmbed(shift, shiftReportRes.data);
-        shiftReport = shiftReportRes.data;
-        await modalInteraction.deferUpdate();
+      if (newStationsRes.status !== "ok") {
+        Logger.error(newStationsRes);
+        await commandError({
+          interactionOrMsg: interaction,
+          description:
+            newStationsRes.error ?? "Błąd podczas komunikacji z serwerem.",
+          useFollowUp: true,
+        });
       }
 
-      await interaction.message.edit({
-        embeds: [newEmbed!], // All invariants either set newEmbed or throw
-        components: createManageShiftEmbedStage2Components(shift, shiftReport),
-      });
+      if (logRes.status !== "ok" || newStationsRes.status !== "ok") {
+        return;
+      }
+
+      const newStations = newStationsRes.data;
+
+      const usersNotFound = logRes.data
+        .filter((v) => !v.found)
+        .map((v) =>
+          v.employeeDiscordId ?
+            userMention(v.employeeDiscordId)
+          : v.employeeNameIC,
+        )
+        .join(", ");
+
+      if (usersNotFound.length > 0) {
+        await success({
+          description:
+            usersNotFound +
+            " nie są w rejestrze pracowników. Pozostałe stanowiska zostały przydzielone.",
+          interactionOrMsg: modalInteraction,
+          useFollowUp: true,
+        });
+      }
 
       modalCtx.dispose();
-    };
 
-    await interaction.message.edit({
-      embeds: [getShiftManageEmbed(shift, shiftReport)],
-      components: createManageShiftEmbedStage2Components(shift, shiftReport),
-    });
+      await interaction.message.edit({
+        embeds: [getShiftManageEmbed(shift, shiftReport, newStations)],
+        components: createManageShiftEmbedSetStationsComponents(
+          shift,
+          shiftReport,
+          newStations,
+          createCurrentStageComponents,
+          date,
+        ),
+      });
+    };
 
     const modal = (
       <Modal
-        title="Wskaż przełożonego nadzorującego"
-        customId={`cohost-modal_${shift.id}`}
+        title="Przydziel stanowiska"
+        customId={`stations-custom-modal_${shift.id}`}
         onSubmit={onModalSubmit}
-        options={{ once: false }}
+        options={{ once: false, filter: shiftManageEmbedComponentsFilter }}
       >
-        <Label label="Przełożony">
-          <UserSelectMenu
-            customId="cohost"
-            placeholder="Wybierz pracownika"
-            minValues={1}
-            maxValues={1}
+        <Label label="Przydział">
+          <TextInput
+            customId="input"
+            placeholder="Dodatkowe stanowiska w formacie&#10;stanowisko - rp name pracownika&#10;stanowisko - rp name pracownika"
+            style={TextInputStyle.Paragraph}
             required
           />
         </Label>
       </Modal>
     );
 
-    interaction.showModal(modal);
+    replaceModalHandler(shift.id, modal);
+
+    await interaction.showModal(modal);
 
     ctx.dispose();
+
+    setImmediate(() => {
+      interaction.message.edit({
+        components: createManageShiftEmbedSetStationsComponents(
+          shift,
+          shiftReport,
+          stations,
+          createCurrentStageComponents,
+          date,
+        ),
+      });
+    });
   };
 
-  const setCohostButton = (
-    <Button
-      customId={`set-cohost_${shift.id}`}
-      style={ButtonStyle.Secondary}
-      onClick={setCohostButtonCallback}
-      options={{ once: true }}
-    >
-      Przełożony
-    </Button>
-  );
+  const actionRowsContent = [[backButton]];
 
-  const setStationsButtonCallback: OnButtonKitClick = async (
-    interaction,
-    ctx,
-  ) => {
-    const onModalSubmit: OnModalKitSubmit = async (
-      modalInteraction,
-      modalCtx,
-    ) => {
-      const selectedCohost = modalInteraction.fields
-        .getSelectedUsers("cohost", true)
-        .first();
+  for (const [idx, [group, stationEntries]] of Object.entries(
+    stationsGrouped,
+  ).entries()) {
+    if (idx >= 23) {
+      Logger.error({ msg: `Too many stations`, component: "zmiana/stations" });
+      break;
+    }
 
-      const shiftReportRes = await ApiHelper.shifts.report.update(shift.id, {
-        cohost: selectedCohost!.id,
-      });
-
-      if (
-        shiftReportRes.status === "apiError" &&
-        shiftReportRes.errorStatus === "notFound"
-      ) {
-        await modalInteraction.reply({
-          content: "Ten użytkownik nie jest powiązany z żadnym pracownikiem.",
-          flags: MessageFlags.Ephemeral,
-        });
-      } else if (shiftReportRes.status !== "ok") {
-        Logger.error(shiftReportRes);
-        throw shiftReportRes;
-      }
-
-      if (shiftReportRes.status === "ok") {
-        shiftReport = shiftReportRes.data;
-        await modalInteraction.deferUpdate();
-      }
-
-      const newEmbed = getShiftManageEmbed(shift, shiftReport);
-
-      await interaction.message.edit({
-        embeds: [newEmbed], // All invariants either set newEmbed or throw
-        components: createManageShiftEmbedStage2Components(shift, shiftReport),
-      });
-
-      modalCtx.dispose();
-    };
-
-    await interaction.message.edit({
-      embeds: [getShiftManageEmbed(shift, shiftReport)],
-      components: createManageShiftEmbedStage2Components(shift, shiftReport),
-    });
-
-    const modal = (
-      <Modal
-        title="Przydziel stanowiska pracownikom"
-        customId={`stations-modal_${shift.id}`}
-        onSubmit={onModalSubmit}
-        options={{ once: false }}
+    const button = (
+      <Button
+        customId={`stations-${group.replace("_", "+")}-modal_${shift.id}`}
+        onClick={createButtonCallback(
+          new Set(stationEntries.map((v) => v.name)),
+          group,
+        )}
+        options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
       >
-        <Label label="Kontrola Mocy">
-          <UserSelectMenu
-            customId="kontrola_mocy"
-            placeholder="Wybierz pracownika"
-            maxValues={1}
-          />
-        </Label>
-        <Label label="Kontrola Turbin (MCR)">
-          <UserSelectMenu
-            customId="kontrola_turbin_mcr"
-            placeholder="Wybierz pracownika"
-            maxValues={1}
-          />
-        </Label>
-        <Label label="Dodatkowe stanowiska">
-          <TextInput
-            customId="dodatkowe-stanowiska"
-            style={TextInputStyle.Paragraph}
-            placeholder="Dodatkowe stanowiska w formacie&#10;stanowisko - rp name pracownika&#10;stanowisko - rp name pracownika"
-          />
-        </Label>
-      </Modal>
+        {group.replaceAll("_", " ")}
+      </Button>
     );
 
-    interaction.showModal(modal);
+    registerButtonHandler(shift.id, button);
 
-    ctx.dispose();
-  };
+    if (idx < 4) {
+      actionRowsContent[0]?.push(button);
+      continue;
+    }
 
-  const setStationsButton = (
+    const rowIndex = Math.floor((idx - 4) / 5) + 1;
+
+    if (!actionRowsContent[rowIndex]) {
+      actionRowsContent.push([]);
+    }
+
+    actionRowsContent[rowIndex]?.push(button);
+  }
+
+  const customButton = (
     <Button
-      customId={`set-stations_${shift.id}`}
-      style={ButtonStyle.Secondary}
-      onClick={setStationsButtonCallback}
-      options={{ once: true }}
+      customId={`stations-custom-modal_${shift.id}`}
+      onClick={customButtonCallback}
+      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
     >
-      Stanowiska
+      Własne
     </Button>
   );
 
-  return [
-    new ActionRowBuilder<ButtonKit>().addComponents(
-      backButton,
-      setCohostButton,
-      setStationsButton,
-    ),
-  ];
+  registerButtonHandler(shift.id, customButton);
+
+  actionRowsContent.at(-1)!.push(customButton);
+
+  return actionRowsContent.map((v) =>
+    new ActionRowBuilder<ButtonKit>().setComponents(v),
+  );
 }

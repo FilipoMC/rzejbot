@@ -1,23 +1,50 @@
-import { ApiHelper, apiHelperUnsafe } from "@/helper/apiHelper";
-import { ShiftAPIResponse } from "@shared/types/api";
-import { OnButtonKitClick, Button, ButtonKit } from "commandkit";
+import { ApiHelper } from "@/helper/apiHelper";
+import {
+  ShiftAPIResponse,
+  ShiftLogStationsGetAPIResponse,
+  ShiftReportAPIResponse,
+} from "@shared/types/api";
+import { OnButtonKitClick, Button, ButtonKit, Logger } from "commandkit";
 import { ActionRowBuilder, ButtonStyle } from "discord.js";
-import { getShiftManageEmbed } from ".";
+import {
+  getShiftManageEmbed,
+  registerButtonHandler,
+  shiftManageEmbedComponentsFilter,
+} from "./utils";
+import { commandError } from "@/utils/commandResponses";
+import { deferAfter } from "@/utils/utilityFunctions";
+import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
 
 export function createManageShiftEmbedStage3Components(
   shift: ShiftAPIResponse,
+  shiftReport: ShiftReportAPIResponse,
+  stations: ShiftLogStationsGetAPIResponse,
 ) {
   const endShiftButtonCallback: OnButtonKitClick = async (interaction, ctx) => {
-    await interaction.deferUpdate();
-
-    const shiftReport = await apiHelperUnsafe(
-      ApiHelper.shifts.report.markShiftEnd,
-      shift.id,
+    const shiftReportRes = await deferAfter(
+      interaction,
+      ApiHelper.shifts.report.mark("shiftEnd", shift.id),
     );
 
-    const newEmbed = getShiftManageEmbed(shift, shiftReport);
+    if (shiftReportRes.status !== "ok") {
+      Logger.error(shiftReportRes);
+      await commandError({
+        interactionOrMsg: interaction,
+        description:
+          shiftReportRes.error ?? "Błąd podczas komunikacji z serwerem.",
+        useFollowUp: true,
+      });
+      return;
+    }
 
-    await interaction.message.edit({ embeds: [newEmbed], components: [] });
+    const shiftReport = shiftReportRes.data;
+
+    const newEmbed = getShiftManageEmbed(shift, shiftReport, stations);
+
+    await interaction.message.edit({
+      embeds: [newEmbed],
+      components: [],
+    });
 
     ctx.dispose();
   };
@@ -33,5 +60,42 @@ export function createManageShiftEmbedStage3Components(
     </Button>
   );
 
-  return [new ActionRowBuilder<ButtonKit>().addComponents(endShiftButton)];
+  const setStationsButtonCallback: OnButtonKitClick = async (
+    interaction,
+    ctx,
+  ) => {
+    await Promise.all([
+      interaction.deferUpdate(),
+      interaction.message.edit({
+        components: createManageShiftEmbedSetStationsComponents(
+          shift,
+          shiftReport,
+          stations,
+          createManageShiftEmbedStage3Components,
+        ),
+      }),
+    ]);
+
+    ctx.dispose();
+  };
+
+  const setStationsButton = (
+    <Button
+      customId={`goto-stations_${shift.id}`}
+      style={ButtonStyle.Secondary}
+      onClick={setStationsButtonCallback}
+      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+    >
+      Stanowiska
+    </Button>
+  );
+
+  registerButtonHandler(shift.id, setStationsButton);
+
+  return [
+    new ActionRowBuilder<ButtonKit>().addComponents(
+      endShiftButton,
+      setStationsButton,
+    ),
+  ];
 }

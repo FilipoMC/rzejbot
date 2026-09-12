@@ -1,8 +1,5 @@
 import { sendShiftManageEmbed } from "@/app/components/zmiana/manageShiftEmbed";
-import { ApiHelper } from "@/helper/apiHelper";
-import { success } from "@/utils/commandResponses";
 import { CommandData, MessageCommand } from "commandkit";
-import { codeBlock } from "discord.js";
 
 export const command: CommandData = {
   name: "test",
@@ -32,5 +29,8 @@ export const message: MessageCommand = async (ctx) => {
   //   description: codeBlock("json", JSON.stringify(res, null, 2)),
   // });
 
-  await sendShiftManageEmbed({ client: ctx.client, shiftId: 1 });
+  await sendShiftManageEmbed({
+    client: ctx.client,
+    shiftIdentifier: { id: 6 },
+  });
 };

@@ -9,7 +9,7 @@ export default task<SendShiftManageEmbedTaskData>({
   name: "send-shift-manage-embed",
   async execute(ctx) {
     await sendShiftManageEmbed({
-      shiftId: ctx.data.shiftId,
+      shiftIdentifier: { id: ctx.data.shiftId },
       client: ctx.client,
     });
   },

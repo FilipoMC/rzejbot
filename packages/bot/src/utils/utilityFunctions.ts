@@ -1,10 +1,12 @@
 import {
   ActivityType,
+  ButtonInteraction,
   ChannelResolvable,
   Client,
   Guild,
   GuildMember,
   GuildMemberResolvable,
+  ModalSubmitInteraction,
   PermissionFlagsBits,
   PermissionResolvable,
   PresenceUpdateStatus,
@@ -133,4 +135,18 @@ export async function fetchMemberResolvable(
   return await guild.members.fetch(
     typeof member === "string" ? member : member.id,
   );
+}
+
+export async function deferAfter<T>(
+  interaction: ButtonInteraction | ModalSubmitInteraction,
+  promise: Promise<T>,
+  delayMs = 2000,
+): Promise<T> {
+  await Promise.race([promise, delay(delayMs)]);
+
+  if (!interaction.deferred) {
+    await interaction.deferUpdate();
+  }
+
+  return promise;
 }

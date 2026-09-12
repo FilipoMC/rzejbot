@@ -26,8 +26,8 @@ export const employeeIdentifierSchema = z.union([
   }),
 
   z.object({
-    discordId: null,
-    nameIC: z.null(),
+    discordId: z.null(),
+    nameIC: nameICSchema,
   }),
 ]);
 

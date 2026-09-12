@@ -3,6 +3,9 @@ import {
   ShiftAPIResponse,
   ShiftEmployeeLogAPIResponse,
   ShiftLogAbsencePost,
+  ShiftLogStationsGetAPIResponse,
+  ShiftLogStationsPost,
+  ShiftLogStationsPostAPIResponse,
   ShiftPost,
   ShiftReportAPIResponse,
   ShiftReportPatch,
@@ -11,11 +14,14 @@ import {
 import {
   shiftAPIResponseSchema,
   shiftEmployeeLogAPIResponseSchema,
+  shiftLogStationsGetAPIResponseSchema,
+  shiftLogStationsPostAPIResponseSchema,
   shiftReportAPIResponseSchema,
 } from "@shared/zod/apiResponses/shifts";
 import { apiResponseSchema } from "@shared/zod/apiSchemas";
 import {
   shiftLogAbsencePostSchema,
+  shiftLogStationsPostSchema,
   shiftNumberSchema,
   shiftPostSchema,
   shiftReportPatchSchema,
@@ -123,6 +129,16 @@ interface ApiHelper {
       request: ShiftLogAbsencePost,
     ) => Promise<ApiHelperReturnType<ShiftEmployeeLogAPIResponse, string>>;
 
+    stations: {
+      get: (
+        shiftId: number,
+      ) => Promise<ApiHelperReturnType<ShiftLogStationsGetAPIResponse>>;
+      log: (
+        shiftId: number,
+        request: ShiftLogStationsPost,
+      ) => Promise<ApiHelperReturnType<ShiftLogStationsPostAPIResponse>>;
+    };
+
     report: {
       get: (
         shiftId: number,
@@ -135,11 +151,8 @@ interface ApiHelper {
         shiftId: number,
         date?: Date,
       ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
-      markShiftStart: (
-        shiftId: number,
-        date?: Date,
-      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
-      markShiftEnd: (
+      mark: (
+        event: "shiftStart" | "shiftEnd",
         shiftId: number,
         date?: Date,
       ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
@@ -152,7 +165,7 @@ interface ApiHelper {
 }
 
 export const ApiHelper = {
-  shifts: { report: {} },
+  shifts: { report: {}, stations: {} },
 } as ApiHelper;
 
 ApiHelper.shifts.create = async (request) => {
@@ -518,7 +531,7 @@ ApiHelper.shifts.report.markBriefingStart = async (shiftId, date) => {
   }
 };
 
-ApiHelper.shifts.report.markShiftStart = async (shiftId, date) => {
+ApiHelper.shifts.report.mark = async (event, shiftId, date) => {
   date ??= new Date();
 
   const shiftReport = await ApiHelper.shifts.report.get(shiftId);
@@ -527,34 +540,114 @@ ApiHelper.shifts.report.markShiftStart = async (shiftId, date) => {
     return shiftReport;
   }
 
-  const briefingDuration = differenceInMinutes(date, shiftReport.data.date);
+  let body: ShiftReportPatch;
 
-  return await ApiHelper.shifts.report.update(shiftId, { briefingDuration });
+  switch (event) {
+    case "shiftStart":
+      body = {
+        briefingDuration: differenceInMinutes(date, shiftReport.data.date),
+      };
+      break;
+
+    case "shiftEnd":
+      if (shiftReport.data.briefingDuration === null) {
+        return {
+          status: "otherError",
+          errorStatus: "invalidData",
+          error: "Nie został oznaczony czas rozpoczęcia zmiany w tym raporcie",
+        };
+      }
+
+      body = {
+        duration: differenceInMinutes(
+          date,
+          addMinutes(shiftReport.data.date, shiftReport.data.briefingDuration),
+        ),
+      };
+      break;
+  }
+
+  return await ApiHelper.shifts.report.update(shiftId, body);
 };
 
-ApiHelper.shifts.report.markShiftEnd = async (shiftId, date) => {
-  date ??= new Date();
-
-  const shiftReport = await ApiHelper.shifts.report.get(shiftId);
-
-  if (shiftReport.status !== "ok") {
-    return shiftReport;
-  }
-
-  if (shiftReport.data.briefingDuration === null) {
-    return {
-      status: "otherError",
-      errorStatus: "invalidData",
-      error: "Nie został oznaczony czas rozpoczęcia zmiany w tym raporcie",
-    };
-  }
-
-  const duration = differenceInMinutes(
-    date,
-    addMinutes(shiftReport.data.date, shiftReport.data.briefingDuration),
+ApiHelper.shifts.stations.get = async (shiftId) => {
+  const res = await fetch(
+    getRequestURL(`shifts/${shiftId}/logs/stations`),
+    requestOptions("GET"),
   );
 
-  return await ApiHelper.shifts.report.update(shiftId, { duration });
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(
+    shiftLogStationsGetAPIResponseSchema,
+  ).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  } else {
+    switch (res.status) {
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.stations.log = async (shiftId, request) => {
+  const requestParsed = shiftLogStationsPostSchema.safeParse(request);
+
+  if (!requestParsed.success) {
+    Logger.error(z.treeifyError(requestParsed.error));
+    return { status: "badArgument" };
+  }
+
+  const res = await fetch(
+    getRequestURL(`shifts/${shiftId}/logs/stations`),
+    requestOptions("POST", JSON.stringify(requestParsed.data)),
+  );
+
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(
+    shiftLogStationsPostAPIResponseSchema,
+  ).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
 };
 
 // ApiHelper.employee.create = async () => {
