@@ -1,4 +1,5 @@
 import { ApiHelperReturnType } from "@/types/apiHelper";
+import { commandError } from "@/utils/commandResponses";
 import {
   ShiftAPIResponse,
   ShiftEmployeeLogAPIResponse,
@@ -26,7 +27,7 @@ import {
   shiftPostSchema,
   shiftReportPatchSchema,
 } from "@shared/zod/shiftSchemas";
-import { Logger } from "commandkit";
+import { getContext, Logger } from "commandkit";
 import { addMinutes, differenceInMinutes } from "date-fns";
 import z from "zod";
 
@@ -92,6 +93,30 @@ export async function apiHelperUnsafe<
   return res.data;
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+async function fetchWithErrorHandling(
+  ...args: Parameters<typeof fetch>
+): Promise<Response> {
+  try {
+    return await fetch(...args);
+  } catch (e) {
+    Logger.error(e);
+
+    const context = getContext();
+
+    if (context?.context) {
+      const { context: ctx } = context;
+
+      await commandError({
+        interactionOrMsg: ctx.isInteraction() ? ctx.interaction : ctx.message,
+        description: "Błąd podczas komunikacji z serwerem",
+        useFollowUp: true,
+      });
+    }
+
+    throw e;
+  }
+}
 
 interface ApiHelper {
   shifts: {
@@ -175,7 +200,7 @@ ApiHelper.shifts.create = async (request) => {
     return { status: "badArgument", error: requestParsed.error };
   }
 
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL("shifts"),
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
@@ -216,7 +241,7 @@ ApiHelper.shifts.create = async (request) => {
 };
 
 ApiHelper.shifts.getById = async (shiftId) => {
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}`),
     requestOptions("GET"),
   );
@@ -265,7 +290,7 @@ ApiHelper.shifts.getByShiftNumber = async (shiftNumber) => {
     };
   }
 
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts`, { number: shiftNumberParsed.data }),
     requestOptions("GET"),
   );
@@ -305,7 +330,7 @@ ApiHelper.shifts.getByShiftNumber = async (shiftNumber) => {
 };
 
 ApiHelper.shifts.getActive = async () => {
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/active`),
     requestOptions("GET"),
   );
@@ -354,7 +379,7 @@ ApiHelper.shifts.logEmployeeAbsence = async (shiftId, request) => {
     };
   }
 
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/logs/absence`),
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
@@ -397,7 +422,7 @@ ApiHelper.shifts.logEmployeeAbsence = async (shiftId, request) => {
 };
 
 ApiHelper.shifts.report.get = async (shiftId) => {
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/report`),
     requestOptions("GET"),
   );
@@ -445,7 +470,7 @@ ApiHelper.shifts.report.update = async (shiftId, request) => {
     return { status: "badArgument" };
   }
 
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/report`),
     requestOptions("PATCH", JSON.stringify(requestParsed.data)),
   );
@@ -489,7 +514,7 @@ ApiHelper.shifts.report.markBriefingStart = async (shiftId, date) => {
     date,
   };
 
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/report`),
     requestOptions("POST", JSON.stringify(request)),
   );
@@ -571,7 +596,7 @@ ApiHelper.shifts.report.mark = async (event, shiftId, date) => {
 };
 
 ApiHelper.shifts.stations.get = async (shiftId) => {
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/logs/stations`),
     requestOptions("GET"),
   );
@@ -613,7 +638,7 @@ ApiHelper.shifts.stations.log = async (shiftId, request) => {
     return { status: "badArgument" };
   }
 
-  const res = await fetch(
+  const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/logs/stations`),
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
