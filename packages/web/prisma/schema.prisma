@@ -10,7 +10,7 @@ datasource db {
 model Employee {
   id           Int                @id @default(autoincrement())
   discordId    String             @unique
-  robloxId     Int                @unique
+  robloxId     BigInt             @unique
   nameIC       String             @unique
   rank         String
   shiftsHosted Shift[]            @relation("EmployeeShiftsHosted")

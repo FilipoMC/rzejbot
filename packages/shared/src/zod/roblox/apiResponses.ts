@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const usersByIdResponseSchema = z.object({
+export const robloxUsersByUsernamesAPIResponseSchema = z.object({
   data: z.array(
     z.object({
       hasVerifiedBadge: z.boolean(),
