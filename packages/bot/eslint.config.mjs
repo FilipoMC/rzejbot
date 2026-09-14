@@ -12,6 +12,10 @@ export default defineConfig([
     extends: ["js/recommended"],
     languageOptions: {
       globals: globals.node,
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: __dirname
+      }
     },
   },
 

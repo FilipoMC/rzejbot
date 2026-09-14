@@ -12,5 +12,21 @@
     "Kontrola Generatorów Awaryjnych Diesla": 8,
     "Operator Polowy": 9,
     "Nadzór nad Blokiem I.": 10
+  },
+  "ranks": {
+    "Dyrektor Elektrowni": "1450930280037617787",
+    "Zastępca Dyrektora Elektrowni": "1467529036858130514",
+    "Główny Inżynier Elektrowni": "1450931343444672542",
+    "p.o Głównego Inżyniera Elektrowni": null,
+    
+    "Kierownik Bloków Elektrowni": "1450931356833157301",
+
+    "Starszy Inżynier Reaktora": "1450931358921789440",
+    "Inżynier Reaktora": "1450939750684033064",
+    "Operator Reaktora": "1450939912894414909",
+
+    "Starszy Operator Niejądrowy": "1450939914882646228",
+    "Operator Niejądrowy Reaktora": "1450939916677812406",
+    "Kandydat": "1450942654660739183"
   }
 }

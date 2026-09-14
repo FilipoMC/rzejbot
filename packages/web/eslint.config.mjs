@@ -4,6 +4,13 @@ import nextTs from "eslint-config-next/typescript";
 import sharedRules from "../../eslint.shared.mjs";
 
 const eslintConfig = defineConfig([
+  {languageOptions: {
+      globals: globals.node,
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: __dirname
+      }
+    },},
   ...nextVitals,
   ...nextTs,
   // Override default ignores of eslint-config-next.

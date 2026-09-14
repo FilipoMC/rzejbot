@@ -12,6 +12,10 @@ export default defineConfig([
     extends: ["js/recommended"],
     languageOptions: {
       globals: globals.node,
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: __dirname
+      }
     },
   },
 
@@ -24,5 +28,6 @@ export default defineConfig([
     plugins: { json },
     language: "json/json",
     extends: ["json/recommended"],
+    
   },
 ]);
