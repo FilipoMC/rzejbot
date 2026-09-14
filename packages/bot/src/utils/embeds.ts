@@ -11,9 +11,11 @@ export function createNoPermissionEmbed(): EmbedBuilder {
 
 /** @config Configuration function, returns only embed  */
 export function createCommandErrorEmbed(description?: string): EmbedBuilder {
-  return new EmbedBuilder().setDescription(
-    `${emoji.warning} Wystąpił błąd, spróbuj ponownie lub skontaktuj się z deweloperem${description ? `:\n\n${description}` : "."}`,
-  ).setColor("DarkRed");
+  return new EmbedBuilder()
+    .setDescription(
+      `${emoji.warning} Wystąpił błąd, spróbuj ponownie lub skontaktuj się z deweloperem${description ? `:\n\n${description}` : "."}`,
+    )
+    .setColor("DarkRed");
 }
 
 /** @config Configuration function, returns only embed  */
@@ -36,5 +38,7 @@ export function createSuccessEmbed(description?: string) {
 
 /** @config Configuration function, returns only embed  */
 export function createFailEmbed(description: string) {
-  return new EmbedBuilder().setDescription(`${emoji.no} ${description}`).setColor("DarkRed");
+  return new EmbedBuilder()
+    .setDescription(`${emoji.no} ${description}`)
+    .setColor("DarkRed");
 }

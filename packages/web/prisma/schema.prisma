@@ -16,6 +16,7 @@ model Employee {
   shiftsHosted Shift[]            @relation("EmployeeShiftsHosted")
   shiftLogs    ShiftEmployeeLog[] @relation
   shiftReports ShiftReport[]      @relation
+  loas         LOA[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
@@ -107,6 +108,20 @@ model Accident {
   description          String
 
   shiftReportId Int
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model LOA {
+  id       Int      @id @default(autoincrement())
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  dateStart DateTime @default(now())
+  duration  Int
+  reason    String
+
+  employeeId Int
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
