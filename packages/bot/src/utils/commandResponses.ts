@@ -134,7 +134,7 @@ export async function loading({
   interactionOrMsg: interaction,
   ephemeral = true,
   useFollowUp = false,
-}: params_generic) {
+}: params_generic<true>) {
   await conditionalReply(
     embeds.createLoadingEmbed(description),
     ephemeral,
