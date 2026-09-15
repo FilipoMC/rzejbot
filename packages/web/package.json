@@ -12,6 +12,7 @@
     "format": "prisma format"
   },
   "dependencies": {
+    "@rzej/shared": "workspace:*",
     "@base-ui/react": "^1.7.0",
     "@prisma/client": "^6.19.3",
     "class-variance-authority": "^0.7.1",

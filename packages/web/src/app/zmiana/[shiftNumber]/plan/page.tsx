@@ -18,10 +18,14 @@ async function getShift(number: string) {
   cacheTag(`shift:${number}`);
   cacheLife("days");
 
-  return await prisma.shift.findUnique({
+  const res = await prisma.shift.findUnique({
     where: { shiftNumber: number },
     include: { host: true },
   });
+
+  if (!res) return null;
+
+  return JSON.parse(JSON.stringify(res));
 }
 
 async function RobloxUsername({ robloxId }: { robloxId: number }) {

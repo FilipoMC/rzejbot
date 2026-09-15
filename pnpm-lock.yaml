@@ -11,6 +11,9 @@ importers:
       '@types/node':
         specifier: ^20.0.0
         version: 20.19.43
+      next:
+        specifier: 16.3.1
+        version: 16.3.1(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@20.19.43)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       prettier:
         specifier: 3.8.4
         version: 3.8.4
@@ -26,6 +29,9 @@ importers:
       '@commandkit/tasks':
         specifier: ^1.2.1
         version: 1.2.1
+      '@rzej/shared':
+        specifier: workspace:*
+        version: link:../shared
       commandkit:
         specifier: 1.2.1-dev.20260414125348
         version: 1.2.1-dev.20260414125348(rollup@4.62.4)(supports-color@7.2.0)(typescript@5.9.3)
@@ -121,6 +127,9 @@ importers:
       '@prisma/client':
         specifier: ^6.19.3
         version: 6.19.3(prisma@6.19.3(typescript@5.9.3))(typescript@5.9.3)
+      '@rzej/shared':
+        specifier: workspace:*
+        version: link:../shared
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

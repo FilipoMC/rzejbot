@@ -20,7 +20,7 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["../shared/src/*"]
+      "@shared/*": ["./node_modules/@rzej/shared/src/*"]
     }
   },
   "include": [
@@ -30,7 +30,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "../shared"
   ],
   "exclude": ["node_modules"]
 }
