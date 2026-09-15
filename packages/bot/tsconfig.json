@@ -22,8 +22,7 @@
     "jsxImportSource": "commandkit",
     "paths": {
       "@/*": ["./src/*"],
-      "@subcommands/*": ["./src/subcommands/*"],
-      "@shared/*": ["../shared/src/*"],
+      "@shared/*": ["./node_modules/@rzej/shared/src/*"],
       "discord.js": ["./node_modules/discord.js"]
     }
   },

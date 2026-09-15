@@ -1,4 +1,4 @@
-import { usersByIdResponseSchema } from "@shared/zod/roblox/apiResponses";
+import { robloxUsersByUsernamesAPIResponseSchema } from "@shared/zod/roblox/apiResponses";
 import { cacheLife } from "next/cache";
 
 export async function getRobloxUsersByIds(ids: number[]) {
@@ -11,7 +11,9 @@ export async function getRobloxUsersByIds(ids: number[]) {
       body: JSON.stringify({ userIds: ids, excludeBannedUsers: false }),
     });
 
-    const body = usersByIdResponseSchema.parse(await res.json());
+    const body = robloxUsersByUsernamesAPIResponseSchema.parse(
+      await res.json(),
+    );
 
     return body.data.map((v) => {
       return { id: v.id, name: v.name, displayName: v.displayName };
