@@ -1,5 +1,6 @@
 import z from "zod";
 import { snowflakeSchema } from "./discordSchemas";
+import { anyDateSchema } from "./dateTimeSchemas";
 
 export const nameICSchema = z
   .string()
@@ -36,4 +37,10 @@ export const employeePostSchema = z.object({
   robloxId: z.int().positive(),
   nameIC: nameICSchema,
   rank: z.string().trim().max(200),
+});
+
+export const loaPostSchema = z.object({
+  dateStart: z.optional(anyDateSchema),
+  duration: z.int().positive(),
+  reason: z.string(),
 });

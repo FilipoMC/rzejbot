@@ -12,3 +12,17 @@ export const employeeAPIResponseSchema = z.object({
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });
+
+export const loaAPIResponseSchema = z.object({
+  id: z.number().positive(),
+  dateStart: isoDateStringSchema,
+  duration: z.number().positive(),
+  reason: z.string(),
+  employeeId: z.number().positive(),
+  employee: z.object({
+    discordId: snowflakeSchema,
+  }),
+
+  updatedAt: isoDateStringSchema,
+  createdAt: isoDateStringSchema,
+});
