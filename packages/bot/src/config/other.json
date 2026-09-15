@@ -1,5 +1,7 @@
 {
   "shifts": {
-    "defaultShiftTime": "19:00"
+    "defaultShiftTime": "19:00",
+    "defaultBriefingDuration": 15,
+    "defaultShiftDuration": 60
   }
 }

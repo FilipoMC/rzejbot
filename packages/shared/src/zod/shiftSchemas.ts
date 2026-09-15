@@ -4,10 +4,14 @@ import { anyDateSchema } from "./dateTimeSchemas";
 import { employeeIdentifierSchema } from "./employeeSchemas";
 
 export const shiftNumberSchema = z.union([
-  z.string().regex(/^\d{3}\/\d{2}$/),
+  z.string().regex(
+    /^\d{3}\/\d{2}$/,
+
+    { error: "Niepoprawny format numeru zmiany." },
+  ),
   z
     .string()
-    .regex(/^\d{3}-\d{2}$/)
+    .regex(/^\d{3}-\d{2}$/, { error: "Niepoprawny format numeru zmiany." })
     .transform((v) => v.replace("-", "/")),
 ]);
 

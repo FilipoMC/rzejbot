@@ -3,6 +3,7 @@ import { Client } from "discord.js";
 import { CustomLogger } from "./utils/logger/customLogger";
 
 import "@/helper/employee";
+import "@/helper/shifts";
 import "@/helper/apiHelper";
 
 const client = new Client({

@@ -6,15 +6,19 @@ import {
   Guild,
   GuildMember,
   GuildMemberResolvable,
+  Interaction,
+  Message,
   ModalSubmitInteraction,
   PermissionFlagsBits,
   PermissionResolvable,
   PresenceUpdateStatus,
   User,
 } from "discord.js";
-import { COMMANDKIT_IS_DEV, Logger } from "commandkit";
+import { ButtonKit, COMMANDKIT_IS_DEV, Logger, ModalKit } from "commandkit";
 import kv from "./kv";
 import config from "@/config/config.json";
+import z from "zod";
+import { failedToExecute } from "./commandResponses";
 
 export async function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -149,4 +153,29 @@ export async function deferAfter<T>(
   }
 
   return promise;
+}
+
+export async function safeParseWithReply<
+  S extends z.ZodType,
+  T extends z.infer<S>,
+>(
+  unparsed: unknown,
+  schema: S,
+  interactionOrMsg: Interaction | Message,
+  message?: string | null,
+  kit?: ModalKit | ButtonKit,
+): Promise<T | null> {
+  const parsed = schema.safeParse(unparsed);
+
+  if (!parsed.success) {
+    await failedToExecute({
+      interactionOrMsg,
+      description: message ?? z.prettifyError(parsed.error),
+      ephemeral: true,
+    });
+    kit?.dispose();
+    return null;
+  }
+
+  return parsed.data as T;
 }
