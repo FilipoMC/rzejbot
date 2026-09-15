@@ -6,6 +6,7 @@ import sharedRules from "../../eslint.shared.mjs";
 
 const eslintConfig = defineConfig([
   {
+    files: ["src/**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     languageOptions: {
       globals: globals.node,
       parserOptions: {

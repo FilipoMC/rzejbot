@@ -23,9 +23,11 @@ async function getShift(number: string) {
     include: { host: true },
   });
 
-  if (!res) return null;
+  if (!res) {
+    return null;
+  }
 
-  return JSON.parse(JSON.stringify(res));
+  return JSON.parse(JSON.stringify(res)) as typeof res;
 }
 
 async function RobloxUsername({ robloxId }: { robloxId: number }) {
@@ -52,7 +54,7 @@ export default async function PlanZmiany(
   }
 
   return (
-    <div className="flex flex-col m-5 sm:m-10 text-base sm:text-lg">
+    <div className="flex flex-col m-4 sm:m-10 text-base sm:text-lg [&_thead]:max-sm:text-sm">
       <h1 className="text-xl sm:text-3xl font-bold text-center">
         OGÓLNY PLAN ZMIANY
       </h1>
@@ -68,7 +70,9 @@ export default async function PlanZmiany(
               Przydzielony Kierownik zmiany
             </th>
             <th className="text-center align-bottom">Dzień zmiany</th>
-            <th className="text-center align-bottom">Blok</th>
+            <th className="text-center align-bottom min-[20rem]:min-w-11">
+              Blok
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -101,7 +105,7 @@ export default async function PlanZmiany(
             <td className="text-center">
               {formatDate(shift.plannedDate, "dd.MM.yyyy")}
             </td>
-            <td className="text-center">I</td>
+            <td className="text-center">{shift.unit}</td>
           </tr>
         </tbody>
       </table>
