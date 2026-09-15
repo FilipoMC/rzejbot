@@ -7,8 +7,12 @@ import {
 } from "./apiHelper";
 import { Logger } from "commandkit";
 import z from "zod";
-import { employeeAPIResponseSchema } from "@shared/zod/apiResponses/employee";
-import { employeePostSchema } from "@shared/zod/employeeSchemas";
+import {
+  employeeAPIResponseSchema,
+  loaAPIResponseSchema,
+} from "@shared/zod/apiResponses/employee";
+import { employeePostSchema, loaPostSchema } from "@shared/zod/employeeSchemas";
+import { snowflakeSchema } from "@shared/zod/discordSchemas";
 
 ApiHelper.employee.create = async (request) => {
   const requestParsed = employeePostSchema.safeParse(request);
@@ -41,6 +45,104 @@ ApiHelper.employee.create = async (request) => {
           status: "apiError",
           errorStatus: "conflict",
           error: "Pracownik już istnieje.",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.employee.loa.create = async (empDiscordId, request) => {
+  const reqParsed = loaPostSchema.safeParse(request);
+  const employeeId = snowflakeSchema.safeParse(empDiscordId);
+  if (!reqParsed.success) {
+    Logger.error(z.treeifyError(reqParsed.error));
+    return {
+      status: "badArgument",
+      error: reqParsed.error,
+    };
+  }
+
+  if (!employeeId.success) {
+    Logger.error(z.treeifyError(employeeId.error));
+    return {
+      status: "badArgument",
+      error: employeeId.error,
+    };
+  }
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`employees/${employeeId}/loa`),
+    requestOptions("POST", JSON.stringify(reqParsed)),
+  );
+
+  const body = await res.json().catch(() => null);
+  const bodyParsed = apiResponseSchema(loaAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Nie znaleziono pracownika pod tym ID konta na discordzie",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.employee.loa.listForEmployee = async (dId) => {
+  const parsedDiD = snowflakeSchema.safeParse(dId);
+  if (!parsedDiD.success) {
+    Logger.error(z.treeifyError(parsedDiD.error));
+    return {
+      status: "badArgument",
+      error: parsedDiD.error,
+    };
+  }
+  const emplDiscordId = parsedDiD.data;
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`employees/${emplDiscordId}/loa/list`),
+    requestOptions("GET"),
+  );
+
+  const body = await res.json().catch(() => null);
+  const bodyParsed = apiResponseSchema(loaAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Nie znaleziono pracownika pod tym ID konta na discordzie",
         };
       default:
         Logger.error(bodyParsed.data.error);

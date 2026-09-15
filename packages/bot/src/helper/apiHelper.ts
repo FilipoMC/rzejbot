@@ -3,6 +3,8 @@ import { commandError } from "@/utils/commandResponses";
 import {
   EmployeeAPIResponse,
   EmployeePost,
+  LoaAPIResponse,
+  LoaPost,
   ShiftAPIResponse,
   ShiftEmployeeLogAPIResponse,
   ShiftLogAbsencePost,
@@ -18,7 +20,7 @@ import z from "zod";
 
 /**
  * Creates a URL for the internal API
- * @param route endpoint
+ * @param route endpoint `https://IP:PORT/api/${route}`
  * @param forceRelative make the function throw if the route param starts with /, making it absolute; default = true
  */
 export function getRequestURL(
@@ -174,10 +176,21 @@ interface ApiHelper {
     ) => Promise<
       ApiHelperReturnType<EmployeeAPIResponse, z.ZodError<EmployeePost>>
     >;
+    loa: {
+      create: (
+        employeeDiscordId: string,
+        req: LoaPost,
+      ) => Promise<
+        ApiHelperReturnType<LoaAPIResponse, z.ZodError<LoaPost | string>>
+      >;
+      listForEmployee: (
+        employeeDiscordId: string,
+      ) => Promise<ApiHelperReturnType<LoaAPIResponse, z.ZodError<string>>>;
+    };
   };
 }
 
 export const ApiHelper = {
   shifts: { report: {}, stations: {} },
-  employee: {},
+  employee: { loa: {} },
 } as ApiHelper;
