@@ -14,8 +14,8 @@ export default defineConfig([
       globals: globals.node,
       parserOptions: {
         project: true,
-        tsconfigRootDir: __dirname
-      }
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
   },
 
