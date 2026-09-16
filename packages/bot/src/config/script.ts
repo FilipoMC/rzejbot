@@ -4,3 +4,5 @@ export const websitePages = {
   shiftPlan: (number: string) =>
     `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/plan`,
 };
+
+export const shiftEventName = (number: string) => `Zmiana ${number}`;

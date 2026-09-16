@@ -1,13 +1,13 @@
+import channels from "@/config/channels.json";
 import other from "@/config/other.json";
-import { websitePages } from "@/config/script";
+import { shiftEventName, websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
+import { failedToExecute, loading, success } from "@/utils/commandResponses";
+import { createFailEmbed } from "@/utils/embeds";
 import {
-  commandError,
-  failedToExecute,
-  loading,
-  success,
-} from "@/utils/commandResponses";
-import { safeParseWithReply } from "@/utils/utilityFunctions";
+  fetchChannelResolvable,
+  safeParseWithReply,
+} from "@/utils/utilityFunctions";
 import sharedConfig from "@shared/config/config.json";
 import {
   defaultShiftGoal,
@@ -36,6 +36,8 @@ import {
   ApplicationCommandOptionType,
   codeBlock,
   EmbedBuilder,
+  GuildScheduledEventEntityType,
+  GuildScheduledEventPrivacyLevel,
   hyperlink,
   MessageFlags,
   TextInputStyle,
@@ -104,6 +106,13 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
   const date = addMinutes(dateParsed, -briefingDuration);
 
+  if (date.getTime() <= new Date().getTime()) {
+    await failedToExecute({
+      interactionOrMsg: interaction,
+      description: "Zmiana nie może być zaplanowana w przeszłości",
+    });
+  }
+
   const modalHandler: OnModalKitSubmit = async (modalInteraction, ctx) => {
     const shiftHost = modalInteraction.fields
       .getSelectedUsers("shiftHost", true)
@@ -137,34 +146,31 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     });
 
     if (res.status !== "ok") {
-      let responded = false;
+      let embed: EmbedBuilder | null = null;
+
       if (res.status === "apiError") {
         if (res.errorStatus === "notFound") {
-          await failedToExecute({
-            interactionOrMsg: modalInteraction,
-            description: "Podany kierownik nie jest w rejestrze pracowników.",
-          });
-          responded = true;
-        }
-
-        if (res.errorStatus === "conflict") {
-          await failedToExecute({
-            interactionOrMsg: modalInteraction,
-            description: "Zmiana z tym numerem już istnieje",
-          });
-          responded = true;
+          embed = createFailEmbed(
+            "Podany kierownik zmiany nie jest w rejestrze pracowników.",
+          );
+        } else if (res.errorStatus === "conflict") {
+          embed = createFailEmbed("Zmiana z tym numerem już istnieje");
         }
       }
 
-      if (!responded) {
-        await commandError({
-          interactionOrMsg: modalInteraction,
-          description: "Wystąpił błąd podczas komunikacji z serwerem.",
-        });
+      if (!embed) {
+        embed = createFailEmbed(
+          "Wystąpił błąd podczas komunikacji z serwerem.",
+        );
       }
+
+      embed.setDescription(
+        embed.data.description + "\n\nWprowadzone dane znajdują się poniżej",
+      );
 
       await interaction.followUp({
         embeds: [
+          embed,
           new EmbedBuilder().setDescription(codeBlock(eventDesc)),
           new EmbedBuilder().setDescription(codeBlock(shiftGoal)),
           new EmbedBuilder().setDescription(codeBlock(notes)),
@@ -174,6 +180,46 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       ctx.dispose();
       return;
     }
+
+    await Promise.all([
+      (async () => {
+        const event = await modalInteraction.guild?.scheduledEvents
+          .create({
+            name: shiftEventName(shiftNumber),
+            scheduledStartTime: date,
+            scheduledEndTime: addMinutes(
+              date,
+              other.shifts.defaultBriefingDuration +
+                other.shifts.defaultShiftDuration,
+            ),
+            entityType: GuildScheduledEventEntityType.Voice,
+            privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
+            channel: channels.zmianaVC.main,
+          })
+          .catch(() => null);
+
+        if (event) {
+          const ogloszeniaBlokow = await fetchChannelResolvable(
+            channels.ogloszeniaBlokow,
+            modalInteraction.client,
+          );
+          if (ogloszeniaBlokow?.isSendable()) {
+            ogloszeniaBlokow.send(
+              `${hyperlink(`Plan zmiany ${shiftNumber}`, websitePages.shiftPlan(shiftNumber))}${hyperlink(".", event.url)}`,
+            );
+          }
+        }
+      })(),
+      (async () => {
+        const plansChannel = await fetchChannelResolvable(
+          channels.plany,
+          modalInteraction.client,
+        );
+        if (plansChannel?.isSendable()) {
+          plansChannel.send(websitePages.shiftPlan(shiftNumber));
+        }
+      })(),
+    ]);
 
     await success({
       interactionOrMsg: modalInteraction,
