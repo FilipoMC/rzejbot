@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { getRobloxUsersByIds } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
-import { addMinutes, formatDate } from "date-fns";
+import { addMinutes } from "date-fns";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -182,10 +182,10 @@ export async function generateMetadata({
   const { shiftNumber } = await params;
 
   return {
-    title: `Plan zmiany - ${shiftNumber}`,
+    title: `Plan zmiany - ${shiftNumber.replace("-", "/")}`,
     description: `Ogólny plan zmiany Elektrowni Jądrowej w Żarnowcu`,
     openGraph: {
-      title: `Plan zmiany - ${shiftNumber}`,
+      title: `Plan zmiany - ${shiftNumber.replace("-", "/")}`,
       description: `Ogólny plan zmiany Elektrowni Jądrowej w Żarnowcu`,
       siteName: "System teleinformatyczny ŻEJ",
     },
