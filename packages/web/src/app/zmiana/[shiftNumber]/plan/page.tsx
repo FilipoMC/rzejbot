@@ -1,3 +1,4 @@
+import FormatDate from "@/components/formatDate";
 import RichText from "@/components/richText";
 import {
   Popover,
@@ -103,7 +104,7 @@ export default async function PlanZmiany(
               </Popover>
             </td>
             <td className="text-center">
-              {formatDate(shift.plannedDate, "dd.MM.yyyy")}
+              <FormatDate date={shift.plannedDate} format="dd.MM.yyyy" />
             </td>
             <td className="text-center">{shift.unit}</td>
           </tr>
@@ -130,22 +131,25 @@ export default async function PlanZmiany(
         <tbody>
           <tr>
             <td className="text-center">
-              {formatDate(shift.plannedDate, "HH:mm")}
+              <FormatDate date={shift.plannedDate} format="HH:mm" />
             </td>
             <td className="text-center">
-              {formatDate(
-                addMinutes(shift.plannedDate, shift.plannedBriefingDuration),
-                "HH:mm",
-              )}
+              <FormatDate
+                date={addMinutes(
+                  shift.plannedDate,
+                  shift.plannedBriefingDuration,
+                )}
+                format="HH:mm"
+              />
             </td>
             <td className="text-center">
-              {formatDate(
-                addMinutes(
+              <FormatDate
+                date={addMinutes(
                   shift.plannedDate,
                   shift.plannedBriefingDuration + shift.plannedDuration,
-                ),
-                "HH:mm",
-              )}
+                )}
+                format="HH:mm"
+              />
             </td>
             <td className="text-center">{shift.plannedDuration} minut</td>
           </tr>
