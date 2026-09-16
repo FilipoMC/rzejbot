@@ -10,6 +10,7 @@ import { getRobloxUsersByIds } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { addMinutes, formatDate } from "date-fns";
+import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -173,4 +174,20 @@ export default async function PlanZmiany(
       </div>
     </div>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/zmiana/[shiftNumber]/plan">): Promise<Metadata> {
+  const { shiftNumber } = await params;
+
+  return {
+    title: `Plan zmiany - ${shiftNumber}`,
+    description: `Ogólny plan zmiany Elektrowni Jądrowej w Żarnowcu`,
+    openGraph: {
+      title: `Plan zmiany - ${shiftNumber}`,
+      description: `This description shows up directly in the Discord embed.`,
+      siteName: "System teleinformatyczny ŻEJ",
+    },
+  };
 }
