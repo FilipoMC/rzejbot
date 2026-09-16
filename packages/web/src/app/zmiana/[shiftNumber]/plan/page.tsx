@@ -186,7 +186,7 @@ export async function generateMetadata({
     description: `Ogólny plan zmiany Elektrowni Jądrowej w Żarnowcu`,
     openGraph: {
       title: `Plan zmiany - ${shiftNumber}`,
-      description: `This description shows up directly in the Discord embed.`,
+      description: `Ogólny plan zmiany Elektrowni Jądrowej w Żarnowcu`,
       siteName: "System teleinformatyczny ŻEJ",
     },
   };
