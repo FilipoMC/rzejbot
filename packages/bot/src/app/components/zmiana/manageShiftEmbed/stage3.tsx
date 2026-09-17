@@ -5,7 +5,11 @@ import {
   ShiftReportAPIResponse,
 } from "@shared/types/api";
 import { OnButtonKitClick, Button, ButtonKit, Logger } from "commandkit";
-import { ActionRowBuilder, ButtonStyle } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonStyle,
+  GuildScheduledEventStatus,
+} from "discord.js";
 import {
   getShiftManageEmbed,
   registerButtonHandler,
@@ -14,6 +18,7 @@ import {
 import { commandError } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
 import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
+import { shiftEventName } from "@/config/script";
 
 export function createManageShiftEmbedStage3Components(
   shift: ShiftAPIResponse,
@@ -39,12 +44,19 @@ export function createManageShiftEmbedStage3Components(
 
     const shiftReport = shiftReportRes.data;
 
-    const newEmbed = getShiftManageEmbed(shift, shiftReport, stations);
+    const newEmbed = getShiftManageEmbed(shift, shiftReport, stations, false);
 
     await interaction.message.edit({
       embeds: [newEmbed],
       components: [],
     });
+
+    if (interaction.inCachedGuild()) {
+      const event = (await interaction.guild.scheduledEvents.fetch()).find(
+        (ev) => ev.name === shiftEventName(shift.shiftNumber),
+      );
+      await event?.setStatus(GuildScheduledEventStatus.Completed);
+    }
 
     ctx.dispose();
   };

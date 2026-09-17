@@ -1,6 +1,9 @@
+import prepareShiftBriefing, {
+  PrepareShiftBriefingTaskData,
+} from "@/app/tasks/prepareShiftBriefing";
 import channels from "@/config/channels.json";
 import other from "@/config/other.json";
-import { shiftEventName, websitePages } from "@/config/script";
+import { getRandomImage, shiftEventName, websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
 import { failedToExecute, loading, success } from "@/utils/commandResponses";
 import { createFailEmbed } from "@/utils/embeds";
@@ -8,6 +11,7 @@ import {
   fetchChannelResolvable,
   safeParseWithReply,
 } from "@/utils/utilityFunctions";
+import { createTask } from "@commandkit/tasks";
 import sharedConfig from "@shared/config/config.json";
 import {
   defaultShiftGoal,
@@ -111,9 +115,15 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       interactionOrMsg: interaction,
       description: "Zmiana nie może być zaplanowana w przeszłości",
     });
+    return;
   }
 
   const modalHandler: OnModalKitSubmit = async (modalInteraction, ctx) => {
+    if (!modalInteraction.inCachedGuild()) {
+      ctx.dispose();
+      return;
+    }
+
     const shiftHost = modalInteraction.fields
       .getSelectedUsers("shiftHost", true)
       .at(0)!;
@@ -183,7 +193,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
     await Promise.all([
       (async () => {
-        const event = await modalInteraction.guild?.scheduledEvents
+        const event = await modalInteraction.guild.scheduledEvents
           .create({
             name: shiftEventName(shiftNumber),
             scheduledStartTime: date,
@@ -195,6 +205,8 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             entityType: GuildScheduledEventEntityType.Voice,
             privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
             channel: channels.zmianaVC.main,
+            description: eventDesc,
+            image: getRandomImage("shiftEvent"),
           })
           .catch(() => null);
 
@@ -205,7 +217,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
           );
           if (ogloszeniaBlokow?.isSendable()) {
             ogloszeniaBlokow.send(
-              `${hyperlink(`Plan zmiany ${shiftNumber}`, websitePages.shiftPlan(shiftNumber))}${hyperlink(".", event.url)}`,
+              hyperlink(`Zmiana ${shiftNumber}`, event.url),
             );
           }
         }
@@ -220,6 +232,15 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         }
       })(),
     ]);
+
+    createTask({
+      name: prepareShiftBriefing.name,
+      data: {
+        shiftIdentifier: { number: shiftNumber },
+        guildId: modalInteraction.guildId,
+      } satisfies PrepareShiftBriefingTaskData,
+      schedule: date,
+    });
 
     await success({
       interactionOrMsg: modalInteraction,
