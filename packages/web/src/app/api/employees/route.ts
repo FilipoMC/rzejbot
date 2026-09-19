@@ -15,9 +15,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const { discordId, nameIC, rank, robloxId, qualification } = parsedBody.data;
   try {
     const res = await prisma.employee.create({
-      data: parsedBody.data,
+      data: {
+        discordId,
+        nameIC,
+        rank,
+        robloxId,
+        qualification: {
+          create: qualification,
+        },
+      },
     });
 
     return NextResponse.json({ ok: true, data: res }, { status: 201 });

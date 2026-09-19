@@ -12,7 +12,6 @@ import {
 } from "commandkit";
 import {
   ApplicationCommandOptionType,
-  codeBlock,
   MessageFlags,
   TextInputStyle,
   userMention,

@@ -18,6 +18,10 @@ model Employee {
   shiftReports ShiftReport[]      @relation
   loas         LOA[]
 
+  employeeChanges       EmployeeChange[] @relation("EmpChanges")
+  employeeChangesIssued EmployeeChange[] @relation("EmpChangesIssued")
+  qualification         EmployeeQual?
+
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
@@ -122,6 +126,42 @@ model LOA {
   reason    String
 
   employeeId Int
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+enum EmpChangeType {
+  promotion
+  warn // uwaga pisemna
+  reprimand
+  suspension
+}
+
+model EmployeeChange {
+  id       Int           @id @default(autoincrement())
+  employee Employee      @relation("EmpChanges", fields: [employeeId], references: [id])
+  issuer   Employee      @relation("EmpChangesIssued", fields: [issuerId], references: [id])
+  type     EmpChangeType
+  reason   String
+  note     String
+  newRole  String
+
+  employeeId Int
+  issuerId   Int
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model EmployeeQual {
+  employeeId Int      @id @unique
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  pracownik       Boolean @default(false)
+  jadrowy         Boolean @default(false)
+  kierownikZmiany Boolean @default(false)
+  szkoleniowiec   Boolean @default(false)
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

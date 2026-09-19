@@ -9,6 +9,16 @@ export async function GET(
 
   const res = await prisma.employee.findUnique({
     where: { discordId: id },
+    include: {
+      qualification: {
+        select: {
+          pracownik: true,
+          jadrowy: true,
+          kierownikZmiany: true,
+          szkoleniowiec: true,
+        },
+      },
+    },
   });
   if (!res) {
     return NextResponse.json(
