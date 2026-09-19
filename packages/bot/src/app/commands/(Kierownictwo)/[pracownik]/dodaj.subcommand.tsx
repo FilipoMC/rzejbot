@@ -1,10 +1,12 @@
 import {
   ChatInputCommand,
+  CheckboxGroup,
   CommandData,
   Label,
   Logger,
   Modal,
   OnModalKitSubmit,
+  CheckboxGroupOption,
   StringSelectMenu,
   StringSelectMenuOption,
   TextInput,
@@ -12,7 +14,6 @@ import {
 } from "commandkit";
 import {
   ApplicationCommandOptionType,
-  MessageFlags,
   TextInputStyle,
   userMention,
 } from "discord.js";
@@ -41,7 +42,6 @@ export const command: CommandData = {
 };
 
 const modalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   await loading({ interactionOrMsg: interaction, description: undefined });
 
   const modalResponses = {
@@ -49,6 +49,7 @@ const modalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
     nameIC: interaction.fields.getTextInputValue("nameIC"),
     robloxUser: interaction.fields.getTextInputValue("robloxName"),
     rank: interaction.fields.getStringSelectValues("rank")[0],
+    qual: interaction.fields.getCheckboxGroup("qualification"),
   };
 
   const res = await fetch("https://users.roblox.com/v1/usernames/users", {
@@ -78,12 +79,20 @@ const modalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
     ctx.dispose();
     return;
   }
+  // Logger.info([modalResponses.qual]);
+  const returnObj: Record<string, boolean> = {};
+  modalResponses.qual.map((e) => {
+    returnObj[e] = true;
+  });
 
   const prismaRes = await ApiHelper.employee.create({
     discordId: modalResponses.user.id,
     nameIC: modalResponses.nameIC,
     rank: modalResponses.rank || "",
     robloxId: resParsed.data.data[0]?.id,
+    qualification: {
+      create: returnObj,
+    },
   });
 
   if (prismaRes.status === "ok") {
@@ -164,6 +173,17 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
             );
           })}
         </StringSelectMenu>
+      </Label>
+      <Label label="Kwalifikacje/Uprawnienia">
+        <CheckboxGroup customId="qualification">
+          <CheckboxGroupOption label="Pracownik" value="pracownik" />
+          <CheckboxGroupOption label="Jądrowy" value="jadrawy" />
+          <CheckboxGroupOption
+            label="Kierownik Zmiany"
+            value="kierownikZmiany"
+          />
+          <CheckboxGroupOption label="Szkoleniowiec" value="szkoleniowiec" />
+        </CheckboxGroup>
       </Label>
     </Modal>,
   );

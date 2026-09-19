@@ -37,14 +37,14 @@ export const employeePostSchema = z.object({
   robloxId: z.int().positive(),
   nameIC: nameICSchema,
   rank: z.string().trim().max(200),
-  qualification: z
-    .object({
+  qualification: z.object({
+    create: z.object({
       pracownik: z.boolean().optional(),
       jadrowy: z.boolean().optional(),
       kierownikZmiany: z.boolean().optional(),
       szkoleniowiec: z.boolean().optional(),
-    })
-    .optional(),
+    }),
+  }),
 });
 
 export const loaPostSchema = z.object({
