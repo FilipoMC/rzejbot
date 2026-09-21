@@ -32,7 +32,7 @@ model ShiftEmployeeLog {
   shift    Shift    @relation(fields: [shiftId], references: [id])
   employee Employee @relation(fields: [employeeId], references: [id])
 
-  absence     Boolean?
+  absence     Boolean   @default(false)
   clockedIn   DateTime?
   clockedTime Int?
 

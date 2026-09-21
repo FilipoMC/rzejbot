@@ -60,3 +60,9 @@ export const shiftLogStationsPostSchema = z.array(
     date: anyDateSchema.optional(),
   }),
 );
+
+export const shiftLogPresenceInitialPostSchema = z.array(
+  z.object({
+    employee: employeeIdentifierSchema,
+  }),
+);
