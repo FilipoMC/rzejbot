@@ -5,7 +5,12 @@ import channels from "@/config/channels.json";
 import other from "@/config/other.json";
 import { getRandomImage, shiftEventName, websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
-import { failedToExecute, loading, success } from "@/utils/commandResponses";
+import {
+  commandError,
+  failedToExecute,
+  loading,
+  success,
+} from "@/utils/commandResponses";
 import { createFailEmbed } from "@/utils/embeds";
 import {
   fetchChannelResolvable,
@@ -22,22 +27,33 @@ import { anyDateStringSchema } from "@shared/zod/dateTimeSchemas";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import {
   AutocompleteCommand,
+  Button,
+  ButtonKit,
   ChatInputCommand,
   CommandData,
   Label,
   Modal,
+  OnButtonKitClick,
   OnModalKitSubmit,
   RadioGroup,
   RadioGroupOption,
   TextInput,
   UserSelectMenu,
 } from "commandkit";
-import { addDays, addMinutes } from "date-fns";
+import {
+  addDays,
+  addMinutes,
+  differenceInMilliseconds,
+  minutesToMilliseconds,
+} from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { formatDate } from "date-fns/format";
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionChoiceData,
   ApplicationCommandOptionType,
+  AttachmentBuilder,
+  ButtonStyle,
   codeBlock,
   EmbedBuilder,
   GuildScheduledEventEntityType,
@@ -143,7 +159,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       description: undefined,
     });
 
-    const res = await ApiHelper.shifts.create({
+    const shift = await ApiHelper.shifts.create({
       shiftNumber,
       unit,
       host: shiftHost.id,
@@ -155,15 +171,15 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       plannedBriefingDuration: briefingDuration,
     });
 
-    if (res.status !== "ok") {
+    if (shift.status !== "ok") {
       let embed: EmbedBuilder | null = null;
 
-      if (res.status === "apiError") {
-        if (res.errorStatus === "notFound") {
+      if (shift.status === "apiError") {
+        if (shift.errorStatus === "notFound") {
           embed = createFailEmbed(
             "Podany kierownik zmiany nie jest w rejestrze pracowników.",
           );
-        } else if (res.errorStatus === "conflict") {
+        } else if (shift.errorStatus === "conflict") {
           embed = createFailEmbed("Zmiana z tym numerem już istnieje");
         }
       }
@@ -210,16 +226,78 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
           })
           .catch(() => null);
 
-        if (event) {
-          const ogloszeniaBlokow = await fetchChannelResolvable(
-            channels.ogloszeniaBlokow,
-            modalInteraction.client,
+        const absenceButtonCallback: OnButtonKitClick = async (
+          buttonInteraction,
+        ) => {
+          await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
+          await loading({
+            interactionOrMsg: buttonInteraction,
+            description: undefined,
+          });
+          const res = await ApiHelper.shifts.logEmployeeAbsence(shift.data.id, {
+            employeeDiscordId: buttonInteraction.user.id,
+          });
+
+          if (res.status === "apiError" && res.errorStatus === "conflict") {
+            await failedToExecute({
+              interactionOrMsg: buttonInteraction,
+              description: "Zgłosiłeś już nieobecność na tej zmianie",
+            });
+            return;
+          } else if (res.status !== "ok") {
+            await commandError({
+              interactionOrMsg: buttonInteraction,
+              description: "Wystąpił błąd podczas komunikacji z serwerem",
+            });
+            return;
+          }
+
+          await buttonInteraction.editReply({
+            embeds: [],
+            content: "Zgłoszono nieobecność",
+            files: [new AttachmentBuilder(getRandomImage("declaredAbsence"))],
+          });
+        };
+
+        const createActionRow = (disabled: boolean = false) =>
+          new ActionRowBuilder<ButtonKit>().setComponents(
+            <Button
+              customId={`absence_${shift.data.id}`}
+              style={ButtonStyle.Success}
+              onClick={disabled ? undefined : absenceButtonCallback}
+              disabled={disabled}
+              options={{ time: differenceInMilliseconds(date, new Date()) }}
+            >
+              Zgłoś nieobecność
+            </Button>,
           );
-          if (ogloszeniaBlokow?.isSendable()) {
-            ogloszeniaBlokow.send(
-              hyperlink(`Zmiana ${shiftNumber}`, event.url),
+
+        const ogloszeniaBlokow = await fetchChannelResolvable(
+          channels.ogloszeniaBlokow,
+          modalInteraction.client,
+        );
+        if (ogloszeniaBlokow?.isSendable()) {
+          let content;
+          if (event) {
+            content = hyperlink(`Zmiana ${shiftNumber}`, event.url);
+          } else {
+            content = hyperlink(
+              `Zmiana ${shiftNumber}`,
+              websitePages.shiftPlan(shiftNumber),
             );
           }
+          const message = await ogloszeniaBlokow.send({
+            content,
+            components: [createActionRow()],
+          });
+
+          setTimeout(
+            () => {
+              message.edit({ components: [createActionRow(true)] });
+            },
+            differenceInMilliseconds(date, new Date()) -
+              minutesToMilliseconds(other.shifts.absenceAllowedUntil),
+          );
         }
       })(),
       (async () => {
@@ -227,8 +305,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
           channels.plany,
           modalInteraction.client,
         );
+
         if (plansChannel?.isSendable()) {
-          plansChannel.send(websitePages.shiftPlan(shiftNumber));
+          await plansChannel.send({
+            content: websitePages.shiftPlan(shiftNumber),
+          });
         }
       })(),
     ]);

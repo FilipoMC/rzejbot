@@ -1,3 +1,4 @@
+import { websiteUrl } from "@/config/script";
 import { ApiHelperReturnType } from "@/types/apiHelper";
 import { commandError } from "@/utils/commandResponses";
 import {
@@ -28,7 +29,7 @@ export function getRequestURL(
   searchParams: Record<string, string> = {},
   forceRelative: boolean = true,
 ) {
-  const requestBasePath = `http://${process.env.SERVER_IP}${process.env.SERVER_PORT ? `:${process.env.SERVER_PORT}` : ""}/api/`;
+  const requestBasePath = `${websiteUrl}/api/`;
 
   if (forceRelative && route.startsWith("/")) {
     throw new Error("Absolute route passed to getRequestURL");
