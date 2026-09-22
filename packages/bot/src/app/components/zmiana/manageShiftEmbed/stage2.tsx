@@ -59,6 +59,8 @@ export function createManageShiftEmbedStage2Components(
 
     const newEmbed = getShiftManageEmbed(shift, shiftReport, stations);
 
+    disposeShiftHandlers(shift.id);
+
     await interaction.message.edit({
       embeds: [newEmbed],
       components: createManageShiftEmbedStage3Components(

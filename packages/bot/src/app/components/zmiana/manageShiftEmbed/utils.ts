@@ -6,7 +6,7 @@ import {
 } from "@shared/types/api";
 import { ButtonKit, ModalKit } from "commandkit";
 import { addMinutes } from "date-fns";
-import { TimestampStyles, EmbedBuilder, userMention, time } from "discord.js";
+import { EmbedBuilder, time, TimestampStyles, userMention } from "discord.js";
 
 function disposeHandlers(handlers: KitArray) {
   for (const handler of handlers) {
@@ -22,6 +22,7 @@ export function disposeShiftHandlers(shiftId: number) {
   if (handlers) {
     disposeHandlers(handlers);
   }
+  buttonHandlers.delete(shiftId);
 }
 
 export function registerButtonHandler(shiftId: number, handler: ButtonKit) {
