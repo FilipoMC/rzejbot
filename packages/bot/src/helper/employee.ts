@@ -8,11 +8,59 @@ import {
 import { Logger } from "commandkit";
 import z from "zod";
 import {
-  employeeAPIResponseSchema,
+  employeeAPIGetResponseSchema,
+  employeeAPIPostResponseSchema,
   loaAPIResponseSchema,
 } from "@shared/zod/apiResponses/employee";
 import { employeePostSchema, loaPostSchema } from "@shared/zod/employeeSchemas";
 import { snowflakeSchema } from "@shared/zod/discordSchemas";
+
+ApiHelper.employee.find = async (dcId) => {
+  const parsedDcId = snowflakeSchema.safeParse(dcId);
+  if (!parsedDcId.success) {
+    return {
+      status: "badArgument",
+      error: parsedDcId.error,
+    };
+  }
+  const res = await fetchWithErrorHandling(
+    getRequestURL("employees/" + dcId),
+    requestOptions("GET"),
+  );
+  const body = await res.json().catch(() => null);
+  const bodyParsed = apiResponseSchema(employeeAPIGetResponseSchema).safeParse(
+    body,
+  );
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return {
+      status: "apiResponseParsingError",
+    };
+  }
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  }
+
+  switch (res.status) {
+    case 404:
+      return {
+        status: "apiError",
+        errorStatus: "notFound",
+        error: "Nie znaleziono pracownika w bazie danych",
+      };
+    default:
+      return {
+        status: "apiError",
+        errorStatus: "serverError",
+        error: "Wystąpił błąd z serwerem",
+      };
+  }
+};
 
 ApiHelper.employee.create = async (request) => {
   const requestParsed = employeePostSchema.safeParse(request);
@@ -27,7 +75,7 @@ ApiHelper.employee.create = async (request) => {
   );
   const body: unknown = await res.json().catch(() => null);
 
-  const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
+  const bodyParsed = apiResponseSchema(employeeAPIPostResponseSchema).safeParse(
     body,
   );
 

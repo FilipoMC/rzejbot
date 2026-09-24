@@ -16,7 +16,8 @@ import {
 } from "../zod/apiResponses/shifts";
 import { Prettify } from "./utils";
 import {
-  employeeAPIResponseSchema,
+  employeeAPIGetResponseSchema,
+  employeeAPIPostResponseSchema,
   loaAPIResponseSchema,
 } from "../zod/apiResponses/employee";
 
@@ -56,6 +57,11 @@ export type ShiftLogStationsGetAPIResponse = z.infer<
 export type EmployeePost = z.infer<typeof employeePostSchema>;
 export type LoaPost = z.infer<typeof loaPostSchema>;
 
-export type EmployeeAPIResponse = z.infer<typeof employeeAPIResponseSchema>;
+export type EmployeeAPIPostResponse = z.infer<
+  typeof employeeAPIPostResponseSchema
+>;
+export type EmployeeAPIGetResponse = z.infer<
+  typeof employeeAPIGetResponseSchema
+>;
 export type LoaAPIResponse = z.infer<typeof loaAPIResponseSchema>;
 // #endregion

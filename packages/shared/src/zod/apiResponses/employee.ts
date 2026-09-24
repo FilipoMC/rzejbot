@@ -2,12 +2,29 @@ import z from "zod";
 import { snowflakeSchema } from "../discordSchemas";
 import { isoDateStringSchema } from "../dateTimeSchemas";
 
-export const employeeAPIResponseSchema = z.object({
+export const employeeAPIPostResponseSchema = z.object({
   id: z.number().positive(),
   discordId: snowflakeSchema,
   robloxId: z.number().positive(),
   nameIC: z.string(),
   rank: z.string(),
+
+  updatedAt: isoDateStringSchema,
+  createdAt: isoDateStringSchema,
+});
+
+export const employeeAPIGetResponseSchema = z.object({
+  id: z.number().positive(),
+  discordId: snowflakeSchema,
+  robloxId: z.number().positive(),
+  nameIC: z.string(),
+  rank: z.string(),
+  qualification: z.object({
+    pracownik: z.boolean(),
+    jadrowy: z.boolean(),
+    kierownikZmiany: z.boolean(),
+    szkoleniowiec: z.boolean(),
+  }),
 
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,

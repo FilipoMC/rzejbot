@@ -2,7 +2,8 @@ import { websiteUrl } from "@/config/script";
 import { ApiHelperReturnType } from "@/types/apiHelper";
 import { commandError } from "@/utils/commandResponses";
 import {
-  EmployeeAPIResponse,
+  EmployeeAPIGetResponse,
+  EmployeeAPIPostResponse,
   EmployeePost,
   LoaAPIResponse,
   LoaPost,
@@ -172,10 +173,15 @@ interface ApiHelper {
     };
   };
   employee: {
+    find: (
+      dcId: string,
+    ) => Promise<
+      ApiHelperReturnType<EmployeeAPIGetResponse, z.ZodError<string>>
+    >;
     create: (
       req: EmployeePost,
     ) => Promise<
-      ApiHelperReturnType<EmployeeAPIResponse, z.ZodError<EmployeePost>>
+      ApiHelperReturnType<EmployeeAPIPostResponse, z.ZodError<EmployeePost>>
     >;
     loa: {
       create: (
