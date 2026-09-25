@@ -90,6 +90,8 @@ model ShiftReport {
   rodBalance RodBalance?
   summary    String?
 
+  approved Boolean @default(false)
+
   accidents Accident[] @relation
   cohostId  Int?
 

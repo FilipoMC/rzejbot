@@ -57,7 +57,7 @@ ApiHelper.employee.find = async (dcId) => {
       return {
         status: "apiError",
         errorStatus: "serverError",
-        error: "Wystąpił błąd z serwerem",
+        error: "Wystąpił błąd podczas komunikacji serwerem",
       };
   }
 };
