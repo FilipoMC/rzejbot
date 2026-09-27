@@ -73,6 +73,8 @@ export const shiftLogStationsGetAPIResponseSchema = z.array(
         employeeDiscordId: snowflakeSchema,
         employeeNameIC: nameICSchema,
         time: isoDateStringSchema,
+        rating: z.string().nullable(),
+        mode: z.string().nullable(),
       }),
     ),
   }),

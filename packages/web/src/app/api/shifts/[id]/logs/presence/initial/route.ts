@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { shiftLogPresenceInitialPostSchema } from "@shared/zod/shiftSchemas";
 import _ from "lodash";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
@@ -105,6 +106,8 @@ export async function POST(
         skipDuplicates: true,
       }),
     ]);
+
+    revalidateTag(`shiftReport:id:${shiftId}`, "max");
 
     return NextResponse.json({ ok: true, data: employeeResults });
   } catch (err) {

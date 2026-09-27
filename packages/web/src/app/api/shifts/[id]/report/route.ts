@@ -4,6 +4,7 @@ import {
   shiftReportPatchSchema,
   shiftReportPostSchema,
 } from "@shared/zod/shiftSchemas";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -91,6 +92,8 @@ export async function POST(
       },
     });
 
+    revalidateTag(`shiftReport:number:${res.shift.shiftNumber}`, { expire: 0 });
+
     return NextResponse.json(
       {
         ok: true,
@@ -175,6 +178,8 @@ export async function PATCH(
         shift: { select: { shiftNumber: true } },
       },
     });
+
+    revalidateTag(`shiftReport:number:${res.shift.shiftNumber}`, "max");
 
     return NextResponse.json(
       {

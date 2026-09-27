@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import { getShiftStations } from "@/lib/sharedDbActions";
 import { Prisma } from "@prisma/client";
 import { shiftLogStationsPostSchema } from "@shared/zod/shiftSchemas";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import config from "@shared/config/config.json";
 
 export async function GET(
   _req: NextRequest,
@@ -31,77 +32,26 @@ export async function GET(
         stations: true,
         stationTimes: true,
         rating: true,
+        mode: true,
         employee: { select: { discordId: true, nameIC: true } },
       },
     });
 
-    const stationOrder = config.stations as Record<string, number>;
+    const operatorsByStation = getShiftStations(res);
 
-    const byStation = new Map<
-      string,
-      { employeeDiscordId: string; employeeNameIC: string; time: Date }[]
-    >();
-
-    for (const row of res) {
-      if (row.stations.length !== row.stationTimes.length) {
-        console.error(
-          `Corrupted shiftEmployeeLog ${row.id}: stations/stationTimes length mismatch`,
-        );
-        return NextResponse.json(
-          {
-            ok: false,
-            error: `Corrupted data (stations desynced from stationTimes). Log id: ${row.id}`,
-          },
-          { status: 500 },
-        );
-      }
-
-      for (let i = 0; i < row.stations.length; i++) {
-        const station = row.stations[i];
-        const time = row.stationTimes[i];
-
-        const operators = byStation.get(station) ?? [];
-
-        operators.push({
-          employeeDiscordId: row.employee.discordId,
-          employeeNameIC: row.employee.nameIC,
-          time,
-        });
-
-        byStation.set(station, operators);
-      }
+    if (operatorsByStation.status !== "ok") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `Corrupted data (stations desynced from stationTimes). Log id: ${operatorsByStation.error}`,
+        },
+        { status: 500 },
+      );
     }
-
-    for (const operators of byStation.values()) {
-      operators.sort((a, b) => a.time.getTime() - b.time.getTime());
-    }
-
-    const operatorsByStation = byStation
-      .entries()
-      .toArray()
-      .toSorted(([aStation], [bStation]) => {
-        const aVal = stationOrder[aStation] ?? Infinity;
-        const bVal = stationOrder[bStation] ?? Infinity;
-
-        return aVal - bVal || aStation.localeCompare(bStation);
-      })
-      .map(([station, operators]) => {
-        const deduplicated = operators.filter(
-          (operator, index) =>
-            index === 0 ||
-            operator.employeeDiscordId !==
-              operators[index - 1].employeeDiscordId,
-        );
-
-        return [station, deduplicated] as const;
-      })
-      .map(([station, operators]) => {
-        return { station, operators };
-      });
 
     return NextResponse.json({
       ok: true,
-      data: operatorsByStation,
+      data: operatorsByStation.data,
     });
   } catch (err) {
     console.error(err);
@@ -227,6 +177,8 @@ export async function POST(
           }),
       ),
     );
+
+    revalidateTag(`shiftReport:id:${shiftId}`, "max");
 
     return NextResponse.json({ ok: true, data: employeeResults });
   } catch (err) {

@@ -42,6 +42,7 @@ model ShiftEmployeeLog {
   stations     String[]
   stationTimes DateTime[]
   rating       String[]
+  mode         String[]
 
   accidents Accident[] @relation
 

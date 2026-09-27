@@ -1,13 +1,14 @@
 import FormatDate from "@/components/formatDate";
 import RichText from "@/components/richText";
+import RobloxUsername from "@/components/robloxUsername";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { getRobloxUsersByIds } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { toPlain } from "@/lib/utils";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { addMinutes } from "date-fns";
 import { Metadata } from "next";
@@ -17,7 +18,7 @@ import { Suspense } from "react";
 
 async function getShift(number: string) {
   "use cache";
-  cacheTag(`shift:${number}`);
+  cacheTag(`shift:number:${number}`);
   cacheLife("days");
 
   const res = await prisma.shift.findUnique({
@@ -29,13 +30,9 @@ async function getShift(number: string) {
     return null;
   }
 
-  return JSON.parse(JSON.stringify(res)) as typeof res;
-}
+  cacheTag(`shift:id:${res.id}`);
 
-async function RobloxUsername({ robloxId }: { robloxId: number }) {
-  const users = await getRobloxUsersByIds([robloxId]);
-
-  return <>{users?.[0]?.displayName ?? "N/A"}</>;
+  return toPlain(res);
 }
 
 export default async function PlanZmiany(
@@ -79,7 +76,7 @@ export default async function PlanZmiany(
         </thead>
         <tbody>
           <tr>
-            <td className="text-center">{shiftNumberParsed.data}</td>
+            <td className="text-center">{shift.shiftNumber}</td>
             <td className="text-center">
               <Popover>
                 <PopoverTrigger>{shift.host.nameIC}</PopoverTrigger>

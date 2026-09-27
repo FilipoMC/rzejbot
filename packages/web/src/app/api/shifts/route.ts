@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { shiftNumberSchema, shiftPostSchema } from "@shared/zod/shiftSchemas";
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 
 export async function GET(req: NextRequest) {
   const shiftNumberUnparsed = req.nextUrl.searchParams.get("number");
@@ -76,6 +77,8 @@ export async function POST(req: NextRequest) {
         host: { select: { discordId: true } },
       },
     });
+
+    revalidateTag(`shift:number:${res.shiftNumber}`, "max");
 
     return NextResponse.json(
       {
