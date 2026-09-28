@@ -41,7 +41,7 @@ export default function StationRows({
       <TableRow>
         <TableCell className="px-0 mx-0">
           <ChevronsUpDown
-            className="w-5 text-muted-foreground/50"
+            className="w-5 text-muted-foreground/50 hover:cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
           />
         </TableCell>

@@ -87,9 +87,8 @@ model ShiftReport {
   cohost           Employee? @relation(fields: [cohostId], references: [id])
   cohostLocation   String?
 
-  goalMet    Boolean?
-  rodBalance RodBalance?
-  summary    String?
+  goalMet Boolean?
+  summary String?
 
   approved Boolean @default(false)
 
@@ -98,12 +97,6 @@ model ShiftReport {
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
-}
-
-enum RodBalance {
-  Auto
-  Manual
-  None
 }
 
 model Accident {

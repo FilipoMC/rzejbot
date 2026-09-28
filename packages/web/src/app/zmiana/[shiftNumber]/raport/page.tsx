@@ -15,16 +15,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getRobloxUsersByIds } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
+import { getShiftStations } from "@/lib/sharedDbActions";
+import { toPlain } from "@/lib/utils";
+import { ranksOrder, shortRankNames } from "@shared/config/script";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ranksOrder, shortRankNames } from "@shared/config/script";
-import { getShiftStations } from "@/lib/sharedDbActions";
-import { getRobloxUsersByIds } from "@/lib/api";
-import { toPlain } from "@/lib/utils";
 import StationRows from "./stationRows";
 
 async function getShiftReport(number: string) {
@@ -131,10 +132,7 @@ export default async function RaportZmiany(
             Kierownika zmiany w Elektrowni Jądrowej im. <br /> Marii
             Skłodowskiej-Curie w Żarnowcu
           </>
-        : <>
-            Wygenerowany automatycznie <br /> przez system teleinformatyczny
-          </>
-        }
+        : <>Wygenerowany automatycznie</>}
       </h2>
       <div className="h-10"></div>
       <table className="max-w-200 w-full self-center">
@@ -323,10 +321,12 @@ export default async function RaportZmiany(
                     {log.employee.nameIC}
                   </TableCell>
                   <TableCell className="text-center">
-                    {log.exposureTime ?? "N/A"}
+                    {log.exposureTime !== null ?
+                      `${log.exposureTime} min.`
+                    : "N/A"}
                   </TableCell>
                   <TableCell className="text-center">
-                    {log.dose ?? "N/A"}
+                    {log.dose !== null ? `${log.dose} µSv` : "N/A"}
                   </TableCell>
                 </TableRow>
               );
@@ -376,6 +376,53 @@ export default async function RaportZmiany(
           Nie ma jeszcze przydziału stanowisk
         </p>
       }
+      <Separator className="my-10 max-w-200 self-center" />
+      <table className="max-w-200 w-full self-center">
+        <thead>
+          <tr>
+            <th className="text-center align-bottom">Cel Zmiany</th>
+            <th className="align-bottom w-min">
+              Zwięzła Ocena Realizacji Celu
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="text-center py-1">
+              <Link
+                href={`/zmiana/${shiftReport.shift.shiftNumber.replace("/", "-")}/plan`}
+                className="text-sm bg-muted hover:bg-accent/70 not-dark:hover:bg-accent-foreground/20 py-1 px-2 rounded-2xl text-blue-700 dark:text-blue-300"
+              >
+                Plan<span className="max-sm:hidden">&nbsp;Zmiany</span>&nbsp;
+                {shiftReport.shift.shiftNumber}
+              </Link>
+            </td>
+            <td className="items-center justify-items-center w-[62%]">
+              {shiftReport.approved ?
+                <p className="text-center w-fit">
+                  Zmiana zakończona z wynikiem{" "}
+                  <span className="font-bold">
+                    {shiftReport.goalMet ? "pozytywnym" : "negatywnym"}.
+                  </span>
+                </p>
+              : <p className="text-center">N/A</p>}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {shiftReport.approved && (
+        <>
+          <Separator className="my-10 max-w-200 self-center" />
+          <div className="max-w-200 w-full flex flex-col self-center gap-5">
+            <div className="text-center font-bold max-sm:text-sm">
+              Pisemny Opis Zmiany
+            </div>
+            <div className="text-justify w-full whitespace-pre-wrap">
+              {shiftReport.summary ?? "N/A"}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
