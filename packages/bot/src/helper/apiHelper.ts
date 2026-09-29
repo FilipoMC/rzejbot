@@ -195,9 +195,14 @@ interface ApiHelper {
       ) => Promise<ApiHelperReturnType<LoaAPIResponse, z.ZodError<string>>>;
     };
   };
+
+  dev: {
+    revalidateCaches: () => Promise<ApiHelperReturnType<null>>;
+  };
 }
 
 export const ApiHelper = {
   shifts: { report: {}, stations: {} },
   employee: { loa: {} },
+  dev: {},
 } as ApiHelper;

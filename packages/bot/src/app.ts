@@ -2,9 +2,10 @@ import { commandkit, COMMANDKIT_IS_DEV, Logger } from "commandkit";
 import { Client } from "discord.js";
 import { CustomLogger } from "./utils/logger/customLogger";
 
+import "@/helper/apiHelper";
 import "@/helper/employee";
 import "@/helper/shifts";
-import "@/helper/apiHelper";
+import "@/helper/dev";
 
 const client = new Client({
   intents: ["Guilds", "GuildMembers", "GuildMessages", "MessageContent"],
