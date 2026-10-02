@@ -25,11 +25,12 @@ import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import StationRows from "./stationRows";
 
 async function getShiftReport(number: string) {
   "use cache";
+  cacheTag("all");
   cacheTag(`shiftReport:number:${number}`);
   cacheLife("days");
 
@@ -45,6 +46,12 @@ async function getShiftReport(number: string) {
           },
         },
       },
+      accidents: {
+        include: {
+          involvedEmployeeLogs: { include: { employee: true } },
+        },
+      },
+      cohost: true,
     },
   });
 
@@ -108,6 +115,10 @@ export default async function RaportZmiany(
     };
   });
 
+  const accidentList = shiftReport.accidents.sort(
+    (a, b) => a.date.getTime() - b.date.getTime(),
+  );
+
   const employeeRobloxUsers = await getRobloxUsersByIds(
     shiftReport.shift.employeeLogs.map((v) => v.employee.robloxId),
   );
@@ -148,7 +159,9 @@ export default async function RaportZmiany(
         </thead>
         <tbody>
           <tr>
-            <td className="text-center">{shiftReport.shift.shiftNumber}</td>
+            <td className="text-center py-1">
+              {shiftReport.shift.shiftNumber}
+            </td>
             <td className="text-center">
               <Popover>
                 <PopoverTrigger>{shiftReport.shift.host.nameIC}</PopoverTrigger>
@@ -202,7 +215,7 @@ export default async function RaportZmiany(
         </thead>
         <tbody>
           <tr>
-            <td className="text-center">
+            <td className="text-center py-1">
               <FormatDate date={shiftReport.date} format="HH:mm" />
             </td>
             <td className="text-center">
@@ -410,6 +423,82 @@ export default async function RaportZmiany(
           </tr>
         </tbody>
       </table>
+      <Separator className="my-10 max-w-200 self-center" />
+      <table className="max-w-200 w-full self-center">
+        <thead>
+          <tr>
+            <th className="text-center align-botto">Nadzorujący przełożony</th>
+            <th className="align-bottom text-center">Miejsce Pobytu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="text-center py-1">
+              {shiftReport.cohost?.nameIC ?? "—"}
+            </td>
+            <td className="text-center w-[50%]">
+              {shiftReport.approved ? (shiftReport.cohostLocation ?? "—") : "—"}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {shiftReport.approved && accidentList.length > 0 && (
+        <>
+          <Separator className="my-10 max-w-200 self-center" />
+          <Table className="max-w-190 w-full mx-auto">
+            <TableHeader>
+              <TableRow noHover={true}>
+                <TableHead className="">LP.</TableHead>
+                <TableHead className="text-center">Pracownicy</TableHead>
+                <TableHead className="text-center">Godzina</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {accidentList.map((accident, idx) => (
+                <TableRow key={idx}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell className="text-center">
+                    {accident.involvedEmployeeLogs.length > 0 ?
+                      accident.involvedEmployeeLogs.map((v, idx) => (
+                        <Fragment key={idx}>
+                          {v.employee.nameIC} <br key={idx} />
+                        </Fragment>
+                      ))
+                    : "—"}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <FormatDate date={accident.date} format="HH:mm" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+      {shiftReport.approved && accidentList.length > 0 && (
+        <>
+          <Table className="max-w-190 w-full mx-auto my-5">
+            <TableHeader>
+              <TableRow noHover={true}>
+                <TableHead>LP.</TableHead>
+                <TableHead className="text-center">Opis incydentu</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {accidentList.map((accident, idx) => (
+                <TableRow key={idx}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell className="text-center">
+                    {accident.description}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
+
       {shiftReport.approved && (
         <>
           <Separator className="my-10 max-w-200 self-center" />

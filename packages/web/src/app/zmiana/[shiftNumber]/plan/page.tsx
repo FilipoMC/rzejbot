@@ -18,6 +18,7 @@ import { Suspense } from "react";
 
 async function getShift(number: string) {
   "use cache";
+  cacheTag("all");
   cacheTag(`shift:number:${number}`);
   cacheLife("days");
 

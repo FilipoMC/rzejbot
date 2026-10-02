@@ -1,6 +1,6 @@
 "use client";
 
-import { TableRow, TableCell } from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { getShiftStations } from "@/lib/sharedDbActions";
 import { DbActionData } from "@/types/dbActions";
 import { ChevronsUpDown } from "lucide-react";
@@ -41,7 +41,7 @@ export default function StationRows({
       <TableRow>
         <TableCell className="px-0 mx-0">
           <ChevronsUpDown
-            className="w-5 text-muted-foreground/50 hover:cursor-pointer"
+            className="w-5 text-muted-foreground/50 hover:cursor-pointer select-none"
             onClick={() => setIsOpen(!isOpen)}
           />
         </TableCell>
