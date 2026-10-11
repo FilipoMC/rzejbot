@@ -26,7 +26,7 @@ import type { createManageShiftEmbedStage2Components } from "../stage2";
 import type { createManageShiftEmbedStage3Components } from "../stage3";
 import { stationsGrouped } from "@shared/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
-import { commandError, success } from "@/utils/commandResponses";
+import { commandError, commandSuccess } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
 import { Tuple } from "@shared/types/utils";
 import {
@@ -152,7 +152,7 @@ export function createManageShiftEmbedSetStationsComponents(
           .join(", ");
 
         if (usersNotFound.length > 0) {
-          await success({
+          await commandSuccess({
             description:
               usersNotFound +
               " nie są w rejestrze pracowników. Pozostałe stanowiska zostały przydzielone.",
@@ -303,7 +303,7 @@ export function createManageShiftEmbedSetStationsComponents(
         .join(", ");
 
       if (usersNotFound.length > 0) {
-        await success({
+        await commandSuccess({
           description:
             usersNotFound +
             " nie są w rejestrze pracowników. Pozostałe stanowiska zostały przydzielone.",

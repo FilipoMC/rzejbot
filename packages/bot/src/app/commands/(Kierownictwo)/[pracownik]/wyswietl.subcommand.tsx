@@ -3,14 +3,10 @@ import {
   failedToExecute,
   loading,
 } from "@/utils/commandResponses";
-import { ActionRow, Button, ChatInputCommand, CommandData } from "commandkit";
-import {
-  ApplicationCommandOptionType,
-  EmbedBuilder,
-  MessageFlags,
-} from "discord.js";
-import emoji from "@/config/emoji.json";
+import { ChatInputCommand, CommandData } from "commandkit";
+import { ApplicationCommandOptionType } from "discord.js";
 import { ApiHelper } from "@/helper/apiHelper";
+import { displayEditEmpEmbed } from "@/app/components/employee/displayEditEmpEmbed";
 
 export const command: CommandData = {
   name: "wyswietl",
@@ -31,68 +27,35 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     description: "Ładowanie karty pracownika",
     ephemeral: true,
   });
-  const user = interaction.options.getUser("uzytkownik", true);
 
+  const user = interaction.options.getUser("uzytkownik", true);
   if (!("displayName" in user)) {
     return;
   }
   const employee = await ApiHelper.employee.find(user.id);
   if (employee.status !== "ok") {
-    if (employee.status === "apiError") {
-      if (employee.errorStatus === "notFound") {
-        await failedToExecute({
-          interactionOrMsg: interaction,
-          description: employee.errorStatus,
-        });
-        return;
-      }
+    if (employee.status === "apiError" && employee.errorStatus === "notFound") {
+      await failedToExecute({
+        interactionOrMsg: interaction,
+        description: employee.errorStatus,
+      });
     } else if (employee.status === "badArgument") {
       await failedToExecute({
         interactionOrMsg: interaction,
         description:
           "Wybrany użytkownik nie jest ani nie był pracownikiem ŻEJ.",
       });
+    } else {
+      await commandError({
+        interactionOrMsg: interaction,
+        description: "Wystąpił błąd podczas komunikacji z serwerem.",
+      });
     }
-
-    await commandError({
-      interactionOrMsg: interaction,
-      description: "Wystąpił błąd podczas komunikacji z serwerem.",
-    });
     return;
   }
 
-  const decideEmoji = (bool: boolean) => (bool ? emoji.yes : emoji.no);
-  const embed = new EmbedBuilder()
-    .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
-    .setDescription(`### ${employee.data.rank} ${employee.data.nameIC}`)
-    .addFields([
-      // { name: "Statystyki", value: [`Obecności na zmianach: ${employee.data.}`].join("\n") },
-      {
-        name: "Kwalifikacje/Uprawnienia",
-        value: [
-          `Pracownik: ${decideEmoji(true)}`,
-          `Niejądrowy: ${decideEmoji(true)}`,
-          `Kierownik Zmiany: ${decideEmoji(false)}`,
-          `Szkoleniowiec: ${decideEmoji(false)}`,
-        ].join("\n"),
-      },
-    ]);
-  // await success({
-  //   interactionOrMsg: interaction,
-  //   description: "Karta Pracownika znajduje się poniżej",
-  // });
-  const actionRow = (
-    <ActionRow>
-      <Button customId="edit">Edytuj</Button>
-      {/* <Button></Button> */}
-    </ActionRow>
-  );
-  await interaction.followUp({
-    // components: [container],
-    embeds: [embed],
-    components: [actionRow],
-    flags: MessageFlags.Ephemeral, //| MessageFlags.IsComponentsV2,
+  await interaction.editReply({
+    embeds: [displayEditEmpEmbed(user, employee.data)],
   });
-  await interaction.deleteReply("@original");
   return;
 };

@@ -143,7 +143,7 @@ export async function loading({
   );
 }
 
-export async function success({
+export async function commandSuccess({
   description = undefined,
   interactionOrMsg: interaction,
   ephemeral = true,

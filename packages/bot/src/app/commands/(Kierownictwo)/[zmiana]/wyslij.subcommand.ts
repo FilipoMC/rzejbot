@@ -2,7 +2,7 @@ import { sendShiftManageEmbed } from "@/app/components/zmiana/manageShiftEmbed";
 import {
   commandError,
   failedToExecute,
-  success,
+  commandSuccess,
 } from "@/utils/commandResponses";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
@@ -52,5 +52,8 @@ export const chatInput: ChatInputCommand = async ({ interaction, client }) => {
     });
   }
 
-  await success({ interactionOrMsg: interaction, description: undefined });
+  await commandSuccess({
+    interactionOrMsg: interaction,
+    description: undefined,
+  });
 };

@@ -1,5 +1,5 @@
 import { ApiHelper } from "@/helper/apiHelper";
-import { commandError, success } from "@/utils/commandResponses";
+import { commandError, commandSuccess } from "@/utils/commandResponses";
 import { CommandData, MessageCommand } from "commandkit";
 
 export const command: CommandData = {
@@ -15,7 +15,7 @@ export const message: MessageCommand = async (ctx) => {
     return;
   }
 
-  success({
+  commandSuccess({
     interactionOrMsg: ctx.message,
     description: "Wyczyszczono cache na stronie.",
   });

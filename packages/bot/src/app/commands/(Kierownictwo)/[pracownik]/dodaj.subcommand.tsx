@@ -1,23 +1,10 @@
 import {
   ChatInputCommand,
-  CheckboxGroup,
   CommandData,
-  Label,
   Logger,
-  Modal,
   OnModalKitSubmit,
-  CheckboxGroupOption,
-  StringSelectMenu,
-  StringSelectMenuOption,
-  TextInput,
-  UserSelectMenu,
 } from "commandkit";
-import {
-  ApplicationCommandOptionType,
-  TextInputStyle,
-  userMention,
-} from "discord.js";
-import config from "@shared/config/config.json";
+import { ApplicationCommandOptionType, userMention } from "discord.js";
 import { ApiHelper } from "@/helper/apiHelper";
 import { robloxUsersByUsernamesAPIResponseSchema } from "@shared/zod/roblox/apiResponses";
 import z from "zod";
@@ -25,8 +12,9 @@ import {
   commandError,
   failedToExecute,
   loading,
-  success,
+  commandSuccess,
 } from "@/utils/commandResponses";
+import { employeeAddModal } from "@/app/components/employee/addEditModal";
 
 export const command: CommandData = {
   name: "dodaj",
@@ -41,7 +29,7 @@ export const command: CommandData = {
   ],
 };
 
-const modalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
+const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
   await loading({ interactionOrMsg: interaction, description: undefined });
 
   const modalResponses = {
@@ -96,7 +84,7 @@ const modalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
   });
 
   if (prismaRes.status === "ok") {
-    await success({
+    await commandSuccess({
       interactionOrMsg: interaction,
       description: `Dodano nowego pracownika do bazy danych: ${prismaRes.data.nameIC} (${userMention(prismaRes.data.discordId)})`,
     });
@@ -127,65 +115,7 @@ const modalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
 
 export const chatInput: ChatInputCommand = async ({ interaction }) => {
   await interaction.showModal(
-    <Modal
-      title="Dodaj Pracownika"
-      options={{ once: false }}
-      onSubmit={modalSubmitHadler}
-      customId={`modalEmployeeAdd-${interaction.options.getUser("uzytkownik", true).id}`}
-    >
-      <Label label="Użytkownik">
-        <UserSelectMenu
-          required
-          customId="user"
-          defaultValues={interaction.options.getUser("uzytkownik", true).id}
-          maxValues={1}
-          minValues={1}
-        />
-      </Label>
-      <Label label="Imię IC dla pracownika">
-        <TextInput
-          customId="nameIC"
-          style={TextInputStyle.Short}
-          placeholder="Oliwier Baran"
-          required
-        />
-      </Label>
-      <Label label="Roblox Username" description="Nie display name">
-        <TextInput
-          customId="robloxName"
-          style={TextInputStyle.Short}
-          placeholder="Pawe_320"
-          required
-        />
-      </Label>
-      <Label
-        label="Ranga"
-        description="Ranga którą nadać pracownikowi na start"
-      >
-        <StringSelectMenu required customId="rank" minValues={1} maxValues={1}>
-          {Object.keys(config.ranks).map((e) => {
-            return (
-              <StringSelectMenuOption
-                label={e}
-                value={e}
-                default={e === "Kandydat" ? true : false}
-              />
-            );
-          })}
-        </StringSelectMenu>
-      </Label>
-      <Label label="Kwalifikacje/Uprawnienia">
-        <CheckboxGroup customId="qualification">
-          <CheckboxGroupOption label="Pracownik" value="pracownik" />
-          <CheckboxGroupOption label="Jądrowy" value="jadrawy" />
-          <CheckboxGroupOption
-            label="Kierownik Zmiany"
-            value="kierownikZmiany"
-          />
-          <CheckboxGroupOption label="Szkoleniowiec" value="szkoleniowiec" />
-        </CheckboxGroup>
-      </Label>
-    </Modal>,
+    employeeAddModal(interaction, empAddmodalSubmitHadler),
   );
   return;
 };

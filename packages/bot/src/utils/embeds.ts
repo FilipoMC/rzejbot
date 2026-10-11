@@ -4,7 +4,7 @@ import emoji from "@/config/emoji.json";
 /** @config Configuration function, returns only embed  */
 export function createNoPermissionEmbed(): EmbedBuilder {
   return new EmbedBuilder()
-    .setTitle(`${emoji.no} Brak uprawnień!`)
+    .setTitle(`${emoji.x} Brak uprawnień!`)
     .setDescription("Nie masz wystarczajacych uprawnień aby użyć tego.")
     .setColor("DarkRed");
 }
@@ -31,7 +31,7 @@ export function createLoadingEmbed(description?: string) {
 export function createSuccessEmbed(description?: string) {
   return new EmbedBuilder()
     .setDescription(
-      `${emoji.yes} ${description || "Proces wykonywania komendy został zakończony z wynikiem pozytywnym."}`,
+      `${emoji.checkmark} ${description || "Proces wykonywania komendy został zakończony z wynikiem pozytywnym."}`,
     )
     .setColor("Green");
 }
@@ -39,6 +39,6 @@ export function createSuccessEmbed(description?: string) {
 /** @config Configuration function, returns only embed  */
 export function createFailEmbed(description: string) {
   return new EmbedBuilder()
-    .setDescription(`${emoji.no} ${description}`)
+    .setDescription(`${emoji.x} ${description}`)
     .setColor("DarkRed");
 }

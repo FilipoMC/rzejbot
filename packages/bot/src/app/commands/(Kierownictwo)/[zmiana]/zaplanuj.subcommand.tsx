@@ -9,7 +9,7 @@ import {
   commandError,
   failedToExecute,
   loading,
-  success,
+  commandSuccess,
 } from "@/utils/commandResponses";
 import { createFailEmbed } from "@/utils/embeds";
 import {
@@ -323,7 +323,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       schedule: date,
     });
 
-    await success({
+    await commandSuccess({
       interactionOrMsg: modalInteraction,
       description: `Pomyślnie utworzono plan zmiany ${shiftNumber}. ${hyperlink("Link do planu zmiany", websitePages.shiftPlan(shiftNumber))}`,
     });

@@ -8,11 +8,14 @@ import {
 import { Logger } from "commandkit";
 import z from "zod";
 import {
-  employeeAPIGetResponseSchema,
-  employeeAPIPostResponseSchema,
+  employeeAPIResponseSchema,
   loaAPIResponseSchema,
 } from "@shared/zod/apiResponses/employee";
-import { employeePostSchema, loaPostSchema } from "@shared/zod/employeeSchemas";
+import {
+  employeePostSchema,
+  employeePatchSchema,
+  loaPostSchema,
+} from "@shared/zod/employeeSchemas";
 import { snowflakeSchema } from "@shared/zod/discordSchemas";
 
 ApiHelper.employee.find = async (dcId) => {
@@ -28,7 +31,7 @@ ApiHelper.employee.find = async (dcId) => {
     requestOptions("GET"),
   );
   const body = await res.json().catch(() => null);
-  const bodyParsed = apiResponseSchema(employeeAPIGetResponseSchema).safeParse(
+  const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
   );
 
@@ -75,7 +78,7 @@ ApiHelper.employee.create = async (request) => {
   );
   const body: unknown = await res.json().catch(() => null);
 
-  const bodyParsed = apiResponseSchema(employeeAPIPostResponseSchema).safeParse(
+  const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
   );
 
@@ -198,6 +201,63 @@ ApiHelper.employee.loa.listForEmployee = async (dId) => {
           status: "apiError",
           errorStatus: "serverError",
           error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.employee.update = async (req) => {
+  const reqParsed = employeePatchSchema.safeParse(req);
+
+  if (!reqParsed.success) {
+    Logger.error(z.treeifyError(reqParsed.error));
+    return {
+      status: "badArgument",
+      error: reqParsed.error,
+    };
+  }
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`employees/${reqParsed.data?.discordId}`),
+    requestOptions("PATCH", JSON.stringify(reqParsed.data)),
+  );
+
+  const body = await res.json().catch(() => null);
+  const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
+    body,
+  );
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return {
+      status: "apiResponseParsingError",
+    };
+  }
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Nie znaleziono pracownika w bazie danych.",
+        };
+      case 409:
+        return {
+          status: "apiError",
+          errorStatus: "conflict",
+          error: "Podane dla pracownika roblox ID lub discord ID już istnieje!",
+        };
+      default:
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Błąd podczas komunikacji z serwerem.",
         };
     }
   }

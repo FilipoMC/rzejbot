@@ -1,4 +1,4 @@
-import { success } from "@/utils/commandResponses";
+import { commandSuccess } from "@/utils/commandResponses";
 import {
   type ChatInputCommand,
   type MessageCommand,
@@ -13,7 +13,7 @@ export const command: CommandData = {
 export const chatInput: ChatInputCommand = async (ctx) => {
   const latency = (ctx.client.ws.ping ?? -1).toString();
   const response = `Pong! Latency: ${latency}ms`;
-  await success({
+  await commandSuccess({
     interactionOrMsg: ctx.interaction,
     description: response,
     ephemeral: false,
@@ -26,5 +26,5 @@ export const message: MessageCommand = async (ctx) => {
   const response = `Pong! Latency: ${latency}ms`;
 
   //await ctx.message.reply(response);
-  await success({ description: response, interactionOrMsg: message });
+  await commandSuccess({ description: response, interactionOrMsg: message });
 };
