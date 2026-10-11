@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { employeePatchSchema } from "@shared/zod/employeeSchemas";
+import { Prisma } from "@prisma/client";
 
 export async function GET(
   _req: NextRequest,
@@ -30,10 +32,74 @@ export async function GET(
   return NextResponse.json({ ok: true, data: res });
 }
 
-// export async function PATCH(_req: NextRequest) { TODO: implementation
+export async function PATCH(
+  req: NextRequest,
+  { params }: RouteContext<"/api/employees/[id]">,
+) {
+  const { id } = await params;
 
-// }
+  const bodyUnparsed = await req.json().catch(() => null);
 
-// export async function DELETE(_req: NextRequest) {
+  const body = employeePatchSchema.safeParse(bodyUnparsed);
 
-// }
+  if (!body.success) {
+    console.error(body.error);
+    return NextResponse.json(
+      { ok: false, error: "Invalid Body" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const res = await prisma.employee.update({
+      where: {
+        discordId: id,
+      },
+      data: {
+        ...body.data,
+      },
+      include: {
+        qualification: {
+          select: {
+            pracownik: true,
+            jadrowy: true,
+            kierownikZmiany: true,
+            szkoleniowiec: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ ok: true, data: res }, { status: 200 });
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        case "P2025":
+          return NextResponse.json(
+            {
+              ok: false,
+              error: "Not Found",
+            },
+            { status: 404 },
+          );
+        case "P2002":
+          return NextResponse.json(
+            {
+              ok: false,
+              error: `This ${(err.meta?.target as string[]).join(", ")} is already tied to an employee`,
+            },
+            { status: 409 },
+          );
+      }
+    } else {
+      console.error(err);
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Error accessing database",
+        },
+        { status: 500 },
+      );
+    }
+  }
+}

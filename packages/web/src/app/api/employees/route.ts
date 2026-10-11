@@ -18,6 +18,16 @@ export async function POST(req: NextRequest) {
   try {
     const res = await prisma.employee.create({
       data: parsedBody.data,
+      include: {
+        qualification: {
+          select: {
+            jadrowy: true,
+            kierownikZmiany: true,
+            pracownik: true,
+            szkoleniowiec: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({ ok: true, data: res }, { status: 201 });
