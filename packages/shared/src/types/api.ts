@@ -6,7 +6,11 @@ import {
   shiftReportPatchSchema,
   shiftReportPostSchema,
 } from "../zod/shiftSchemas";
-import { employeePostSchema, loaPostSchema } from "../zod/employeeSchemas";
+import {
+  employeePostSchema,
+  employeePatchSchema,
+  loaPostSchema,
+} from "../zod/employeeSchemas";
 import {
   shiftEmployeeLogAPIResponseSchema,
   shiftAPIResponseSchema,
@@ -16,8 +20,7 @@ import {
 } from "../zod/apiResponses/shifts";
 import { Prettify } from "./utils";
 import {
-  employeeAPIGetResponseSchema,
-  employeeAPIPostResponseSchema,
+  employeeAPIResponseSchema,
   loaAPIResponseSchema,
 } from "../zod/apiResponses/employee";
 
@@ -55,13 +58,9 @@ export type ShiftLogStationsGetAPIResponse = z.infer<
 // #endregion
 // #region employee types
 export type EmployeePost = z.infer<typeof employeePostSchema>;
+export type EmployeePatch = z.infer<typeof employeePatchSchema>;
 export type LoaPost = z.infer<typeof loaPostSchema>;
 
-export type EmployeeAPIPostResponse = z.infer<
-  typeof employeeAPIPostResponseSchema
->;
-export type EmployeeAPIGetResponse = z.infer<
-  typeof employeeAPIGetResponseSchema
->;
+export type EmployeeAPIResponse = z.infer<typeof employeeAPIResponseSchema>;
 export type LoaAPIResponse = z.infer<typeof loaAPIResponseSchema>;
 // #endregion

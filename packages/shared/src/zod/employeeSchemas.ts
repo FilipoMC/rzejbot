@@ -47,6 +47,23 @@ export const employeePostSchema = z.object({
   }),
 });
 
+export const employeePatchSchema = z.object({
+  discordId: snowflakeSchema.optional(),
+  robloxId: z.int().positive().optional(),
+  nameIC: nameICSchema.optional(),
+  rank: z.string().trim().max(200).optional(),
+  qualification: z
+    .object({
+      update: z.object({
+        pracownik: z.boolean().optional(),
+        jadrowy: z.boolean().optional(),
+        kierownikZmiany: z.boolean().optional(),
+        szkoleniowiec: z.boolean().optional(),
+      }),
+    })
+    .optional(),
+});
+
 export const loaPostSchema = z.object({
   dateStart: z.optional(anyDateSchema),
   duration: z.int().positive(),
