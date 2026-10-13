@@ -59,7 +59,6 @@ export const shiftReportAPIResponseSchema = z.object({
     .nullable(),
   cohostLocation: z.string().nullable(),
   goalMet: z.boolean().nullable(),
-  rodBalance: z.enum(["Auto", "Manual", "None"]).nullable(),
   summary: z.string().nullable(),
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
@@ -99,3 +98,6 @@ export const shiftLogStationsPostAPIResponseSchema = z.array(
     }),
   ]),
 );
+
+export const shiftLogDosePostAPIResponseSchema =
+  shiftLogStationsPostAPIResponseSchema;

@@ -1,6 +1,7 @@
 import z from "zod";
 import {
   shiftLogAbsencePostSchema,
+  shiftLogDosesPostSchema,
   shiftLogStationsPostSchema,
   shiftPostSchema,
   shiftReportPatchSchema,
@@ -17,6 +18,7 @@ import {
   shiftReportAPIResponseSchema,
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
+  shiftLogDosePostAPIResponseSchema,
 } from "../zod/apiResponses/shifts";
 import { Prettify } from "./utils";
 import {
@@ -40,6 +42,11 @@ export type ShiftLogStationsPost = Prettify<
     employee: string;
   }
 >[];
+export type ShiftLogDosesPost = Prettify<
+  Omit<z.infer<typeof shiftLogDosesPostSchema>[number], "employee"> & {
+    employee: string;
+  }
+>[];
 // #endregion
 // #region shift api response types
 export type ShiftEmployeeLogAPIResponse = z.infer<
@@ -54,6 +61,9 @@ export type ShiftLogStationsPostAPIResponse = z.infer<
 >;
 export type ShiftLogStationsGetAPIResponse = z.infer<
   typeof shiftLogStationsGetAPIResponseSchema
+>;
+export type ShiftLogDosesPostAPIResponse = z.infer<
+  typeof shiftLogDosePostAPIResponseSchema
 >;
 // #endregion
 // #region employee types

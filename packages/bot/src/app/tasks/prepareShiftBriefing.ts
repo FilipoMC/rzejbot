@@ -34,7 +34,9 @@ export default task<PrepareShiftBriefingTaskData>({
       const event = (await guild.scheduledEvents.fetch()).find(
         (ev) => ev.name === shiftEventName(shiftNumber),
       );
-      await event?.setStatus(GuildScheduledEventStatus.Active);
+      await event
+        ?.setStatus(GuildScheduledEventStatus.Active)
+        .catch(() => null);
     }
 
     await sendShiftManageEmbed({

@@ -19,6 +19,7 @@ import { commandError } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
 import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
 import { shiftEventName } from "@/config/script";
+import { createManageShiftEmbedStage4Components } from "./stage4";
 
 export function createManageShiftEmbedStage3Components(
   shift: ShiftAPIResponse,
@@ -44,18 +45,24 @@ export function createManageShiftEmbedStage3Components(
 
     const shiftReport = shiftReportRes.data;
 
-    const newEmbed = getShiftManageEmbed(shift, shiftReport, stations, false);
+    const newEmbed = getShiftManageEmbed(shift, shiftReport, stations);
 
     await interaction.message.edit({
       embeds: [newEmbed],
-      components: [],
+      components: createManageShiftEmbedStage4Components(
+        shift,
+        shiftReport,
+        stations,
+      ),
     });
 
     if (interaction.inCachedGuild()) {
       const event = (await interaction.guild.scheduledEvents.fetch()).find(
         (ev) => ev.name === shiftEventName(shift.shiftNumber),
       );
-      await event?.setStatus(GuildScheduledEventStatus.Completed);
+      await event
+        ?.setStatus(GuildScheduledEventStatus.Completed)
+        .catch(() => null);
     }
 
     ctx.dispose();

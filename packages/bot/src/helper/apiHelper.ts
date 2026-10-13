@@ -16,6 +16,8 @@ import {
   ShiftPost,
   ShiftReportAPIResponse,
   ShiftReportPatch,
+  ShiftLogDosesPost,
+  ShiftLogDosesPostAPIResponse,
 } from "@shared/types/api";
 import { getContext, Logger } from "commandkit";
 import z from "zod";
@@ -170,6 +172,10 @@ interface ApiHelper {
         shiftId: number,
         date?: Date,
       ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
+      logDoses: (
+        shiftId: number,
+        request: ShiftLogDosesPost,
+      ) => Promise<ApiHelperReturnType<ShiftLogDosesPostAPIResponse>>;
     };
   };
   employee: {

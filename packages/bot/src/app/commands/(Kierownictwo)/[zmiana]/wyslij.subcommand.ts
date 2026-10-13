@@ -50,6 +50,7 @@ export const chatInput: ChatInputCommand = async ({ interaction, client }) => {
       interactionOrMsg: interaction,
       description: undefined,
     });
+    return;
   }
 
   await commandSuccess({

@@ -8,12 +8,14 @@ import {
 import {
   shiftAPIResponseSchema,
   shiftEmployeeLogAPIResponseSchema,
+  shiftLogDosePostAPIResponseSchema,
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
   shiftReportAPIResponseSchema,
 } from "@shared/zod/apiResponses/shifts";
 import {
   shiftLogAbsencePostSchema,
+  shiftLogDosesPostSchema,
   shiftLogStationsPostSchema,
   shiftNumberSchema,
   shiftPostSchema,
@@ -494,6 +496,52 @@ ApiHelper.shifts.stations.log = async (shiftId, request) => {
           status: "apiError",
           errorStatus: "notFound",
           error: "Zmiana nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.report.logDoses = async (shiftId, request) => {
+  const requestParsed = shiftLogDosesPostSchema.safeParse(request);
+
+  if (!requestParsed.success) {
+    Logger.error(z.treeifyError(requestParsed.error));
+    return { status: "badArgument" };
+  }
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}/logs/doses`),
+    requestOptions("POST", JSON.stringify(requestParsed.data)),
+  );
+
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(
+    shiftLogDosePostAPIResponseSchema,
+  ).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error:
+            "Zmiana nie istnieje lub został podany pracownik, który nie był pracownikiem w czasie zmiany",
         };
       default:
         Logger.error(bodyParsed.data.error);

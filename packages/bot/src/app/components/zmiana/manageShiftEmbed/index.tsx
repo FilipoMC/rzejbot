@@ -102,7 +102,7 @@ export async function sendShiftManageEmbed({
     const stations = await getStations();
 
     components = [];
-    embed = getShiftManageEmbed(shift, shiftReport, stations);
+    embed = getShiftManageEmbed(shift, shiftReport, stations, false);
   }
 
   await channel.send({

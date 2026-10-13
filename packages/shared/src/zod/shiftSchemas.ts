@@ -38,7 +38,6 @@ export const shiftReportPostSchema = z.object({
   cohost: snowflakeSchema.optional(),
   cohostLocation: z.string().optional(),
   goalMet: z.boolean().optional(),
-  rodBalance: z.enum(["Auto", "Manual", "None"]).optional(),
   summary: z.string().optional(),
 });
 
@@ -49,7 +48,6 @@ export const shiftReportPatchSchema = z.object({
   cohost: snowflakeSchema.nullish(),
   cohostLocation: z.string().nullish(),
   goalMet: z.boolean().nullish(),
-  rodBalance: z.enum(["Auto", "Manual", "None"]).nullish(),
   summary: z.string().nullish(),
 });
 
@@ -64,5 +62,13 @@ export const shiftLogStationsPostSchema = z.array(
 export const shiftLogPresenceInitialPostSchema = z.array(
   z.object({
     employee: employeeIdentifierSchema,
+  }),
+);
+
+export const shiftLogDosesPostSchema = z.array(
+  z.object({
+    employee: employeeIdentifierSchema,
+    dose: z.int().nonnegative().nullable(),
+    time: z.int().nonnegative().nullable(),
   }),
 );
