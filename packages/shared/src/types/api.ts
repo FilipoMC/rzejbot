@@ -23,6 +23,7 @@ import {
 import { Prettify } from "./utils";
 import {
   employeeAPIResponseSchema,
+  employeeWithChangesAPIResponseSchema,
   loaAPIResponseSchema,
 } from "../zod/apiResponses/employee";
 
@@ -72,5 +73,8 @@ export type EmployeePatch = z.infer<typeof employeePatchSchema>;
 export type LoaPost = z.infer<typeof loaPostSchema>;
 
 export type EmployeeAPIResponse = z.infer<typeof employeeAPIResponseSchema>;
+export type EmployeeWithChangesAPIResponse = z.infer<
+  typeof employeeWithChangesAPIResponseSchema
+>;
 export type LoaAPIResponse = z.infer<typeof loaAPIResponseSchema>;
 // #endregion

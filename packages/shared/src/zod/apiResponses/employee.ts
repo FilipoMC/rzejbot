@@ -1,6 +1,11 @@
 import z from "zod";
 import { snowflakeSchema } from "../discordSchemas";
 import { isoDateStringSchema } from "../dateTimeSchemas";
+import {
+  employeeChangeTypeSchema,
+  employeeRanksSchema,
+  nameICSchema,
+} from "../employeeSchemas";
 
 export const employeeAPIResponseSchema = z.object({
   id: z.number().positive(),
@@ -18,6 +23,27 @@ export const employeeAPIResponseSchema = z.object({
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });
+
+export const employeeWithChangesAPIResponseSchema =
+  employeeAPIResponseSchema.extend({
+    employeeChanges: z.array(
+      z.object({
+        issuer: z.object({
+          id: z.number().nonnegative(),
+          discordId: snowflakeSchema,
+          robloxId: z.number(),
+          nameIC: nameICSchema,
+          rank: employeeRanksSchema,
+        }),
+        type: employeeChangeTypeSchema,
+        reason: z.string().max(500),
+        note: z.string().max(250),
+        newRole: employeeRanksSchema,
+        updatedAt: isoDateStringSchema,
+        createdAt: isoDateStringSchema,
+      }),
+    ),
+  });
 
 export const loaAPIResponseSchema = z.object({
   id: z.number().positive(),
