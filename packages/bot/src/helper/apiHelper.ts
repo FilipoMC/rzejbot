@@ -18,6 +18,7 @@ import {
   ShiftReportPatch,
   ShiftLogDosesPost,
   ShiftLogDosesPostAPIResponse,
+  EmployeeWithChangesAPIResponse,
 } from "@shared/types/api";
 import { getContext, Logger } from "commandkit";
 import z from "zod";
@@ -182,6 +183,11 @@ interface ApiHelper {
     find: (
       dcId: string,
     ) => Promise<ApiHelperReturnType<EmployeeAPIResponse, z.ZodError<string>>>;
+    findWithChanges: (
+      dcId: string,
+    ) => Promise<
+      ApiHelperReturnType<EmployeeWithChangesAPIResponse, z.ZodError<string>>
+    >;
     create: (
       req: EmployeePost,
     ) => Promise<

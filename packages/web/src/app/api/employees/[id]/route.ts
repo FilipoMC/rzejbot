@@ -37,6 +37,7 @@ export async function PATCH(
   { params }: RouteContext<"/api/employees/[id]">,
 ) {
   const { id } = await params;
+  const includeChanges = req.nextUrl.searchParams.get("changes");
 
   const bodyUnparsed = await req.json().catch(() => null);
 
@@ -67,6 +68,25 @@ export async function PATCH(
             szkoleniowiec: true,
           },
         },
+        employeeChanges:
+          includeChanges === "true" ?
+            {
+              select: {
+                issuer: {
+                  omit: {
+                    updatedAt: true,
+                    createdAt: true,
+                  },
+                },
+                type: true,
+                reason: true,
+                note: true,
+                newRole: true,
+                updatedAt: true,
+                createdAt: true,
+              },
+            }
+          : false,
       },
     });
 

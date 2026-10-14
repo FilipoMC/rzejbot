@@ -9,6 +9,7 @@ import { Logger } from "commandkit";
 import z from "zod";
 import {
   employeeAPIResponseSchema,
+  employeeWithChangesAPIResponseSchema,
   loaAPIResponseSchema,
 } from "@shared/zod/apiResponses/employee";
 import {
@@ -34,6 +35,53 @@ ApiHelper.employee.find = async (dcId) => {
   const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
   );
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return {
+      status: "apiResponseParsingError",
+    };
+  }
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  }
+
+  switch (res.status) {
+    case 404:
+      return {
+        status: "apiError",
+        errorStatus: "notFound",
+        error: "Nie znaleziono pracownika w bazie danych",
+      };
+    default:
+      return {
+        status: "apiError",
+        errorStatus: "serverError",
+        error: "Wystąpił błąd podczas komunikacji serwerem",
+      };
+  }
+};
+
+ApiHelper.employee.findWithChanges = async (dcId) => {
+  const parsedDcId = snowflakeSchema.safeParse(dcId);
+  if (!parsedDcId.success) {
+    return {
+      status: "badArgument",
+      error: parsedDcId.error,
+    };
+  }
+  const res = await fetchWithErrorHandling(
+    getRequestURL("employees/" + dcId, { changes: "true" }),
+    requestOptions("GET"),
+  );
+  const body = await res.json().catch(() => null);
+  const bodyParsed = apiResponseSchema(
+    employeeWithChangesAPIResponseSchema,
+  ).safeParse(body);
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));

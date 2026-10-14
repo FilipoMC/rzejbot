@@ -1,6 +1,7 @@
-import { sendShiftManageEmbed } from "@/app/components/zmiana/manageShiftEmbed";
 import { commandSuccess } from "@/utils/commandResponses";
-import { ChatInputCommand, CommandData, MessageCommand } from "commandkit";
+import { employeeWithChangesAPIResponseSchema } from "@shared/zod/apiResponses/employee";
+import { CommandData, Logger, MessageCommand } from "commandkit";
+import z from "zod";
 
 export const command: CommandData = {
   name: "test",
@@ -30,6 +31,48 @@ export const message: MessageCommand = async (ctx) => {
   //   client: ctx.client,
   //   shiftIdentifier: { id: 6 },
   // });
+  // const test = employeeWithChangesAPIResponseSchema.safeParse(
+  //   JSON.parse(`{
+  // 	"id": 3,
+  // 	"discordId": "1467509269208498359",
+  // 	"robloxId": 1306320433,
+  // 	"nameIC": "Eliasz Starszyński",
+  // 	"rank": "Inżynier Reaktora",
+  // 	"updatedAt": "2026-09-13T16:30:17.399Z",
+  // 	"createdAt": "2026-08-30T16:19:11.449Z",
+  // 	"qualification": {
+  // 		"pracownik": false,
+  // 		"jadrowy": false,
+  // 		"kierownikZmiany": false,
+  // 		"szkoleniowiec": false
+  // 	},
+  // 	"employeeChanges": [
+  // 		{
+  // 			"issuer": {
+  // 				"id": 17,
+  // 				"discordId": "1454303387570143325",
+  // 				"robloxId": 7211050009,
+  // 				"nameIC": "gregory bzykacz",
+  // 				"rank": "Kandydat"
+  // 			},
+  // 			"type": "termination",
+  // 			"reason": "chciales to masz",
+  // 			"note": "nie strasz nie strasz bo sie zesrasz",
+  // 			"newRole": "Kandydat",
+  // 			"createdAt": "2026-10-12T19:59:59.348Z",
+  // 			"updatedAt": "2026-10-12T19:58:23.294Z"
+  // 		}
+  // 	]
+  // }`),
+  // );
+  // if (test.success) {
+  //   await commandSuccess({
+  //     interactionOrMsg: ctx.message,
+  //     description: "brawo omg\n\n" + test.data,
+  //   });
+  //   return;
+  // }
+  // Logger.error(z.prettifyError(test.error));
 };
 
 // export const chatInput: ChatInputCommand = async ({ interaction }) => {

@@ -127,18 +127,11 @@ model LOA {
   createdAt DateTime @default(now())
 }
 
-enum EmpChangeType {
-  promotion
-  warn // uwaga pisemna
-  reprimand
-  suspension
-}
-
 model EmployeeChange {
-  id       Int           @id @default(autoincrement())
-  employee Employee      @relation("EmpChanges", fields: [employeeId], references: [id])
-  issuer   Employee      @relation("EmpChangesIssued", fields: [issuerId], references: [id])
-  type     EmpChangeType
+  id       Int      @id @default(autoincrement())
+  employee Employee @relation("EmpChanges", fields: [employeeId], references: [id])
+  issuer   Employee @relation("EmpChangesIssued", fields: [issuerId], references: [id])
+  type     String
   reason   String
   note     String
   newRole  String
