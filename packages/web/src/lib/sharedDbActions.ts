@@ -10,7 +10,7 @@ export function getShiftStations(
       stationTimes: true;
       rating: true;
       mode: true;
-      employee: { select: { discordId: true; nameIC: true } };
+      employee: { select: { id: true; discordId: true; nameIC: true } };
     };
   }>[],
 ): DbActionReturnType<typeof operatorsByStation, number> {
@@ -19,6 +19,7 @@ export function getShiftStations(
   const byStation = new Map<
     string,
     {
+      employeeId: number;
       employeeDiscordId: string;
       employeeNameIC: string;
       rating: string | null;
@@ -44,6 +45,7 @@ export function getShiftStations(
       const operators = byStation.get(station) ?? [];
 
       operators.push({
+        employeeId: row.employee.id,
         employeeDiscordId: row.employee.discordId,
         employeeNameIC: row.employee.nameIC,
         rating,

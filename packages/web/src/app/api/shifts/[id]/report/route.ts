@@ -1,3 +1,4 @@
+import { generateAccessKey } from "@/lib/accessKeys";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import {
@@ -79,12 +80,15 @@ export async function POST(
   }
 
   try {
+    const { rawKey, hashedKey } = generateAccessKey();
+
     const res = await prisma.shiftReport.create({
       data: {
         ...body,
         shift: { connect: { id: shiftId } },
         cohost:
           body.cohost ? { connect: { discordId: body.cohost } } : undefined,
+        accessTokenHash: hashedKey,
       },
       include: {
         cohost: { select: { discordId: true } },
@@ -97,7 +101,7 @@ export async function POST(
     return NextResponse.json(
       {
         ok: true,
-        data: res,
+        data: { ...res, accessToken: rawKey },
       },
       { status: 201 },
     );
@@ -124,7 +128,10 @@ export async function POST(
 
     console.error(err);
     return NextResponse.json(
-      { ok: false, error: "Error accessing the database" },
+      {
+        ok: false,
+        error: "Error accessing the database or generating the access key",
+      },
       { status: 500 },
     );
   }

@@ -19,6 +19,7 @@ import {
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
   shiftLogDosePostAPIResponseSchema,
+  shiftReportPostAPIResponseSchema,
 } from "../zod/apiResponses/shifts";
 import { Prettify } from "./utils";
 import {
@@ -56,6 +57,9 @@ export type ShiftEmployeeLogAPIResponse = z.infer<
 export type ShiftAPIResponse = z.infer<typeof shiftAPIResponseSchema>;
 export type ShiftReportAPIResponse = z.infer<
   typeof shiftReportAPIResponseSchema
+>;
+export type ShiftReportPostAPIResponse = z.infer<
+  typeof shiftReportPostAPIResponseSchema
 >;
 export type ShiftLogStationsPostAPIResponse = z.infer<
   typeof shiftLogStationsPostAPIResponseSchema

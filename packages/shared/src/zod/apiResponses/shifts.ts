@@ -64,6 +64,11 @@ export const shiftReportAPIResponseSchema = z.object({
   createdAt: isoDateStringSchema,
 });
 
+export const shiftReportPostAPIResponseSchema =
+  shiftReportAPIResponseSchema.extend({
+    accessToken: z.string(),
+  });
+
 export const shiftLogStationsGetAPIResponseSchema = z.array(
   z.object({
     station: z.string(),

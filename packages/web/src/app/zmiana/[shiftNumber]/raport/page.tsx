@@ -27,6 +27,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import StationRows from "./stationRows";
+import RichText from "@/components/richText";
 
 async function getShiftReport(number: string) {
   "use cache";
@@ -371,6 +372,7 @@ export default async function RaportZmiany(
                 station: "Kierownik Zmiany",
                 operators: [
                   {
+                    employeeId: shiftReport.shift.host.id,
                     employeeDiscordId: shiftReport.shift.host.discordId,
                     employeeNameIC: shiftReport.shift.host.nameIC,
                     rating: "-",
@@ -507,7 +509,7 @@ export default async function RaportZmiany(
               Pisemny Opis Zmiany
             </div>
             <div className="text-justify w-full whitespace-pre-wrap">
-              {shiftReport.summary ?? "N/A"}
+              <RichText>{shiftReport.summary ?? "N/A"}</RichText>
             </div>
           </div>
         </>

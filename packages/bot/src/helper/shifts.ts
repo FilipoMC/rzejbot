@@ -12,6 +12,7 @@ import {
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
   shiftReportAPIResponseSchema,
+  shiftReportPostAPIResponseSchema,
 } from "@shared/zod/apiResponses/shifts";
 import {
   shiftLogAbsencePostSchema,
@@ -353,9 +354,9 @@ ApiHelper.shifts.report.markBriefingStart = async (shiftId, date) => {
   );
   const body: unknown = await res.json().catch(() => null);
 
-  const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
-    body,
-  );
+  const bodyParsed = apiResponseSchema(
+    shiftReportPostAPIResponseSchema,
+  ).safeParse(body);
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));

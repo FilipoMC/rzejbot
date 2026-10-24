@@ -90,7 +90,8 @@ model ShiftReport {
   goalMet Boolean?
   summary String?
 
-  approved Boolean @default(false)
+  accessTokenHash String
+  approved        Boolean @default(false)
 
   accidents Accident[] @relation
   cohostId  Int?

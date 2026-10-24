@@ -33,7 +33,7 @@ export async function GET(
         stationTimes: true,
         rating: true,
         mode: true,
-        employee: { select: { discordId: true, nameIC: true } },
+        employee: { select: { id: true, discordId: true, nameIC: true } },
       },
     });
 

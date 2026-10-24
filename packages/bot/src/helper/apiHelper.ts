@@ -19,6 +19,7 @@ import {
   ShiftLogDosesPost,
   ShiftLogDosesPostAPIResponse,
   EmployeeWithChangesAPIResponse,
+  ShiftReportPostAPIResponse,
 } from "@shared/types/api";
 import { getContext, Logger } from "commandkit";
 import z from "zod";
@@ -137,7 +138,6 @@ interface ApiHelper {
 
     /**
      * Fetches the current active shift
-     * @returns
      */
     getActive: () => Promise<ApiHelperReturnType<ShiftAPIResponse>>;
 
@@ -167,7 +167,7 @@ interface ApiHelper {
       markBriefingStart: (
         shiftId: number,
         date?: Date,
-      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
+      ) => Promise<ApiHelperReturnType<ShiftReportPostAPIResponse>>;
       mark: (
         event: "shiftStart" | "shiftEnd",
         shiftId: number,
