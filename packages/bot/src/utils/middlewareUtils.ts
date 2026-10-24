@@ -42,7 +42,8 @@ export function localMiddleware(
   if (
     _.isEmpty(ctx.command.metadata) ||
     (_.keys(ctx.command.metadata).length === 1 &&
-      ctx.command.metadata.aliases !== undefined)
+      ctx.command.metadata.aliases !== undefined) ||
+    (ctx.command.metadata as CustomCommandMetadata).skipLocalMiddleware
   ) {
     return;
   }

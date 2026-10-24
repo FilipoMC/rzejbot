@@ -7,6 +7,7 @@ export interface CustomCommandMetadata extends CommandMetadata {
   permissions?: Prettify<
     Omit<UnwrapTuple<Parameters<typeof hasPermissions>>, "member">
   >;
+  skipLocalMiddleware?: boolean;
   botPermissions?: never;
   userPermissions?: never;
 }
