@@ -20,7 +20,26 @@ export async function GET(
           szkoleniowiec: true,
         },
       },
-      employeeChanges: includeChanges === "true" ? true : false,
+      employeeChanges:
+        includeChanges === "true" ?
+          {
+            select: {
+              issuer: {
+                omit: {
+                  updatedAt: true,
+                  createdAt: true,
+                },
+              },
+              id: true,
+              type: true,
+              reason: true,
+              note: true,
+              newRole: true,
+              updatedAt: true,
+              createdAt: true,
+            },
+          }
+        : false,
     },
   });
   if (!res) {

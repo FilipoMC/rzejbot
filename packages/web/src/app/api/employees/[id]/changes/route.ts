@@ -35,6 +35,26 @@ export async function POST(
         },
         ...bodyParsed.data,
       },
+      include: {
+        employee: {
+          include: {
+            qualification: {
+              select: {
+                pracownik: true,
+                jadrowy: true,
+                kierownikZmiany: true,
+                szkoleniowiec: true,
+              },
+            },
+          },
+        },
+        issuer: {
+          omit: {
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
     });
     return NextResponse.json({ ok: true, data: res }, { status: 201 });
   } catch (err) {
