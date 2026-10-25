@@ -4,11 +4,11 @@ import { employeePatchSchema } from "@shared/zod/employeeSchemas";
 import { Prisma } from "@prisma/client";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: RouteContext<"/api/employees/[id]">,
 ) {
   const { id } = await params;
-
+  const includeChanges = req.nextUrl.searchParams.get("changes");
   const res = await prisma.employee.findUnique({
     where: { discordId: id },
     include: {
@@ -20,6 +20,7 @@ export async function GET(
           szkoleniowiec: true,
         },
       },
+      employeeChanges: includeChanges === "true" ? true : false,
     },
   });
   if (!res) {
