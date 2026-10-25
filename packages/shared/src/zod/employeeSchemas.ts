@@ -10,17 +10,16 @@ export const nameICSchema = z
     error: "Imię pracownika musi być w formacie 'IMIĘ NAZWISKO'",
   });
 
-export const employeeRanksSchema = z.enum(Object.keys(config.ranks));
+export const employeeRanksSchema = z.enum(
+  Object.keys(config.ranks) as (keyof typeof config.ranks)[],
+);
 
 // warn = uwaga pisemna; strike = nagana
-export const employeeChangeTypeSchema = z.enum([
-  "promotion",
-  "warn",
-  "strike",
-  "suspension",
-  "demotion",
-  "termination",
-]);
+export const employeeChangeTypeSchema = z.enum(
+  Object.keys(
+    config.changeTypeColors,
+  ) as (keyof typeof config.changeTypeColors)[],
+);
 
 export const employeeIdentifierSchema = z.union([
   snowflakeSchema.transform((discordId) => ({

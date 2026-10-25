@@ -28,5 +28,19 @@
     "Starszy Operator Niejądrowy": "1450939914882646228",
     "Operator Niejądrowy Reaktora": "1450939916677812406",
     "Kandydat": "1450942654660739183"
+  },
+  "changeTypeColors": {
+    "plus": { "color": "#d5ecff", "prettyName": "Plus" },
+    "minus": { "color": "#ffb1b1", "prettyName": "Minus" },
+    "praise": { "color": "#a8d8ff", "prettyName": "Pochwała" },
+    "promotion": { "color": null, "prettyName": "Awans" },
+    "warn": { "color": "#ff7474", "prettyName": "Uwaga" },
+    "strike": { "color": "#ff2929", "prettyName": "Nagana" },
+    "suspension": { "color": null, "prettyName": "Zawieszenie" },
+    "demotion": { "color": null, "prettyName": "Wypowiedzenie Zmieniające" },
+    "termination": {
+      "color": "#ffffff",
+      "prettyName": "Zwolnienie Dysyplinarne"
+    }
   }
 }

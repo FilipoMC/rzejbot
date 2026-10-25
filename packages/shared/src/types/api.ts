@@ -11,6 +11,9 @@ import {
   employeePostSchema,
   employeePatchSchema,
   loaPostSchema,
+  employeeWithChangesPostSchema,
+  employeeChangeTypeSchema,
+  employeeRanksSchema,
 } from "../zod/employeeSchemas";
 import {
   shiftEmployeeLogAPIResponseSchema,
@@ -24,6 +27,7 @@ import {
 import { Prettify } from "./utils";
 import {
   employeeAPIResponseSchema,
+  employeeChangePostAPIResponseSchema,
   employeeWithChangesAPIResponseSchema,
   loaAPIResponseSchema,
 } from "../zod/apiResponses/employee";
@@ -75,10 +79,20 @@ export type ShiftLogDosesPostAPIResponse = z.infer<
 export type EmployeePost = z.infer<typeof employeePostSchema>;
 export type EmployeePatch = z.infer<typeof employeePatchSchema>;
 export type LoaPost = z.infer<typeof loaPostSchema>;
+export type EmployeeWithChangesPost = z.infer<
+  typeof employeeWithChangesPostSchema
+>;
 
 export type EmployeeAPIResponse = z.infer<typeof employeeAPIResponseSchema>;
 export type EmployeeWithChangesAPIResponse = z.infer<
   typeof employeeWithChangesAPIResponseSchema
 >;
+export type EmployeeChangePostAPIResponse = z.infer<
+  typeof employeeChangePostAPIResponseSchema
+>;
 export type LoaAPIResponse = z.infer<typeof loaAPIResponseSchema>;
+
+/** @description  plus | minus | praise: pochwała | promotion: awans | warn: uwaga | strike: nagana | suspension: zawieszenie | demotion: wypowiedzenie zmieniajace | termination: zwolnienie dysyplinarne */
+export type EmployeeChangeType = z.infer<typeof employeeChangeTypeSchema>;
+export type EmployeeRanks = z.infer<typeof employeeRanksSchema>;
 // #endregion

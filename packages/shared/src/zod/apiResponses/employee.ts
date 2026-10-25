@@ -24,26 +24,34 @@ export const employeeAPIResponseSchema = z.object({
   createdAt: isoDateStringSchema,
 });
 
+export const employeeChangeSchema = z.object({
+  issuer: z.object({
+    id: z.number().nonnegative(),
+    discordId: snowflakeSchema,
+    robloxId: z.number(),
+    nameIC: nameICSchema,
+    rank: employeeRanksSchema,
+  }),
+  id: z.number().nonnegative(),
+  type: employeeChangeTypeSchema,
+  reason: z.string().max(500),
+  note: z.string().max(250).optional(),
+  newRole: employeeRanksSchema,
+  issuerId: z.number().nonnegative(),
+  employeeId: z.number().nonnegative(),
+  updatedAt: isoDateStringSchema,
+  createdAt: isoDateStringSchema,
+});
+
 export const employeeWithChangesAPIResponseSchema =
   employeeAPIResponseSchema.extend({
-    employeeChanges: z.array(
-      z.object({
-        issuer: z.object({
-          id: z.number().nonnegative(),
-          discordId: snowflakeSchema,
-          robloxId: z.number(),
-          nameIC: nameICSchema,
-          rank: employeeRanksSchema,
-        }),
-        type: employeeChangeTypeSchema,
-        reason: z.string().max(500),
-        note: z.string().max(250),
-        newRole: employeeRanksSchema,
-        updatedAt: isoDateStringSchema,
-        createdAt: isoDateStringSchema,
-      }),
-    ),
+    employeeChanges: z.array(employeeChangeSchema),
   });
+
+export const employeeChangePostAPIResponseSchema = z.object({
+  ...employeeChangeSchema.shape,
+  employee: employeeAPIResponseSchema,
+});
 
 export const loaAPIResponseSchema = z.object({
   id: z.number().positive(),
