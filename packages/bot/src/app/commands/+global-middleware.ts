@@ -1,11 +1,11 @@
 import { CustomCommandMetadata } from "@/types/commands";
 import { MiddlewareContext, stopMiddlewares } from "commandkit";
-import config from "@/config/config.json";
+import config from "@/config/config";
 import { middlewareReply } from "@/utils/commandResponses";
 import { middlewareCheckPerms } from "@/utils/middlewareUtils";
 import kv from "@/utils/kv";
 import { EmbedBuilder } from "discord.js";
-import emoji from "@/config/emoji.json";
+import emoji from "@/config/emoji";
 
 export function beforeExecute(ctx: MiddlewareContext) {
   const metadata = ctx.command.metadata as CustomCommandMetadata;

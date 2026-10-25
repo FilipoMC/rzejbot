@@ -18,7 +18,6 @@ import {
   employeePatchSchema,
   loaPostSchema,
   employeeWithChangesPostSchema,
-  employeeRanksSchema,
 } from "@shared/zod/employeeSchemas";
 import { snowflakeSchema } from "@shared/zod/discordSchemas";
 

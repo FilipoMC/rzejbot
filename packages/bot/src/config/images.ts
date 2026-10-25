@@ -1,5 +1,5 @@
-{
-  "shiftEvent": [
+const images = {
+  shiftEvent: [
     "https://files.catbox.moe/ptjs32.png",
     "https://files.catbox.moe/4webo6.png",
     "https://files.catbox.moe/ghzv5s.png",
@@ -31,10 +31,12 @@
     "https://files.catbox.moe/ears6y.png",
     "https://files.catbox.moe/mok06i.png",
     "https://files.catbox.moe/gnk7a5.png",
-    "https://files.catbox.moe/gzd48g.png"
+    "https://files.catbox.moe/gzd48g.png",
   ],
-  "declaredAbsence": [
+  declaredAbsence: [
     "https://files.catbox.moe/ivmvf6.png",
-    "https://files.catbox.moe/h4ob9x.gif"
-  ]
-}
+    "https://files.catbox.moe/h4ob9x.gif",
+  ],
+} satisfies Record<string, string[]>;
+
+export default images;

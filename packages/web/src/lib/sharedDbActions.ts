@@ -1,4 +1,4 @@
-import config from "@shared/config/config.json";
+import config from "@shared/config/config";
 import { Prisma } from "@prisma/client";
 import { DbActionReturnType } from "@/types/dbActions";
 

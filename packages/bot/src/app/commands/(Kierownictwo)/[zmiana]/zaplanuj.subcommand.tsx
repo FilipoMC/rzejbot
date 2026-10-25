@@ -1,8 +1,8 @@
 import prepareShiftBriefing, {
   PrepareShiftBriefingTaskData,
 } from "@/app/tasks/prepareShiftBriefing";
-import channels from "@/config/channels.json";
-import other from "@/config/other.json";
+import channels from "@/config/channels";
+import other from "@/config/other";
 import { getRandomImage, shiftEventName, websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
 import {
@@ -17,7 +17,7 @@ import {
   safeParseWithReply,
 } from "@/utils/utilityFunctions";
 import { createTask } from "@commandkit/tasks";
-import sharedConfig from "@shared/config/config.json";
+import sharedConfig from "@shared/config/config";
 import {
   defaultShiftGoal,
   defaultShiftNotes,

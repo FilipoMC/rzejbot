@@ -4,7 +4,7 @@ import { hasPermissions } from "./utilityFunctions";
 import { CustomCommandMetadata } from "@/types/commands";
 import { GuildMember } from "discord.js";
 import _ from "lodash";
-import config from "@/config/config.json";
+import config from "@/config/config";
 
 export function middlewareCheckPerms(ctx: MiddlewareContext) {
   if (ctx.isMessage() ? !ctx.message.guild : !ctx.interaction.inCachedGuild()) {

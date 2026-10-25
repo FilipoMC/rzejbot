@@ -1,7 +1,7 @@
 import z from "zod";
 import { snowflakeSchema } from "./discordSchemas";
 import { anyDateSchema } from "./dateTimeSchemas";
-import config from "../config/config.json";
+import config from "../config/config";
 export const nameICSchema = z
   .string()
   .trim()
@@ -16,9 +16,7 @@ export const employeeRanksSchema = z.enum(
 
 // warn = uwaga pisemna; strike = nagana
 export const employeeChangeTypeSchema = z.enum(
-  Object.keys(
-    config.changeTypeColors,
-  ) as (keyof typeof config.changeTypeColors)[],
+  Object.keys(config.changeType) as (keyof typeof config.changeType)[],
 );
 
 export const employeeIdentifierSchema = z.union([

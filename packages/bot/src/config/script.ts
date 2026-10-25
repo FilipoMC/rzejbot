@@ -1,4 +1,4 @@
-import images from "@/config/images.json";
+import images from "@/config/images";
 import { Logger } from "commandkit";
 
 export const websiteUrl = `http://${process.env.SERVER_IP}${process.env.SERVER_PORT ? `:${process.env.SERVER_PORT}` : ""}`;
@@ -6,6 +6,8 @@ export const websiteUrl = `http://${process.env.SERVER_IP}${process.env.SERVER_P
 export const websitePages = {
   shiftPlan: (number: string) =>
     `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/plan`,
+  shiftReport: (number: string) =>
+    `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/raport`,
 };
 
 export const shiftEventName = (number: string) => `Zmiana ${number}`;

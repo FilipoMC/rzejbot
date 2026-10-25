@@ -10,7 +10,7 @@ import {
   OnModalKitSubmit,
 } from "commandkit";
 import { ChatInputCommandInteraction, TextInputStyle } from "discord.js";
-import config from "@shared/config/config.json";
+import config from "@shared/config/config";
 import { ApiHelperReturnType } from "@/types/apiHelper";
 import { EmployeeAPIResponse } from "@shared/types/api";
 import { getRobloxUsersByIds } from "@/utils/api";

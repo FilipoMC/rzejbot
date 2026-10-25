@@ -1,6 +1,6 @@
 import { fromZonedTime } from "date-fns-tz";
 import z from "zod";
-import config from "../config/config.json";
+import config from "../config/config";
 import { Tuple } from "../types/utils";
 
 export const dateStringSchema = z

@@ -28,13 +28,12 @@ import {
   ApplicationCommandOptionType,
   ButtonStyle,
   ColorResolvable,
-  EmbedBuilder,
   User,
   userMention,
 } from "discord.js";
 import z from "zod";
-import channels from "@/config/channels.json";
-import otherConfig from "@shared/config/config.json";
+import channels from "@/config/channels";
+import otherConfig from "@shared/config/config";
 export const command: CommandData = {
   name: "edytuj",
   description: "Edytuj danego pracowniku",
@@ -286,12 +285,12 @@ export const addChangesModalHandler: OnModalKitSubmit = async (
     const container = (
       <Container
         accentColor={
-          otherConfig.changeTypeColors[res.data.type].color as ColorResolvable
+          otherConfig.changeType[res.data.type].color as ColorResolvable
         }
       >
         <TextDisplay>
           {[
-            `## __**${otherConfig.changeTypeColors[res.data.type].prettyName}**__`,
+            `## __**${otherConfig.changeType[res.data.type].prettyName}**__`,
             `>>> Kto wystawia: ${res.data.issuer.nameIC} <@${res.data.issuer.discordId}>`,
             `Komu wystawia: ${res.data.employee.nameIC} <@${res.data.employee.discordId}>`,
             `Uzasadnienie: ${res.data.reason}`,

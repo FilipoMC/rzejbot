@@ -4,7 +4,6 @@ import {
   OnModalKitSubmit,
   RadioGroup,
   RadioGroupOption,
-  RoleSelectMenu,
   TextInput,
   UserSelectMenu,
 } from "commandkit";
@@ -13,8 +12,7 @@ import {
   GuildMember,
   TextInputStyle,
 } from "discord.js";
-import config from "@shared/config/config.json";
-import emoji from "@/config/emoji.json";
+import emoji from "@/config/emoji";
 import rzejEmployeeRanksStringSelect from "./rzejRanksStringSelect";
 export const addChangesModal = (
   interaction: ChatInputCommandInteraction,
@@ -27,12 +25,6 @@ export const addChangesModal = (
     interaction.options.getMember("uzytkownik") ??
     interaction.options.getUser("uzytkownik", true);
   const isTargetInGuild = target instanceof GuildMember;
-  const defaultNewRole =
-    isTargetInGuild ?
-      target!.roles.cache
-        .filter((r) => Object.keys(config.ranks).includes(r.name))
-        .at(0)
-    : null;
   return (
     <Modal
       customId="empAddChangesModal"

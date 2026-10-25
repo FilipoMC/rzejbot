@@ -1,6 +1,6 @@
 import { ApiHelper } from "@/helper/apiHelper";
 import { BaseMessageOptions, Client } from "discord.js";
-import channels from "@/config/channels.json";
+import channels from "@/config/channels";
 import { Logger } from "commandkit";
 import { createManageShiftEmbedStage1Components } from "./stage1";
 import { getShiftManageEmbed } from "./utils";

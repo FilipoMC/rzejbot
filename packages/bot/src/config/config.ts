@@ -1,0 +1,11 @@
+const config = {
+  guild: "placeholder",
+  client_id: "placeholder",
+  dev_client_id: "placeholder",
+  bot_status: "Chrząszczyżewoszyce powiat Łękołody",
+  dev_status: "Chrząszczyżewoszyce powiat Łękołody",
+  devlock_status: "Chrząszczyżewoszyce powiat Łękołody",
+  devs: ["705701074975195178", "725981321196732436", "1067531748952518776"],
+};
+
+export default config;

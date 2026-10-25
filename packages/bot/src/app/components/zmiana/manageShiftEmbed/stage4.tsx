@@ -17,7 +17,6 @@ import {
 import {
   ActionRowBuilder,
   ButtonStyle,
-  GuildScheduledEventStatus,
   TextInputStyle,
   userMention,
 } from "discord.js";
@@ -33,8 +32,6 @@ import {
   failedToExecute,
 } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
-import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
-import { shiftEventName } from "@/config/script";
 import { nameICSchema } from "@shared/zod/employeeSchemas";
 import z from "zod";
 import { Tuple } from "@shared/types/utils";

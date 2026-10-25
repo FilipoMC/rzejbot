@@ -3,7 +3,7 @@ import { employeeWithChangesAPIResponseSchema } from "@shared/zod/apiResponses/e
 import { CommandData, Logger, MessageCommand } from "commandkit";
 import { EmbedBuilder } from "discord.js";
 import z from "zod";
-import channels from "@/config/channels.json";
+import channels from "@/config/channels";
 
 export const command: CommandData = {
   name: "test",

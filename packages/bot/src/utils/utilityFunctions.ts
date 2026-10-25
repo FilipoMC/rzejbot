@@ -16,7 +16,7 @@ import {
 } from "discord.js";
 import { ButtonKit, COMMANDKIT_IS_DEV, Logger, ModalKit } from "commandkit";
 import kv from "./kv";
-import config from "@/config/config.json";
+import config from "@/config/config";
 import z from "zod";
 import { failedToExecute } from "./commandResponses";
 

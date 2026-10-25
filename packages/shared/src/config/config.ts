@@ -1,0 +1,49 @@
+const config = {
+  timezone: "Europe/Warsaw",
+  stations: {
+    "Kierownik Zmiany": 0,
+    "Kontrola Mocy": 1,
+    "Kontrola Turbin (MCR)": 2,
+    "Kontrola Turbin (TCR)": 3,
+    "Kontrola Chłodzenia": 4,
+    "Kontrola Skraplacza": 5,
+    "Kontrola Deaeratora": 6,
+    "Kontrola Temperatur Pomp Zasilających": 7,
+    "Kontrola Generatorów Awaryjnych Diesla": 8,
+    "Operator Polowy": 9,
+    "Nadzór nad Blokiem I.": 10,
+  } satisfies Record<string, number>,
+  ranks: {
+    "Dyrektor Elektrowni": "1450930280037617787",
+    "Zastępca Dyrektora Elektrowni": "1467529036858130514",
+    "Główny Inżynier": "1450931343444672542",
+    "p.o. Głównego Inżyniera": null,
+
+    "Kierownik Bloków": "1450931356833157301",
+    "p.o. Kierownika Bloków": "",
+
+    "Starszy Inżynier Reaktora": "1450931358921789440",
+    "Inżynier Reaktora": "1450939750684033064",
+    "Operator Reaktora": "1450939912894414909",
+
+    "Starszy Operator Niejądrowy": "1450939914882646228",
+    "Operator Niejądrowy Reaktora": "1450939916677812406",
+    Kandydat: "1450942654660739183",
+  } satisfies Record<string, string | null>,
+  changeType: {
+    plus: { color: "#d5ecff", prettyName: "Plus" },
+    minus: { color: "#ffb1b1", prettyName: "Minus" },
+    praise: { color: "#a8d8ff", prettyName: "Pochwała" },
+    promotion: { color: null, prettyName: "Awans" },
+    warn: { color: "#ff7474", prettyName: "Uwaga" },
+    strike: { color: "#ff2929", prettyName: "Nagana" },
+    suspension: { color: null, prettyName: "Zawieszenie" },
+    demotion: { color: null, prettyName: "Wypowiedzenie Zmieniające" },
+    termination: {
+      color: "#ffffff",
+      prettyName: "Zwolnienie Dysyplinarne",
+    },
+  } satisfies Record<string, { color: string | null; prettyName: string }>,
+};
+
+export default config;

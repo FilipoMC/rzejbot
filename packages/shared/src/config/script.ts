@@ -1,4 +1,4 @@
-import config from "./config.json";
+import config from "./config";
 
 const station = (name: keyof typeof config.stations) => ({
   name,
@@ -32,8 +32,9 @@ export const shortRankNames = new Map(
     "Dyrektor Elektrowni": "Dyr. El.",
     "Zastępca Dyrektora Elektrowni": "Zast. Dyr. Elek.",
     "Główny Inżynier": "Gł. Inż.",
-    "p.o Głównego Inżyniera": "p.o. Gł. Inż.",
+    "p.o. Głównego Inżyniera": "p.o. Gł. Inż.",
     "Kierownik Bloków": "Kier. Bl.",
+    "p.o. Kierownika Bloków": "p.o. Kier. Bl.",
     "Starszy Inżynier Reaktora": "St. Inż.",
     "Inżynier Reaktora": "Inż. Reak.",
     "Operator Reaktora": "Op. Reak.",

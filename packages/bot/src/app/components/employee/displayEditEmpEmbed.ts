@@ -1,6 +1,6 @@
 import { EmployeeAPIResponse } from "@shared/types/api";
 import { EmbedBuilder, User } from "discord.js";
-import emoji from "@/config/emoji.json";
+import emoji from "@/config/emoji";
 
 export function displayEditEmpEmbed(user: User, employee: EmployeeAPIResponse) {
   const decideEmoji = (bool: boolean) => (bool ? emoji.yes : emoji.no);

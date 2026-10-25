@@ -1,5 +1,5 @@
 import { EmbedBuilder } from "discord.js";
-import emoji from "@/config/emoji.json";
+import emoji from "@/config/emoji";
 
 /** @config Configuration function, returns only embed  */
 export function createNoPermissionEmbed(): EmbedBuilder {
