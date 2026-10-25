@@ -9,6 +9,7 @@ import { Logger } from "commandkit";
 import z from "zod";
 import {
   employeeAPIResponseSchema,
+  employeeChangePostAPIResponseSchema,
   employeeWithChangesAPIResponseSchema,
   loaAPIResponseSchema,
 } from "@shared/zod/apiResponses/employee";
@@ -16,6 +17,8 @@ import {
   employeePostSchema,
   employeePatchSchema,
   loaPostSchema,
+  employeeWithChangesPostSchema,
+  employeeRanksSchema,
 } from "@shared/zod/employeeSchemas";
 import { snowflakeSchema } from "@shared/zod/discordSchemas";
 
@@ -210,15 +213,15 @@ ApiHelper.employee.loa.create = async (empDiscordId, request) => {
 };
 
 ApiHelper.employee.loa.listForEmployee = async (dId) => {
-  const parsedDiD = snowflakeSchema.safeParse(dId);
-  if (!parsedDiD.success) {
-    Logger.error(z.treeifyError(parsedDiD.error));
+  const parsedDCID = snowflakeSchema.safeParse(dId);
+  if (!parsedDCID.success) {
+    Logger.error(z.treeifyError(parsedDCID.error));
     return {
       status: "badArgument",
-      error: parsedDiD.error,
+      error: parsedDCID.error,
     };
   }
-  const emplDiscordId = parsedDiD.data;
+  const emplDiscordId = parsedDCID.data;
 
   const res = await fetchWithErrorHandling(
     getRequestURL(`employees/${emplDiscordId}/loa/list`),
@@ -300,6 +303,75 @@ ApiHelper.employee.update = async (req) => {
           status: "apiError",
           errorStatus: "conflict",
           error: "Podane dla pracownika roblox ID lub discord ID już istnieje!",
+        };
+      default:
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.employee.changes.create = async (dcId, req) => {
+  const discordId = snowflakeSchema.safeParse(dcId);
+  const reqParsed = employeeWithChangesPostSchema.safeParse(req);
+
+  if (!reqParsed.success) {
+    Logger.error(z.treeifyError(reqParsed.error));
+    Logger.debug([reqParsed.data, z.prettifyError(reqParsed.error)]);
+    return {
+      status: "badArgument",
+      error: reqParsed.error,
+    };
+  }
+
+  if (!discordId.success) {
+    Logger.error(z.treeifyError(discordId.error));
+    return {
+      status: "badArgument",
+      error: discordId.error,
+    };
+  }
+  // TODO: implement sometime in the future + add this to other things that use empranks
+  // if (!employeeRanksSchema.safeParse(req.newRole)) {
+  //   return {
+  //     status: "otherError",
+  //     errorStatus: "invalidData",
+  //     error: "Wybrana rola nie stanowi właściwej roli pracownownika elektrowni",
+  //   };
+  // }
+  const employeeId = discordId.data;
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`employees/${employeeId}/changes`),
+    requestOptions("POST", JSON.stringify(reqParsed.data)),
+  );
+  const body = await res.json().catch(() => null);
+  const bodyParsed = apiResponseSchema(
+    employeeChangePostAPIResponseSchema,
+  ).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return {
+      status: "apiResponseParsingError",
+    };
+  }
+
+  if (bodyParsed.data.ok) {
+    return {
+      status: "ok",
+      data: bodyParsed.data.data,
+    };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Nie znaleziono pracownika w bazie danych.",
         };
       default:
         return {

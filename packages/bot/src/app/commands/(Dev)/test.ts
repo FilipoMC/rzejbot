@@ -1,7 +1,9 @@
-import { commandSuccess } from "@/utils/commandResponses";
+import { commandError, commandSuccess } from "@/utils/commandResponses";
 import { employeeWithChangesAPIResponseSchema } from "@shared/zod/apiResponses/employee";
 import { CommandData, Logger, MessageCommand } from "commandkit";
+import { EmbedBuilder } from "discord.js";
 import z from "zod";
+import channels from "@/config/channels.json";
 
 export const command: CommandData = {
   name: "test",
@@ -73,6 +75,17 @@ export const message: MessageCommand = async (ctx) => {
   //   return;
   // }
   // Logger.error(z.prettifyError(test.error));
+  // const channel = await ctx.message.guild.channels.fetch(channels.opinie_uwagi);
+  // if (!channel?.isSendable()) {
+  //   await commandError({
+  //     interactionOrMsg: ctx.message,
+  //     description: `Wystąpił problem podczas wysyłania wiadomości na kanał, pomyślnie zapisano opinię w bazie danych. Należy manualnie wysłać wiadomość:\n\n`,
+  //   });
+  //   return;
+  // }
+  // await channel.send({
+  //   embeds: [embed],
+  // });
 };
 
 // export const chatInput: ChatInputCommand = async ({ interaction }) => {

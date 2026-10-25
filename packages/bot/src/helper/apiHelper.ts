@@ -20,6 +20,8 @@ import {
   ShiftLogDosesPostAPIResponse,
   EmployeeWithChangesAPIResponse,
   ShiftReportPostAPIResponse,
+  EmployeeWithChangesPost,
+  EmployeeChangePostAPIResponse,
 } from "@shared/types/api";
 import { getContext, Logger } from "commandkit";
 import z from "zod";
@@ -198,6 +200,17 @@ interface ApiHelper {
     ) => Promise<
       ApiHelperReturnType<EmployeeAPIResponse, z.ZodError<EmployeePatch>>
     >;
+    changes: {
+      create: (
+        dcId: string,
+        req: EmployeeWithChangesPost,
+      ) => Promise<
+        ApiHelperReturnType<
+          EmployeeChangePostAPIResponse,
+          z.ZodError<EmployeeWithChangesPost | string>
+        >
+      >;
+    };
     loa: {
       create: (
         employeeDiscordId: string,
@@ -218,6 +231,6 @@ interface ApiHelper {
 
 export const ApiHelper = {
   shifts: { report: {}, stations: {} },
-  employee: { loa: {} },
+  employee: { loa: {}, changes: {} },
   dev: {},
 } as ApiHelper;

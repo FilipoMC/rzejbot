@@ -14,6 +14,7 @@ import config from "@shared/config/config.json";
 import { ApiHelperReturnType } from "@/types/apiHelper";
 import { EmployeeAPIResponse } from "@shared/types/api";
 import { getRobloxUsersByIds } from "@/utils/api";
+import rzejEmployeeRanksStringSelect from "./rzejRanksStringSelect";
 
 export function employeeAddModal(
   interaction: ChatInputCommandInteraction,
@@ -55,17 +56,7 @@ export function employeeAddModal(
         label="Ranga"
         description="Ranga którą nadać pracownikowi na start"
       >
-        <StringSelectMenu required customId="rank" minValues={1} maxValues={1}>
-          {Object.keys(config.ranks).map((e) => {
-            return (
-              <StringSelectMenuOption
-                label={e}
-                value={e}
-                default={e === "Kandydat" ? true : false}
-              />
-            );
-          })}
-        </StringSelectMenu>
+        {rzejEmployeeRanksStringSelect()}
       </Label>
       <Label label="Kwalifikacje/Uprawnienia">
         <CheckboxGroup customId="qualification">
