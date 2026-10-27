@@ -18,12 +18,14 @@ export function beforeExecute(ctx: MiddlewareContext) {
     if (!config.devs.includes(commandUser.id)) {
       const embed = new EmbedBuilder()
         .setDescription(
-          `${emoji.warning} The bot is currently under developer lockdown` +
+          `${emoji.warning} Bot jest w trybie devlock. Tylko deweloperzy mogą używać komend.` +
             (devlockMessage ?
-              `\n\nMessage from developers: ${devlockMessage}`
+              `\n\nWiadomość od deweloperów: ${devlockMessage}`
             : ""),
         )
-        .setFooter({ text: "Track this bot's status for updates" })
+        .setFooter({
+          text: "Aktualizacje sytuacji podawane są w statusie bota.",
+        })
         .setColor("Blurple");
 
       middlewareReply(ctx, embed);
