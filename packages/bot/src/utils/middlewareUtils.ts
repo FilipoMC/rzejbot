@@ -47,6 +47,15 @@ export function localMiddleware(
   ) {
     return;
   }
+
+  const commandUser =
+    ctx.isMessage() ? ctx.message.author : ctx.interaction.user;
+
+  if (params.devSkipPermsCheck || (ctx.command.metadata as CustomCommandMetadata).devSkipPermsCheck) {
+    if (config.devs.includes(commandUser.id)) {
+      return;
+    }
+  }
   if (params.permissions) {
     _.merge(ctx.command.metadata, params);
     middlewareCheckPerms(ctx);

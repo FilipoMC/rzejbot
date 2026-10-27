@@ -34,6 +34,12 @@ export function beforeExecute(ctx: MiddlewareContext) {
     }
   }
 
+  if (metadata.devSkipPermsCheck) {
+    if (config.devs.includes(commandUser.id)) {
+      return;
+    }
+  }
+
   if (metadata.devonly) {
     if (!config.devs.includes(commandUser.id)) {
       middlewareReply(ctx);

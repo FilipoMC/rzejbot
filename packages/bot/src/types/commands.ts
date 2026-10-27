@@ -8,6 +8,7 @@ export interface CustomCommandMetadata extends CommandMetadata {
     Omit<UnwrapTuple<Parameters<typeof hasPermissions>>, "member">
   >;
   skipLocalMiddleware?: boolean;
+  devSkipPermsCheck?: boolean;
   botPermissions?: never;
   userPermissions?: never;
 }
