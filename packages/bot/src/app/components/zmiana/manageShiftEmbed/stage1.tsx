@@ -1,10 +1,12 @@
 import { ApiHelper } from "@/helper/apiHelper";
 import { ShiftAPIResponse } from "@shared/types/api";
 import { OnButtonKitClick, Button, ButtonKit, Logger } from "commandkit";
-import { ActionRowBuilder, ButtonStyle } from "discord.js";
+import { ActionRowBuilder, ButtonStyle, MessageFlags } from "discord.js";
 import { createManageShiftEmbedStage2Components } from "./stage2";
 import { commandError } from "@/utils/commandResponses";
 import { getShiftManageEmbed, shiftManageEmbedComponentsFilter } from "./utils";
+import { deferAfter } from "@/utils/utilityFunctions";
+import { websitePages } from "@/config/script";
 
 export function createManageShiftEmbedStage1Components(
   shift: ShiftAPIResponse,
@@ -13,8 +15,9 @@ export function createManageShiftEmbedStage1Components(
     interaction,
     ctx,
   ) => {
-    const shiftReportRes = await ApiHelper.shifts.report.markBriefingStart(
-      shift.id,
+    const shiftReportRes = await deferAfter(
+      interaction,
+      ApiHelper.shifts.report.markBriefingStart(shift.id),
     );
 
     if (shiftReportRes.status !== "ok") {
@@ -33,16 +36,23 @@ export function createManageShiftEmbedStage1Components(
     const newEmbed = getShiftManageEmbed(shift, shiftReport, []);
 
     await Promise.all([
-      interaction.message.edit({
-        embeds: [newEmbed],
-        components: createManageShiftEmbedStage2Components(
-          shift,
-          shiftReport,
-          [],
-        ),
+      interaction.followUp({
+        flags: MessageFlags.Ephemeral,
+        content: `Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
       }),
-      interaction.deferUpdate(),
+      interaction.user.send(
+        `Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
+      ),
     ]);
+
+    await interaction.message.edit({
+      embeds: [newEmbed],
+      components: createManageShiftEmbedStage2Components(
+        shift,
+        shiftReport,
+        [],
+      ),
+    });
 
     ctx.dispose();
   };
