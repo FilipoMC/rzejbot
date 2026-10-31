@@ -11,8 +11,8 @@ export function beforeExecute(ctx: MiddlewareContext) {
   const metadata = ctx.command.metadata as CustomCommandMetadata;
   const commandUser =
     ctx.isMessage() ? ctx.message.author : ctx.interaction.user;
-
-  if (kv.get("devlock")) {
+  const devlockStatus = kv.get("devlock");
+  if (devlockStatus) {
     const devlockMessage = kv.get("devlock-message") || "N/A";
 
     if (!config.devs.includes(commandUser.id)) {
@@ -34,7 +34,7 @@ export function beforeExecute(ctx: MiddlewareContext) {
     }
   }
 
-  if (metadata.devSkipPermsCheck) {
+  if (metadata.devSkipPermsCheck || devlockStatus) {
     if (config.devs.includes(commandUser.id)) {
       return;
     }

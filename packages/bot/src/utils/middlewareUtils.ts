@@ -5,6 +5,7 @@ import { CustomCommandMetadata } from "@/types/commands";
 import { GuildMember } from "discord.js";
 import _ from "lodash";
 import config from "@/config/config";
+import kv from "./kv";
 
 export function middlewareCheckPerms(ctx: MiddlewareContext) {
   if (ctx.isMessage() ? !ctx.message.guild : !ctx.interaction.inCachedGuild()) {
@@ -51,7 +52,11 @@ export function localMiddleware(
   const commandUser =
     ctx.isMessage() ? ctx.message.author : ctx.interaction.user;
 
-  if (params.devSkipPermsCheck || (ctx.command.metadata as CustomCommandMetadata).devSkipPermsCheck) {
+  if (
+    params.devSkipPermsCheck ||
+    (ctx.command.metadata as CustomCommandMetadata).devSkipPermsCheck ||
+    kv.get("devlock")
+  ) {
     if (config.devs.includes(commandUser.id)) {
       return;
     }
