@@ -49,6 +49,7 @@ export const shiftReportPatchSchema = z.object({
   cohostLocation: z.string().nullish(),
   goalMet: z.boolean().nullish(),
   summary: z.string().nullish(),
+  approved: z.boolean().optional(),
 });
 
 export const shiftLogStationsPostSchema = z.array(

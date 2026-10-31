@@ -554,3 +554,81 @@ ApiHelper.shifts.report.logDoses = async (shiftId, request) => {
     }
   }
 };
+
+ApiHelper.shifts.report.changeApproval = async (shiftId, approved) => {
+  const request: ShiftReportPatch = {
+    approved,
+  };
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}/report`),
+    requestOptions("PATCH", JSON.stringify(request)),
+  );
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
+    body,
+  );
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.report.resetAccessToken = async (shiftId) => {
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}/report/reset-token`),
+    requestOptions("POST"),
+  );
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(
+    shiftReportPostAPIResponseSchema,
+  ).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};

@@ -179,6 +179,13 @@ interface ApiHelper {
         shiftId: number,
         request: ShiftLogDosesPost,
       ) => Promise<ApiHelperReturnType<ShiftLogDosesPostAPIResponse>>;
+      changeApproval: (
+        shiftId: number,
+        approved: boolean,
+      ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
+      resetAccessToken: (
+        shiftId: number,
+      ) => Promise<ApiHelperReturnType<ShiftReportPostAPIResponse>>;
     };
   };
   employee: {

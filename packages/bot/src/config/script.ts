@@ -8,6 +8,8 @@ export const websitePages = {
     `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/plan`,
   shiftReport: (number: string) =>
     `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/raport`,
+  shiftReportEdit: (number: string, accessToken: string) =>
+    `${websitePages.shiftReport(number)}/${accessToken}`,
 };
 
 export const shiftEventName = (number: string) => `Zmiana ${number}`;

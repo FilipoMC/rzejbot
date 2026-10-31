@@ -30,6 +30,9 @@ export async function GET(
         cohost: { select: { discordId: true } },
         shift: { select: { shiftNumber: true } },
       },
+      omit: {
+        accessTokenHash: true,
+      },
     });
 
     if (!res) {
@@ -93,6 +96,9 @@ export async function POST(
       include: {
         cohost: { select: { discordId: true } },
         shift: { select: { shiftNumber: true } },
+      },
+      omit: {
+        accessTokenHash: true,
       },
     });
 
@@ -183,6 +189,9 @@ export async function PATCH(
       include: {
         cohost: { select: { discordId: true } },
         shift: { select: { shiftNumber: true } },
+      },
+      omit: {
+        accessTokenHash: true,
       },
     });
 
