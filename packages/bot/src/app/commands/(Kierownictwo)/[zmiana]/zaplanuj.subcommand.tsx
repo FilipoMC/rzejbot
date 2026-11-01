@@ -17,7 +17,7 @@ import {
   safeParseWithReply,
 } from "@/utils/utilityFunctions";
 import { createTask } from "@commandkit/tasks";
-import sharedConfig from "@shared/config/config";
+import { sharedConfig } from "@shared/config/config";
 import {
   defaultShiftGoal,
   defaultShiftNotes,

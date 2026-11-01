@@ -1,4 +1,4 @@
-import config from "@shared/config/config";
+import { sharedConfig } from "@shared/config/config";
 import { Prisma } from "@prisma/client";
 import { DbActionReturnType } from "@/types/dbActions";
 
@@ -14,7 +14,7 @@ export function getShiftStations(
     };
   }>[],
 ): DbActionReturnType<typeof operatorsByStation, number> {
-  const stationOrder = config.stations as Record<string, number>;
+  const stationOrder = sharedConfig.stations as Record<string, number>;
 
   const byStation = new Map<
     string,

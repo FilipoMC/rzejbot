@@ -10,11 +10,11 @@ import {
   OnModalKitSubmit,
 } from "commandkit";
 import { ChatInputCommandInteraction, TextInputStyle } from "discord.js";
-import config from "@shared/config/config";
 import { ApiHelperReturnType } from "@/types/apiHelper";
 import { EmployeeAPIResponse } from "@shared/types/api";
 import { getRobloxUsersByIds } from "@/utils/api";
 import rzejEmployeeRanksStringSelect from "./rzejRanksStringSelect";
+import { mainRanks } from "@shared/config/ranks";
 
 export function employeeAddModal(
   interaction: ChatInputCommandInteraction,
@@ -122,7 +122,7 @@ export async function employeeEditModal(
         description="Ranga którą nadać pracownikowi na start"
       >
         <StringSelectMenu required customId="rank" minValues={1} maxValues={1}>
-          {Object.keys(config.ranks).map((e) => {
+          {Object.keys(mainRanks).map((e) => {
             return (
               <StringSelectMenuOption
                 label={e}

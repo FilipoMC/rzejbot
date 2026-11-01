@@ -1,6 +1,6 @@
 import { fromZonedTime } from "date-fns-tz";
 import z from "zod";
-import config from "../config/config";
+import { sharedConfig } from "../config/config";
 import { Tuple } from "../types/utils";
 
 export const dateStringSchema = z
@@ -13,7 +13,10 @@ export const dateStringSchema = z
     const [date, time] = input.split(" ") as Tuple<string, 3>;
     const [day, month, year] = date.split("/") as Tuple<string, 3>;
 
-    return fromZonedTime(`${year}-${month}-${day}T${time}`, config.timezone);
+    return fromZonedTime(
+      `${year}-${month}-${day}T${time}`,
+      sharedConfig.timezone,
+    );
   });
 
 export const isoDateStringSchema = z.iso

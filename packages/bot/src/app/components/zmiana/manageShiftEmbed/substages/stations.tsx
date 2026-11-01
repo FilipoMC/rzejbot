@@ -24,7 +24,7 @@ import {
 } from "discord.js";
 import type { createManageShiftEmbedStage2Components } from "../stage2";
 import type { createManageShiftEmbedStage3Components } from "../stage3";
-import { stationsGrouped } from "@shared/config/script";
+import { stationsGrouped } from "@shared/config/config";
 import { ApiHelper } from "@/helper/apiHelper";
 import { commandError, commandSuccess } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";

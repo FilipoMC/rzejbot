@@ -1,5 +1,4 @@
 import { ApiHelper } from "@/helper/apiHelper";
-import { CustomCommandMetadata } from "@/types/commands";
 import {
   commandError,
   commandSuccess,

@@ -1,4 +1,4 @@
-const config = {
+export const sharedConfig = {
   timezone: "Europe/Warsaw",
   stations: {
     "Kierownik Zmiany": 0,
@@ -13,23 +13,6 @@ const config = {
     "Operator Polowy": 9,
     "Nadzór nad Blokiem I.": 10,
   } satisfies Record<string, number>,
-  ranks: {
-    "Dyrektor Elektrowni": "1450930280037617787",
-    "Zastępca Dyrektora Elektrowni": "1467529036858130514",
-    "Główny Inżynier": "1450931343444672542",
-    "p.o. Głównego Inżyniera": null,
-
-    "Kierownik Bloków": "1450931356833157301",
-    "p.o. Kierownika Bloków": "",
-
-    "Starszy Inżynier Reaktora": "1450931358921789440",
-    "Inżynier Reaktora": "1450939750684033064",
-    "Operator Reaktora": "1450939912894414909",
-
-    "Starszy Operator Niejądrowy": "1450939914882646228",
-    "Operator Niejądrowy Reaktora": "1450939916677812406",
-    Kandydat: "1450942654660739183",
-  } satisfies Record<string, string | null>,
   changeType: {
     plus: { color: "#d5ecff", prettyName: "Plus" },
     minus: { color: "#ffb1b1", prettyName: "Minus" },
@@ -46,4 +29,24 @@ const config = {
   } satisfies Record<string, { color: string | null; prettyName: string }>,
 };
 
-export default config;
+const station = (name: keyof typeof sharedConfig.stations) => ({
+  name,
+  order: (sharedConfig.stations as Record<string, number>)[name],
+});
+
+export const stationsGrouped = {
+  U2_MCR: [
+    station("Kontrola Mocy"),
+    station("Kontrola Chłodzenia"),
+    station("Kontrola Turbin (MCR)"),
+    station("Kontrola Skraplacza"),
+    station("Kontrola Deaeratora"),
+  ],
+  Inne: [
+    station("Kontrola Turbin (TCR)"),
+    station("Kontrola Temperatur Pomp Zasilających"),
+    station("Kontrola Generatorów Awaryjnych Diesla"),
+    station("Operator Polowy"),
+    station("Nadzór nad Blokiem I."),
+  ],
+};

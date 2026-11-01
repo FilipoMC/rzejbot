@@ -1,6 +1,6 @@
 import { StringSelectMenu, StringSelectMenuOption } from "commandkit";
-import config from "@shared/config/config";
 import { EmployeeRanks } from "@shared/types/api";
+import { mainRanks } from "@shared/config/ranks";
 
 export default function rzejEmployeeRanksStringSelect(
   customId: string = "rank",
@@ -8,7 +8,7 @@ export default function rzejEmployeeRanksStringSelect(
 ) {
   return (
     <StringSelectMenu required customId={customId} minValues={1} maxValues={1}>
-      {Object.keys(config.ranks).map((e) => {
+      {Object.keys(mainRanks).map((e) => {
         return (
           <StringSelectMenuOption label={e} value={e} default={e === def} />
         );

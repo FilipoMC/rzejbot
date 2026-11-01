@@ -19,7 +19,6 @@ import { getRobloxUsersByIds } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { getShiftStations } from "@/lib/sharedDbActions";
 import { toPlain } from "@/lib/utils";
-import { ranksOrder, shortRankNames } from "@shared/config/script";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
@@ -28,6 +27,7 @@ import { notFound } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import StationRows from "./stationRows";
 import RichText from "@/components/richText";
+import { ranksOrder, shortRankNames } from "@shared/config/ranks";
 
 async function getShiftReport(number: string) {
   "use cache";

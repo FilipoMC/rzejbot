@@ -1,7 +1,8 @@
 import z from "zod";
 import { snowflakeSchema } from "./discordSchemas";
 import { anyDateSchema } from "./dateTimeSchemas";
-import config from "../config/config";
+import { mainRanks } from "../config/ranks";
+import { sharedConfig } from "../config/config";
 export const nameICSchema = z
   .string()
   .trim()
@@ -11,12 +12,14 @@ export const nameICSchema = z
   });
 
 export const employeeRanksSchema = z.enum(
-  Object.keys(config.ranks) as (keyof typeof config.ranks)[],
+  Object.keys(mainRanks) as (keyof typeof mainRanks)[],
 );
 
 // warn = uwaga pisemna; strike = nagana
 export const employeeChangeTypeSchema = z.enum(
-  Object.keys(config.changeType) as (keyof typeof config.changeType)[],
+  Object.keys(
+    sharedConfig.changeType,
+  ) as (keyof typeof sharedConfig.changeType)[],
 );
 
 export const employeeIdentifierSchema = z.union([
