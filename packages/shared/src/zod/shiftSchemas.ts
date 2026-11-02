@@ -1,6 +1,6 @@
 import z from "zod";
 import { snowflakeSchema } from "./discordSchemas";
-import { anyDateSchema } from "./dateTimeSchemas";
+import { anyDateSchema, anyDateStringSchema } from "./dateTimeSchemas";
 import { employeeIdentifierSchema } from "./employeeSchemas";
 
 export const shiftNumberSchema = z.union([
@@ -60,11 +60,10 @@ export const shiftLogStationsPostSchema = z.array(
   }),
 );
 
-export const shiftLogPresenceInitialPostSchema = z.array(
-  z.object({
-    employee: employeeIdentifierSchema,
-  }),
-);
+export const shiftLogPresenceInitialPostSchema = z.object({
+  employees: z.array(employeeIdentifierSchema),
+  date: anyDateSchema.optional(),
+});
 
 export const shiftLogDosesPostSchema = z.array(
   z.object({

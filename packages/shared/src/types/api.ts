@@ -1,97 +1,98 @@
 import z from "zod";
 import {
-  shiftLogAbsencePostSchema,
-  shiftLogDosesPostSchema,
-  shiftLogStationsPostSchema,
-  shiftPostSchema,
-  shiftReportPatchSchema,
-  shiftReportPostSchema,
-} from "../zod/shiftSchemas";
-import {
-  employeePostSchema,
-  employeePatchSchema,
-  loaPostSchema,
-  employeeWithChangesPostSchema,
-  employeeChangeTypeSchema,
-  employeeRanksSchema,
-} from "../zod/employeeSchemas";
-import {
-  shiftEmployeeLogAPIResponseSchema,
-  shiftAPIResponseSchema,
-  shiftReportAPIResponseSchema,
-  shiftLogStationsGetAPIResponseSchema,
-  shiftLogStationsPostAPIResponseSchema,
-  shiftLogDosePostAPIResponseSchema,
-  shiftReportPostAPIResponseSchema,
-} from "../zod/apiResponses/shifts";
-import { Prettify } from "./utils";
-import {
   employeeAPIResponseSchema,
   employeeChangePostAPIResponseSchema,
   employeeWithChangesAPIResponseSchema,
   loaAPIResponseSchema,
 } from "../zod/apiResponses/employee";
+import {
+  shiftAPIResponseSchema,
+  shiftEmployeeLogAPIResponseSchema,
+  shiftLogDosePostAPIResponseSchema,
+  shiftLogPresenceInitialPostAPIResponseSchema,
+  shiftLogStationsGetAPIResponseSchema,
+  shiftLogStationsPostAPIResponseSchema,
+  shiftReportAPIResponseSchema,
+  shiftReportPostAPIResponseSchema,
+} from "../zod/apiResponses/shifts";
+import {
+  employeeChangeTypeSchema,
+  employeePatchSchema,
+  employeePostSchema,
+  employeeRanksSchema,
+  employeeWithChangesPostSchema,
+  loaPostSchema,
+} from "../zod/employeeSchemas";
+import {
+  shiftLogAbsencePostSchema,
+  shiftLogDosesPostSchema,
+  shiftLogPresenceInitialPostSchema,
+  shiftLogStationsPostSchema,
+  shiftPostSchema,
+  shiftReportPatchSchema,
+  shiftReportPostSchema,
+} from "../zod/shiftSchemas";
 
 export type ApiResponse<T, E = string> =
   | { ok: true; data: T }
   | { ok: false; error: E };
 
-// #region shift types
-export type ShiftPost = z.infer<typeof shiftPostSchema>;
+// #region shift api types
+export type ShiftPost = z.input<typeof shiftPostSchema>;
 
-export type ShiftReportPost = z.infer<typeof shiftReportPostSchema>;
-export type ShiftReportPatch = z.infer<typeof shiftReportPatchSchema>;
+export type ShiftReportPost = z.input<typeof shiftReportPostSchema>;
+export type ShiftReportPatch = z.input<typeof shiftReportPatchSchema>;
 
-export type ShiftLogAbsencePost = z.infer<typeof shiftLogAbsencePostSchema>;
-export type ShiftLogStationsPost = Prettify<
-  Omit<z.infer<typeof shiftLogStationsPostSchema>[number], "employee"> & {
-    employee: string;
-  }
->[];
-export type ShiftLogDosesPost = Prettify<
-  Omit<z.infer<typeof shiftLogDosesPostSchema>[number], "employee"> & {
-    employee: string;
-  }
->[];
+export type ShiftLogAbsencePost = z.input<typeof shiftLogAbsencePostSchema>;
+export type ShiftLogStationsPost = z.input<typeof shiftLogStationsPostSchema>;
+export type ShiftLogPresenceInitialPost = z.input<
+  typeof shiftLogPresenceInitialPostSchema
+>;
+export type ShiftLogDosesPost = z.input<typeof shiftLogDosesPostSchema>;
 // #endregion
 // #region shift api response types
-export type ShiftEmployeeLogAPIResponse = z.infer<
+export type ShiftEmployeeLogAPIResponse = z.output<
   typeof shiftEmployeeLogAPIResponseSchema
 >;
-export type ShiftAPIResponse = z.infer<typeof shiftAPIResponseSchema>;
-export type ShiftReportAPIResponse = z.infer<
+export type ShiftAPIResponse = z.output<typeof shiftAPIResponseSchema>;
+export type ShiftReportAPIResponse = z.output<
   typeof shiftReportAPIResponseSchema
 >;
-export type ShiftReportPostAPIResponse = z.infer<
+export type ShiftReportPostAPIResponse = z.output<
   typeof shiftReportPostAPIResponseSchema
 >;
-export type ShiftLogStationsPostAPIResponse = z.infer<
+export type ShiftLogStationsPostAPIResponse = z.output<
   typeof shiftLogStationsPostAPIResponseSchema
 >;
-export type ShiftLogStationsGetAPIResponse = z.infer<
+export type ShiftLogStationsGetAPIResponse = z.output<
   typeof shiftLogStationsGetAPIResponseSchema
 >;
-export type ShiftLogDosesPostAPIResponse = z.infer<
+export type ShiftLogPresenceInitialPostAPIResponse = z.output<
+  typeof shiftLogPresenceInitialPostAPIResponseSchema
+>;
+export type ShiftLogDosesPostAPIResponse = z.output<
   typeof shiftLogDosePostAPIResponseSchema
 >;
 // #endregion
-// #region employee types
-export type EmployeePost = z.infer<typeof employeePostSchema>;
-export type EmployeePatch = z.infer<typeof employeePatchSchema>;
-export type LoaPost = z.infer<typeof loaPostSchema>;
-export type EmployeeWithChangesPost = z.infer<
+// #region employee api types
+export type EmployeePost = z.input<typeof employeePostSchema>;
+export type EmployeePatch = z.input<typeof employeePatchSchema>;
+export type LoaPost = z.input<typeof loaPostSchema>;
+export type EmployeeWithChangesPost = z.input<
   typeof employeeWithChangesPostSchema
 >;
-
-export type EmployeeAPIResponse = z.infer<typeof employeeAPIResponseSchema>;
-export type EmployeeWithChangesAPIResponse = z.infer<
+// #endregion
+// #region employee api response types
+export type EmployeeAPIResponse = z.output<typeof employeeAPIResponseSchema>;
+export type EmployeeWithChangesAPIResponse = z.output<
   typeof employeeWithChangesAPIResponseSchema
 >;
-export type EmployeeChangePostAPIResponse = z.infer<
+export type EmployeeChangePostAPIResponse = z.output<
   typeof employeeChangePostAPIResponseSchema
 >;
-export type LoaAPIResponse = z.infer<typeof loaAPIResponseSchema>;
-
+export type LoaAPIResponse = z.output<typeof loaAPIResponseSchema>;
+// #endregion
+// #region employee types
 /** @description  plus | minus | praise: pochwała | promotion: awans | warn: uwaga | strike: nagana | suspension: zawieszenie | demotion: wypowiedzenie zmieniajace | termination: zwolnienie dysyplinarne */
 export type EmployeeChangeType = z.infer<typeof employeeChangeTypeSchema>;
 export type EmployeeRanks = z.infer<typeof employeeRanksSchema>;

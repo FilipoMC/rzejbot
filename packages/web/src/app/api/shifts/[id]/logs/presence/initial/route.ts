@@ -32,19 +32,19 @@ export async function POST(
     );
   }
 
-  const dateNow = new Date();
+  const dateNow = body.date ?? new Date();
 
   try {
     const employees = await prisma.employee.findMany({
       select: { discordId: true, id: true, nameIC: true },
     });
 
-    const discordIds = body
-      .map((row) => row.employee.discordId)
+    const discordIds = body.employees
+      .map((row) => row.discordId)
       .filter((id): id is string => id !== null);
 
-    const namesIC = body
-      .map((row) => row.employee.nameIC)
+    const namesIC = body.employees
+      .map((row) => row.nameIC)
       .filter((name): name is string => name !== null);
 
     const employeeIdentifiers = new Set([...discordIds, ...namesIC]);
@@ -60,8 +60,8 @@ export async function POST(
         employeeIdentifiers.has(v.nameIC),
     );
 
-    const employeeResults = body.map((row) => {
-      const identifier = row.employee.discordId ?? row.employee.nameIC;
+    const employeeResults = body.employees.map((row) => {
+      const identifier = row.discordId ?? row.nameIC;
       const employee = employeeByIdentifier.get(identifier);
 
       if (employee) {
@@ -74,8 +74,8 @@ export async function POST(
 
       return {
         found: false,
-        employeeDiscordId: row.employee.discordId,
-        employeeNameIC: row.employee.nameIC,
+        employeeDiscordId: row.discordId,
+        employeeNameIC: row.nameIC,
       };
     });
 

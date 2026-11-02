@@ -37,6 +37,12 @@ export function replaceModalHandler(shiftId: number, handler: ModalKit) {
   modalHandlers.set(shiftId, handler);
 }
 
+export function removeModalHandler(shiftId: number) {
+  const oldHandler = modalHandlers.get(shiftId);
+  oldHandler?.dispose();
+  modalHandlers.delete(shiftId);
+}
+
 export function shiftManageEmbedComponentsFilter() {
   return true; // TODO: Replace this with actual filter logic
 }

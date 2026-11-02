@@ -106,3 +106,6 @@ export const shiftLogStationsPostAPIResponseSchema = z.array(
 
 export const shiftLogDosePostAPIResponseSchema =
   shiftLogStationsPostAPIResponseSchema;
+
+export const shiftLogPresenceInitialPostAPIResponseSchema =
+  shiftLogStationsPostAPIResponseSchema;
