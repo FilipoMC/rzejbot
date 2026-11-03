@@ -12,8 +12,8 @@
     "type-check": "pnpm -r exec tsc --noEmit",
     "studio": "pnpm --filter ./packages/web studio",
     "format": "prettier --write \"packages/**/src/**/*.{js,ts,tsx}\" && pnpm --filter ./packages/web format",
-    "pc": "pnpm type-check && pnpm lint && pnpm format",
-    "commit": "pnpm pc && git commit"
+    "precommit": "pnpm type-check && pnpm lint && pnpm format",
+    "commit": "pnpm precommit && git commit"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
