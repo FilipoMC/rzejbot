@@ -31,7 +31,7 @@ import { deferAfter } from "@/utils/utilityFunctions";
 import { Tuple } from "@shared/types/utils";
 import {
   disposeShiftHandlers,
-  shiftManageEmbedComponentsFilter,
+  createShiftManageEmbedComponentsFilter,
   registerButtonHandler,
   getShiftManageEmbed,
   replaceModalHandler,
@@ -67,7 +67,10 @@ export function createManageShiftEmbedSetStationsComponents(
       customId={`back-stations_${shift.id}`}
       style={ButtonStyle.Secondary}
       onClick={backButtonCallback}
-      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       « Powrót
     </Button>
@@ -190,7 +193,12 @@ export function createManageShiftEmbedSetStationsComponents(
           title="Przydziel stanowiska"
           customId={`stations-${group}-modal_${shift.id}`}
           onSubmit={onModalSubmit}
-          options={{ once: false, filter: shiftManageEmbedComponentsFilter }}
+          options={{
+            once: false,
+            filter: createShiftManageEmbedComponentsFilter(
+              shift.host.discordId,
+            ),
+          }}
         >
           {stationNamesArr.slice(0, 5).map((station) => {
             return (
@@ -331,7 +339,10 @@ export function createManageShiftEmbedSetStationsComponents(
         title="Przydziel stanowiska"
         customId={`stations-custom-modal_${shift.id}`}
         onSubmit={onModalSubmit}
-        options={{ once: false, filter: shiftManageEmbedComponentsFilter }}
+        options={{
+          once: false,
+          filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        }}
       >
         <Label label="Przydział">
           <TextInput
@@ -380,7 +391,10 @@ export function createManageShiftEmbedSetStationsComponents(
           new Set(stationEntries.map((v) => v.name)),
           group,
         )}
-        options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+        options={{
+          once: true,
+          filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        }}
       >
         {group.replaceAll("_", " ")}
       </Button>
@@ -406,7 +420,10 @@ export function createManageShiftEmbedSetStationsComponents(
     <Button
       customId={`stations-custom-modal_${shift.id}`}
       onClick={customButtonCallback}
-      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Własne
     </Button>

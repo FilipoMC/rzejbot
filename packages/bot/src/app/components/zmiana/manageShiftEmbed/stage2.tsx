@@ -32,7 +32,7 @@ import { deferAfter } from "@/utils/utilityFunctions";
 import {
   disposeShiftHandlers,
   getShiftManageEmbed,
-  shiftManageEmbedComponentsFilter,
+  createShiftManageEmbedComponentsFilter,
   registerButtonHandler,
   replaceModalHandler,
   removeModalHandler,
@@ -180,7 +180,12 @@ export function createManageShiftEmbedStage2Components(
           title="Obecność na zmianie"
           customId={`presence-modal_${shift.id}`}
           onSubmit={onModalSubmit}
-          options={{ once: false, filter: shiftManageEmbedComponentsFilter }}
+          options={{
+            once: false,
+            filter: createShiftManageEmbedComponentsFilter(
+              shift.host.discordId,
+            ),
+          }}
         >
           <Label label="Przełożony">
             <StringSelectMenu
@@ -238,7 +243,10 @@ export function createManageShiftEmbedStage2Components(
       customId={`start-shift_${shift.id}`}
       style={ButtonStyle.Success}
       onClick={startShiftButtonCallback}
-      options={{ filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Rozpocznij zmianę
     </Button>
@@ -305,7 +313,10 @@ export function createManageShiftEmbedStage2Components(
         title="Wskaż przełożonego nadzorującego"
         customId={`cohost-modal_${shift.id}`}
         onSubmit={onModalSubmit}
-        options={{ once: false, filter: shiftManageEmbedComponentsFilter }}
+        options={{
+          once: false,
+          filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        }}
       >
         <Label label="Przełożony">
           <UserSelectMenu
@@ -341,7 +352,10 @@ export function createManageShiftEmbedStage2Components(
       customId={`set-cohost_${shift.id}`}
       style={ButtonStyle.Secondary}
       onClick={setCohostButtonCallback}
-      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Przełożony
     </Button>
@@ -373,7 +387,10 @@ export function createManageShiftEmbedStage2Components(
       customId={`goto-stations_${shift.id}`}
       style={ButtonStyle.Secondary}
       onClick={setStationsButtonCallback}
-      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Stanowiska
     </Button>

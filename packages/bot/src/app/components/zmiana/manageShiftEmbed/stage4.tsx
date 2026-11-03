@@ -24,7 +24,7 @@ import {
   getShiftManageEmbed,
   registerButtonHandler,
   replaceModalHandler,
-  shiftManageEmbedComponentsFilter,
+  createShiftManageEmbedComponentsFilter,
 } from "./utils";
 import {
   commandError,
@@ -182,7 +182,10 @@ export function createManageShiftEmbedStage4Components(
         title="Zapisz przyjęte dawki"
         customId={`shift-doses-modal_${shift.id}`}
         onSubmit={onModalSubmit}
-        options={{ once: false, filter: shiftManageEmbedComponentsFilter }}
+        options={{
+          once: false,
+          filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        }}
       >
         <Label label="Dawki">
           <TextInput
@@ -217,7 +220,10 @@ export function createManageShiftEmbedStage4Components(
       customId={`shift-doses_${shift.id}`}
       style={ButtonStyle.Secondary}
       onClick={setDosesButtonCallback}
-      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Dawki
     </Button>

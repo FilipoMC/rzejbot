@@ -4,7 +4,10 @@ import { OnButtonKitClick, Button, ButtonKit, Logger } from "commandkit";
 import { ActionRowBuilder, ButtonStyle, MessageFlags } from "discord.js";
 import { createManageShiftEmbedStage2Components } from "./stage2";
 import { commandError } from "@/utils/commandResponses";
-import { getShiftManageEmbed, shiftManageEmbedComponentsFilter } from "./utils";
+import {
+  getShiftManageEmbed,
+  createShiftManageEmbedComponentsFilter,
+} from "./utils";
 import { deferAfter } from "@/utils/utilityFunctions";
 import { websitePages } from "@/config/script";
 
@@ -62,7 +65,10 @@ export function createManageShiftEmbedStage1Components(
       customId={`start-briefing_${shift.id}`}
       style={ButtonStyle.Success}
       onClick={startBriefingButtonCallback}
-      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Rozpocznij briefing
     </Button>

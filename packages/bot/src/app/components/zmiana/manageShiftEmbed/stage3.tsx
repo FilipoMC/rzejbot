@@ -13,7 +13,7 @@ import {
 import {
   getShiftManageEmbed,
   registerButtonHandler,
-  shiftManageEmbedComponentsFilter,
+  createShiftManageEmbedComponentsFilter,
 } from "./utils";
 import { commandError } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
@@ -73,7 +73,10 @@ export function createManageShiftEmbedStage3Components(
       customId={`end-shift_${shift.id}`}
       style={ButtonStyle.Danger}
       onClick={endShiftButtonCallback}
-      options={{ once: true }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Zakończ zmianę
     </Button>
@@ -103,7 +106,10 @@ export function createManageShiftEmbedStage3Components(
       customId={`goto-stations_${shift.id}`}
       style={ButtonStyle.Secondary}
       onClick={setStationsButtonCallback}
-      options={{ once: true, filter: shiftManageEmbedComponentsFilter }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Stanowiska
     </Button>

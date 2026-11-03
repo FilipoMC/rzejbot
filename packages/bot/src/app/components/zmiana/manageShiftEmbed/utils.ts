@@ -1,3 +1,4 @@
+import config from "@/config/config";
 import { KitArray } from "@/types/components/zmiana";
 import {
   ShiftAPIResponse,
@@ -6,7 +7,13 @@ import {
 } from "@shared/types/api";
 import { ButtonKit, ModalKit } from "commandkit";
 import { addMinutes } from "date-fns";
-import { EmbedBuilder, time, TimestampStyles, userMention } from "discord.js";
+import {
+  EmbedBuilder,
+  Interaction,
+  time,
+  TimestampStyles,
+  userMention,
+} from "discord.js";
 
 function disposeHandlers(handlers: KitArray) {
   for (const handler of handlers) {
@@ -43,8 +50,14 @@ export function removeModalHandler(shiftId: number) {
   modalHandlers.delete(shiftId);
 }
 
-export function shiftManageEmbedComponentsFilter() {
-  return true; // TODO: Replace this with actual filter logic
+export function createShiftManageEmbedComponentsFilter(hostId: string) {
+  return (interaction: Interaction) => {
+    if (config.devs.includes(interaction.user.id)) {
+      return true;
+    }
+
+    return hostId === interaction.user.id;
+  };
 }
 
 function getTimes(a: string, b: string, c: string) {
