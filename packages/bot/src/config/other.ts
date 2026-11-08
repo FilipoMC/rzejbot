@@ -2,7 +2,7 @@ const other = {
   shifts: {
     defaultShiftTime: "19:00",
     defaultBriefingDuration: 15,
-    defaultShiftDuration: 60,
+    defaultShiftDuration: 90,
     absenceAllowedUntil: 30,
   },
 };

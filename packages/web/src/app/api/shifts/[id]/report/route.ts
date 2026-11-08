@@ -32,6 +32,7 @@ export async function GET(
       },
       omit: {
         accessTokenHash: true,
+        previewAccessTokenHash: true,
       },
     });
 
@@ -84,14 +85,17 @@ export async function POST(
 
   try {
     const { rawKey, hashedKey } = generateAccessKey();
+    const { rawKey: rawPreviewKey, hashedKey: hashedPreviewKey } =
+      generateAccessKey();
 
     const res = await prisma.shiftReport.create({
       data: {
         ...body,
-        shift: { connect: { id: shiftId } },
+        shift: { connect: { id: shiftId, approved: true } },
         cohost:
           body.cohost ? { connect: { discordId: body.cohost } } : undefined,
         accessTokenHash: hashedKey,
+        previewAccessTokenHash: hashedPreviewKey,
       },
       include: {
         cohost: { select: { discordId: true } },
@@ -99,6 +103,7 @@ export async function POST(
       },
       omit: {
         accessTokenHash: true,
+        previewAccessTokenHash: true,
       },
     });
 
@@ -107,7 +112,11 @@ export async function POST(
     return NextResponse.json(
       {
         ok: true,
-        data: { ...res, accessToken: rawKey },
+        data: {
+          ...res,
+          accessToken: rawKey,
+          previewAccessToken: rawPreviewKey,
+        },
       },
       { status: 201 },
     );
@@ -192,6 +201,7 @@ export async function PATCH(
       },
       omit: {
         accessTokenHash: true,
+        previewAccessTokenHash: true,
       },
     });
 

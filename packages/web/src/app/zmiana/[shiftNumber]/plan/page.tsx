@@ -23,7 +23,7 @@ async function getShift(number: string) {
   cacheLife("days");
 
   const res = await prisma.shift.findUnique({
-    where: { shiftNumber: number },
+    where: { shiftNumber: number, approved: true },
     include: { host: true },
   });
 

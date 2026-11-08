@@ -28,6 +28,7 @@ import {
   shiftLogDosesPostSchema,
   shiftLogPresenceInitialPostSchema,
   shiftLogStationsPostSchema,
+  shiftPatchSchema,
   shiftPostSchema,
   shiftReportPatchSchema,
   shiftReportPostSchema,
@@ -39,6 +40,7 @@ export type ApiResponse<T, E = string> =
 
 // #region shift api types
 export type ShiftPost = z.input<typeof shiftPostSchema>;
+export type ShiftPatch = z.input<typeof shiftPatchSchema>;
 
 export type ShiftReportPost = z.input<typeof shiftReportPostSchema>;
 export type ShiftReportPatch = z.input<typeof shiftReportPatchSchema>;

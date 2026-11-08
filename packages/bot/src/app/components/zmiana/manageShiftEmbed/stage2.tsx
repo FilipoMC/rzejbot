@@ -5,40 +5,39 @@ import {
   ShiftReportAPIResponse,
 } from "@shared/types/api";
 import {
-  OnButtonKitClick,
   Button,
   ButtonKit,
-  Modal,
-  UserSelectMenu,
   Label,
   Logger,
+  Modal,
+  OnButtonKitClick,
   OnModalKitSubmit,
   StringSelectMenu,
   StringSelectMenuOption,
+  UserSelectMenu,
 } from "commandkit";
 import {
   ActionRowBuilder,
   ButtonStyle,
   MessageFlags,
-  StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   userMention,
 } from "discord.js";
 
-import { createManageShiftEmbedStage3Components } from "./stage3";
-import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
+import channels from "@/config/channels";
 import { commandError, commandSuccess } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
+import { addMinutes } from "date-fns";
+import { createManageShiftEmbedStage3Components } from "./stage3";
+import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
 import {
+  createShiftManageEmbedComponentsFilter,
   disposeShiftHandlers,
   getShiftManageEmbed,
-  createShiftManageEmbedComponentsFilter,
   registerButtonHandler,
-  replaceModalHandler,
   removeModalHandler,
+  replaceModalHandler,
 } from "./utils";
-import channels from "@/config/channels";
-import { addMinutes } from "date-fns";
 
 export function createManageShiftEmbedStage2Components(
   shift: ShiftAPIResponse,

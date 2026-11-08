@@ -1,9 +1,11 @@
+/*eslint-disable*/
 import { commandError, commandSuccess } from "@/utils/commandResponses";
 import { employeeWithChangesAPIResponseSchema } from "@shared/zod/apiResponses/employee";
 import { CommandData, Logger, MessageCommand } from "commandkit";
 import { EmbedBuilder } from "discord.js";
 import z from "zod";
 import channels from "@/config/channels";
+import { sendShiftPlanSubmitEmbed } from "@/app/components/zmiana/shiftPlanSubmitEmbed";
 
 export const command: CommandData = {
   name: "test",
@@ -85,6 +87,12 @@ export const message: MessageCommand = async (ctx) => {
   // }
   // await channel.send({
   //   embeds: [embed],
+  // });
+  //
+  // await sendShiftPlanSubmitEmbed({
+  //   client: ctx.client,
+  //   eventDesc: "hi",
+  //   shiftId: 51,
   // });
 };
 

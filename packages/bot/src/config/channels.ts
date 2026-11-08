@@ -3,6 +3,7 @@ const channels = {
   plany: "1549884961149034596",
   opinie_uwagi: "1563970844622065745",
   raporty: "1563696525031510066",
+  kierownicy_zmian: "1568778161100161094",
   zmianaVC: {
     main: "1539771803663212589",
   },

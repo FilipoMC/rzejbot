@@ -1,6 +1,6 @@
 import z from "zod";
+import { anyDateSchema } from "./dateTimeSchemas";
 import { snowflakeSchema } from "./discordSchemas";
-import { anyDateSchema, anyDateStringSchema } from "./dateTimeSchemas";
 import { employeeIdentifierSchema } from "./employeeSchemas";
 
 export const shiftNumberSchema = z.union([
@@ -22,9 +22,20 @@ export const shiftPostSchema = z.object({
   plannedBriefingDuration: z.int().nonnegative().optional(),
   host: snowflakeSchema,
   unit: z.string().trim().max(10),
-  shortDesc: z.string().trim().min(1).max(1000),
   shiftGoal: z.string().trim().max(5000),
   notes: z.string().trim().max(10_000),
+});
+
+export const shiftPatchSchema = z.object({
+  shiftNumber: shiftNumberSchema.optional(),
+  plannedDate: anyDateSchema.optional(),
+  plannedDuration: z.int().nonnegative().optional(),
+  plannedBriefingDuration: z.int().nonnegative().optional(),
+  host: snowflakeSchema.optional(),
+  unit: z.string().trim().max(10).optional(),
+  shiftGoal: z.string().trim().max(5000).optional(),
+  notes: z.string().trim().max(10_000).optional(),
+  approved: z.boolean().optional(),
 });
 
 export const shiftLogAbsencePostSchema = z.object({

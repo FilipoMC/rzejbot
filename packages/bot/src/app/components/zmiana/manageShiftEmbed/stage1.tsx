@@ -1,15 +1,21 @@
-import { ApiHelper } from "@/helper/apiHelper";
-import { ShiftAPIResponse } from "@shared/types/api";
-import { OnButtonKitClick, Button, ButtonKit, Logger } from "commandkit";
-import { ActionRowBuilder, ButtonStyle, MessageFlags } from "discord.js";
-import { createManageShiftEmbedStage2Components } from "./stage2";
-import { commandError } from "@/utils/commandResponses";
-import {
-  getShiftManageEmbed,
-  createShiftManageEmbedComponentsFilter,
-} from "./utils";
-import { deferAfter } from "@/utils/utilityFunctions";
+import channels from "@/config/channels";
 import { websitePages } from "@/config/script";
+import { ApiHelper } from "@/helper/apiHelper";
+import { commandError } from "@/utils/commandResponses";
+import { deferAfter } from "@/utils/utilityFunctions";
+import { ShiftAPIResponse } from "@shared/types/api";
+import { Button, ButtonKit, Logger, OnButtonKitClick } from "commandkit";
+import {
+  ActionRowBuilder,
+  ButtonStyle,
+  hyperlink,
+  MessageFlags,
+} from "discord.js";
+import { createManageShiftEmbedStage2Components } from "./stage2";
+import {
+  createShiftManageEmbedComponentsFilter,
+  getShiftManageEmbed,
+} from "./utils";
 
 export function createManageShiftEmbedStage1Components(
   shift: ShiftAPIResponse,
@@ -46,6 +52,20 @@ export function createManageShiftEmbedStage1Components(
       interaction.user.send(
         `Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
       ),
+      interaction.client.channels
+        .fetch(channels.kierownicy_zmian)
+        .then((channel) => {
+          if (channel?.isSendable()) {
+            channel.send(
+              `**${shiftReport.shift.shiftNumber}** - ${hyperlink("podgląd raportu zmiany", websitePages.shiftReportPreview(shiftReport.shift.shiftNumber, shiftReport.previewAccessToken))}`,
+            );
+          } else {
+            Logger.error({
+              msg: "Nieprawidłowy kanał w configu",
+              path: "channels.kierownicy_zmian",
+            });
+          }
+        }),
     ]);
 
     await interaction.message.edit({

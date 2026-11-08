@@ -145,6 +145,11 @@ interface ApiHelper {
      */
     getActive: () => Promise<ApiHelperReturnType<ShiftAPIResponse>>;
 
+    changeApproval: (
+      shiftId: number,
+      approved: boolean,
+    ) => Promise<ApiHelperReturnType<ShiftAPIResponse>>;
+
     logEmployeeAbsence: (
       shiftId: number,
       request: ShiftLogAbsencePost,

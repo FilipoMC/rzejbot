@@ -11,13 +11,13 @@ export const shiftAPIResponseSchema = z.object({
   plannedDuration: z.int().nonnegative(),
   plannedBriefingDuration: z.int().nonnegative(),
   unit: z.string().trim().max(10),
-  shortDesc: z.string().trim().min(1).max(1000),
   shiftGoal: z.string().trim().max(5000),
   notes: z.string().trim().max(10_000),
   hostId: z.int(),
   host: z.object({
     discordId: snowflakeSchema,
   }),
+  approved: z.boolean(),
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });
@@ -67,6 +67,7 @@ export const shiftReportAPIResponseSchema = z.object({
 export const shiftReportPostAPIResponseSchema =
   shiftReportAPIResponseSchema.extend({
     accessToken: z.string(),
+    previewAccessToken: z.string(),
   });
 
 export const shiftLogStationsGetAPIResponseSchema = z.array(

@@ -77,6 +77,18 @@ export default async function RaportZmiany(
 ) {
   const { shiftNumber } = await props.params;
 
+  return RaportZmianyComponent({ shiftNumber });
+}
+
+export async function RaportZmianyComponent({
+  shiftNumber,
+  isPreview,
+}: {
+  shiftNumber: string;
+  isPreview?: boolean;
+}) {
+  isPreview ??= false;
+
   const shiftNumberParsed = shiftNumberSchema.safeParse(shiftNumber);
 
   if (!shiftNumberParsed.success) {
@@ -87,6 +99,10 @@ export default async function RaportZmiany(
 
   if (!shiftReport) {
     notFound();
+  }
+
+  if (isPreview) {
+    shiftReport.approved = true;
   }
 
   const employeeDoseList = shiftReport.shift.employeeLogs.filter(
@@ -135,15 +151,20 @@ export default async function RaportZmiany(
     <div className="flex flex-col m-4 sm:m-10 text-base sm:text-lg [&_thead]:max-sm:text-sm">
       <h1 className="text-xl sm:text-3xl font-bold text-center">
         {shiftReport.approved ?
-          "OGÓLNY RAPORT ZMIANY"
+          isPreview ?
+            "PODGLĄD RAPORTU ZMIANY"
+          : "OGÓLNY RAPORT ZMIANY"
         : "WSTĘPNY RAPORT ZMIANY"}
       </h1>
       <h2 className="text-lg sm:text-xl font-bold text-center">
         {shiftReport.approved ?
-          <>
-            Kierownika zmiany w Elektrowni Jądrowej im. <br /> Marii
-            Skłodowskiej-Curie w Żarnowcu
-          </>
+          isPreview ?
+            <>Podgląd nieopublikowanego raportu zmiany</>
+          : <>
+              Kierownika zmiany w Elektrowni Jądrowej im. <br /> Marii
+              Skłodowskiej-Curie w Żarnowcu
+            </>
+
         : <>Wygenerowany automatycznie</>}
       </h2>
       <div className="h-10"></div>

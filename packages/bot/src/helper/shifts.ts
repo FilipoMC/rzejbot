@@ -26,7 +26,11 @@ import {
 } from "@shared/zod/shiftSchemas";
 import z from "zod";
 import { Logger } from "commandkit";
-import { ShiftReportPatch, ShiftReportPost } from "@shared/types/api";
+import {
+  ShiftPatch,
+  ShiftReportPatch,
+  ShiftReportPost,
+} from "@shared/types/api";
 import { addMinutes, differenceInMinutes } from "date-fns";
 
 ApiHelper.shifts.create = async (request) => {
@@ -194,6 +198,45 @@ ApiHelper.shifts.getActive = async () => {
           error: "Nie ma aktualnie żadnej aktywniej zmiany",
         };
 
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.changeApproval = async (shiftId, approved) => {
+  const request: ShiftPatch = {
+    approved,
+  };
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}`),
+    requestOptions("PATCH", JSON.stringify(request)),
+  );
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana nie istnieje",
+        };
       default:
         Logger.error(bodyParsed.data.error);
         return {

@@ -21,6 +21,8 @@ export async function POST(
 
   try {
     const { rawKey, hashedKey } = generateAccessKey();
+    const { rawKey: rawPreviewKey, hashedKey: hashedPreviewKey } =
+      generateAccessKey();
 
     const res = await prisma.shiftReport.update({
       where: {
@@ -28,6 +30,7 @@ export async function POST(
       },
       data: {
         accessTokenHash: hashedKey,
+        previewAccessTokenHash: hashedPreviewKey,
       },
       include: {
         cohost: { select: { discordId: true } },
@@ -35,6 +38,7 @@ export async function POST(
       },
       omit: {
         accessTokenHash: true,
+        previewAccessTokenHash: true,
       },
     });
 
@@ -43,7 +47,11 @@ export async function POST(
     return NextResponse.json(
       {
         ok: true,
-        data: { ...res, accessToken: rawKey },
+        data: {
+          ...res,
+          accessToken: rawKey,
+          previewAccessToken: rawPreviewKey,
+        },
       },
       { status: 200 },
     );

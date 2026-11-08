@@ -1,22 +1,13 @@
-import prepareShiftBriefing, {
-  PrepareShiftBriefingTaskData,
-} from "@/app/tasks/prepareShiftBriefing";
-import channels from "@/config/channels";
+import { sendShiftPlanSubmitEmbed } from "@/app/components/zmiana/shiftPlanSubmitEmbed";
 import other from "@/config/other";
-import { getRandomImage, shiftEventName, websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
 import {
-  commandError,
+  commandSuccess,
   failedToExecute,
   loading,
-  commandSuccess,
 } from "@/utils/commandResponses";
 import { createFailEmbed } from "@/utils/embeds";
-import {
-  fetchChannelResolvable,
-  safeParseWithReply,
-} from "@/utils/utilityFunctions";
-import { createTask } from "@commandkit/tasks";
+import { safeParseWithReply } from "@/utils/utilityFunctions";
 import { sharedConfig } from "@shared/config/config";
 import {
   defaultShiftGoal,
@@ -27,38 +18,24 @@ import { anyDateStringSchema } from "@shared/zod/dateTimeSchemas";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import {
   AutocompleteCommand,
-  Button,
-  ButtonKit,
   ChatInputCommand,
   CommandData,
   Label,
   Modal,
-  OnButtonKitClick,
   OnModalKitSubmit,
   RadioGroup,
   RadioGroupOption,
   TextInput,
   UserSelectMenu,
 } from "commandkit";
-import {
-  addDays,
-  addMinutes,
-  differenceInMilliseconds,
-  minutesToMilliseconds,
-} from "date-fns";
+import { addDays, addMinutes } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 import { formatDate } from "date-fns/format";
 import {
-  ActionRowBuilder,
   ApplicationCommandOptionChoiceData,
   ApplicationCommandOptionType,
-  AttachmentBuilder,
-  ButtonStyle,
   codeBlock,
   EmbedBuilder,
-  GuildScheduledEventEntityType,
-  GuildScheduledEventPrivacyLevel,
-  hyperlink,
   MessageFlags,
   TextInputStyle,
 } from "discord.js";
@@ -163,7 +140,6 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       shiftNumber,
       unit,
       host: shiftHost.id,
-      shortDesc: eventDesc,
       shiftGoal,
       notes,
       plannedDate: date,
@@ -207,125 +183,15 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       return;
     }
 
-    await Promise.all([
-      (async () => {
-        const event = await modalInteraction.guild.scheduledEvents
-          .create({
-            name: shiftEventName(shiftNumber),
-            scheduledStartTime: date,
-            scheduledEndTime: addMinutes(
-              date,
-              other.shifts.defaultBriefingDuration +
-                other.shifts.defaultShiftDuration,
-            ),
-            entityType: GuildScheduledEventEntityType.Voice,
-            privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
-            channel: channels.zmianaVC.main,
-            description: eventDesc,
-            image: getRandomImage("shiftEvent"),
-          })
-          .catch(() => null);
-
-        const absenceButtonCallback: OnButtonKitClick = async (
-          buttonInteraction,
-        ) => {
-          await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
-          await loading({
-            interactionOrMsg: buttonInteraction,
-            description: undefined,
-          });
-          const res = await ApiHelper.shifts.logEmployeeAbsence(shift.data.id, {
-            employeeDiscordId: buttonInteraction.user.id,
-          });
-
-          if (res.status === "apiError" && res.errorStatus === "conflict") {
-            await failedToExecute({
-              interactionOrMsg: buttonInteraction,
-              description: "Zgłosiłeś już nieobecność na tej zmianie",
-            });
-            return;
-          } else if (res.status !== "ok") {
-            await commandError({
-              interactionOrMsg: buttonInteraction,
-              description: "Wystąpił błąd podczas komunikacji z serwerem",
-            });
-            return;
-          }
-
-          await buttonInteraction.editReply({
-            embeds: [],
-            content: "Zgłoszono nieobecność",
-            files: [new AttachmentBuilder(getRandomImage("declaredAbsence"))],
-          });
-        };
-
-        const createActionRow = (disabled: boolean = false) =>
-          new ActionRowBuilder<ButtonKit>().setComponents(
-            <Button
-              customId={`absence_${shift.data.id}`}
-              style={ButtonStyle.Success}
-              onClick={disabled ? undefined : absenceButtonCallback}
-              disabled={disabled}
-              options={{ time: differenceInMilliseconds(date, new Date()) }}
-            >
-              Zgłoś nieobecność
-            </Button>,
-          );
-
-        const ogloszeniaBlokow = await fetchChannelResolvable(
-          channels.ogloszeniaBlokow,
-          modalInteraction.client,
-        );
-        if (ogloszeniaBlokow?.isSendable()) {
-          let content;
-          if (event) {
-            content = hyperlink(`Zmiana ${shiftNumber}`, event.url);
-          } else {
-            content = hyperlink(
-              `Zmiana ${shiftNumber}`,
-              websitePages.shiftPlan(shiftNumber),
-            );
-          }
-          const message = await ogloszeniaBlokow.send({
-            content,
-            components: [createActionRow()],
-          });
-
-          setTimeout(
-            () => {
-              message.edit({ components: [createActionRow(true)] });
-            },
-            differenceInMilliseconds(date, new Date()) -
-              minutesToMilliseconds(other.shifts.absenceAllowedUntil),
-          );
-        }
-      })(),
-      (async () => {
-        const plansChannel = await fetchChannelResolvable(
-          channels.plany,
-          modalInteraction.client,
-        );
-
-        if (plansChannel?.isSendable()) {
-          await plansChannel.send({
-            content: websitePages.shiftPlan(shiftNumber),
-          });
-        }
-      })(),
-    ]);
-
-    createTask({
-      name: prepareShiftBriefing.name,
-      data: {
-        shiftIdentifier: { number: shiftNumber },
-        guildId: modalInteraction.guildId,
-      } satisfies PrepareShiftBriefingTaskData,
-      schedule: date,
+    await sendShiftPlanSubmitEmbed({
+      client: interaction.client,
+      eventDesc,
+      shiftId: shift.data.id,
     });
 
     await commandSuccess({
       interactionOrMsg: modalInteraction,
-      description: `Pomyślnie utworzono plan zmiany ${shiftNumber}. ${hyperlink("Link do planu zmiany", websitePages.shiftPlan(shiftNumber))}`,
+      description: `Pomyślnie utworzono plan zmiany ${shiftNumber} i przesłano go do weryfikacji.`,
     });
 
     ctx.dispose();

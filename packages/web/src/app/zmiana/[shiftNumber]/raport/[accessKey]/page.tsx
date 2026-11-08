@@ -21,13 +21,13 @@ import { prisma } from "@/lib/prisma";
 import { getShiftStations } from "@/lib/sharedDbActions";
 import { toPlain } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
+import { ranksOrder, shortRankNames } from "@shared/config/ranks";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { EdytujZmianeForm } from "./form";
-import { ranksOrder, shortRankNames } from "@shared/config/ranks";
 const shiftReportSelect = {
   date: true,
   briefingDuration: true,

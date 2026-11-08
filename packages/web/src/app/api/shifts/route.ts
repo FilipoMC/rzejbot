@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { shiftNumberSchema, shiftPostSchema } from "@shared/zod/shiftSchemas";
 import { Prisma } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import { shiftNumberSchema, shiftPostSchema } from "@shared/zod/shiftSchemas";
 import { revalidateTag } from "next/cache";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const shiftNumberUnparsed = req.nextUrl.searchParams.get("number");

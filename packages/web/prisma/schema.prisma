@@ -65,9 +65,10 @@ model Shift {
   employeeLogs            ShiftEmployeeLog[] @relation
   host                    Employee           @relation(name: "EmployeeShiftsHosted", fields: [hostId], references: [id])
   unit                    String
-  shortDesc               String
   shiftGoal               String
   notes                   String
+
+  approved Boolean @default(false)
 
   report ShiftReport? @relation
 
@@ -90,8 +91,9 @@ model ShiftReport {
   goalMet Boolean?
   summary String?
 
-  accessTokenHash String
-  approved        Boolean @default(false)
+  accessTokenHash        String
+  previewAccessTokenHash String
+  approved               Boolean @default(false)
 
   accidents Accident[] @relation
   cohostId  Int?
