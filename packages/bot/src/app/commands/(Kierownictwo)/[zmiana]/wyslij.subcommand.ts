@@ -1,9 +1,11 @@
 import { sendShiftManageEmbed } from "@/app/components/zmiana/manageShiftEmbed";
+import { CustomCommandMetadata } from "@/types/commands";
 import {
   commandError,
-  failedToExecute,
   commandSuccess,
+  failedToExecute,
 } from "@/utils/commandResponses";
+import { rankGroups } from "@shared/config/ranks";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
 
@@ -45,6 +47,15 @@ export const chatInput: ChatInputCommand = async ({ interaction, client }) => {
     return;
   }
 
+  if (res === "invalidArg") {
+    await failedToExecute({
+      interactionOrMsg: interaction,
+      description: "Niepoprawny format numeru zmiany",
+    });
+
+    return;
+  }
+
   if (res === "error") {
     await commandError({
       interactionOrMsg: interaction,
@@ -57,4 +68,14 @@ export const chatInput: ChatInputCommand = async ({ interaction, client }) => {
     interactionOrMsg: interaction,
     description: undefined,
   });
+};
+
+export const metadata: CustomCommandMetadata = {
+  devSkipPermsCheck: true,
+  permissions: {
+    allowedRoles: [
+      ...rankGroups["Kierownictwo Elektrowni"].id,
+      ...rankGroups["Kierownictwo Bloków"].id,
+    ],
+  },
 };

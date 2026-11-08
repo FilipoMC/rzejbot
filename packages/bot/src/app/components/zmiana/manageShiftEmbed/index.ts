@@ -19,7 +19,9 @@ interface SendShiftManageEmbedProps {
 export async function sendShiftManageEmbed({
   client,
   shiftIdentifier,
-}: SendShiftManageEmbedProps): Promise<"not found" | "error" | undefined> {
+}: SendShiftManageEmbedProps): Promise<
+  "not found" | "error" | "invalidArg" | undefined
+> {
   let shiftRes;
 
   if (!shiftIdentifier) {
@@ -31,6 +33,8 @@ export async function sendShiftManageEmbed({
   }
   if (shiftRes.status === "apiError" && shiftRes.errorStatus === "notFound") {
     return "not found";
+  } else if (shiftRes.status === "badArgument") {
+    return "invalidArg";
   } else if (shiftRes.status !== "ok") {
     Logger.error(shiftRes);
     return "error";

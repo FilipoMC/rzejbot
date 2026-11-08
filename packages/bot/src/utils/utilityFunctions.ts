@@ -31,7 +31,6 @@ export function hasPermissions({
 }: {
   member: GuildMember;
   allowedRoles?: string[];
-  minimumRole?: string;
   allowedPermissions?: PermissionResolvable[];
 }) {
   const hasRole =
@@ -41,9 +40,7 @@ export function hasPermissions({
       member.permissions.has(permission),
     ) ?? false;
 
-  const hasAdmin = member.permissions.has(PermissionFlagsBits.Administrator);
-
-  return hasRole || hasPerms || hasAdmin;
+  return hasRole || hasPerms;
 }
 
 export const delay = (ms: number) => {
