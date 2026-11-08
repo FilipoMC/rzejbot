@@ -36,7 +36,7 @@ export async function POST(
 
   try {
     const employees = await prisma.employee.findMany({
-      select: { discordId: true, id: true, nameIC: true },
+      select: { discordId: true, id: true, nameIC: true, system: true },
     });
 
     const discordIds = body.employees
@@ -57,7 +57,8 @@ export async function POST(
       employees,
       (v) =>
         employeeIdentifiers.has(v.discordId) ||
-        employeeIdentifiers.has(v.nameIC),
+        employeeIdentifiers.has(v.nameIC) ||
+        v.system,
     );
 
     const employeeResults = body.employees.map((row) => {

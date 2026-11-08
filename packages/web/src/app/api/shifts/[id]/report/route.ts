@@ -93,7 +93,9 @@ export async function POST(
         ...body,
         shift: { connect: { id: shiftId, approved: true } },
         cohost:
-          body.cohost ? { connect: { discordId: body.cohost } } : undefined,
+          body.cohost ?
+            { connect: { discordId: body.cohost, system: false } }
+          : undefined,
         accessTokenHash: hashedKey,
         previewAccessTokenHash: hashedPreviewKey,
       },
@@ -183,7 +185,8 @@ export async function PATCH(
     | Prisma.EmployeeUpdateOneWithoutShiftReportsNestedInput
     | undefined =
     body.cohost === null ? { disconnect: true }
-    : body.cohost !== undefined ? { connect: { discordId: body.cohost } }
+    : body.cohost !== undefined ?
+      { connect: { discordId: body.cohost, system: false } }
     : undefined;
 
   try {

@@ -24,7 +24,7 @@ export async function POST(
     const prismaRes = await prisma.lOA.create({
       data: {
         employee: {
-          connect: { discordId: id },
+          connect: { discordId: id, system: false },
         },
         ...body,
       },

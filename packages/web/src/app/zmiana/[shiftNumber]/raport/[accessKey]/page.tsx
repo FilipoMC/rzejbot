@@ -76,6 +76,7 @@ const shiftReportSelect = {
               nameIC: true,
               rank: true,
               robloxId: true,
+              system: true,
             },
           },
         },
@@ -285,50 +286,54 @@ export default async function RaportZmiany(
           <TableBody>
             {shiftReport.shift.employeeLogs.map((log, idx) => {
               return (
-                <TableRow key={idx}>
-                  <TableCell className="text-center">
-                    <Popover>
-                      <PopoverTrigger>{log.employee.nameIC}</PopoverTrigger>
-                      <PopoverContent>
-                        <table>
-                          <tbody>
-                            <tr>
-                              <td className="text-left font-bold">Ranga:</td>
-                              <td className="text-left">
-                                {log.employee.rank}{" "}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="text-left font-bold">Roblox:</td>
-                              <td className="text-left">
-                                {employeeRobloxMap.get(
-                                  log.employee.robloxId ?? "N/A",
-                                )}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </PopoverContent>
-                    </Popover>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <span className="hidden sm:block">{log.employee.rank}</span>
-                    <span className="sm:hidden">
-                      {shortRankNames.get(log.employee.rank) ??
-                        log.employee.rank}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <FormatDate date={log.clockedIn!} format="HH:mm" />
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <FormatDateOrNA
-                      date={log.clockedIn}
-                      format="HH:mm"
-                      minutes={[log.clockedTime]}
-                    />
-                  </TableCell>
-                </TableRow>
+                !log.employee.system && (
+                  <TableRow key={idx}>
+                    <TableCell className="text-center">
+                      <Popover>
+                        <PopoverTrigger>{log.employee.nameIC}</PopoverTrigger>
+                        <PopoverContent>
+                          <table>
+                            <tbody>
+                              <tr>
+                                <td className="text-left font-bold">Ranga:</td>
+                                <td className="text-left">
+                                  {log.employee.rank}{" "}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td className="text-left font-bold">Roblox:</td>
+                                <td className="text-left">
+                                  {employeeRobloxMap.get(
+                                    log.employee.robloxId ?? "N/A",
+                                  )}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </PopoverContent>
+                      </Popover>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className="hidden sm:block">
+                        {log.employee.rank}
+                      </span>
+                      <span className="sm:hidden">
+                        {shortRankNames.get(log.employee.rank) ??
+                          log.employee.rank}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <FormatDate date={log.clockedIn!} format="HH:mm" />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <FormatDateOrNA
+                        date={log.clockedIn}
+                        format="HH:mm"
+                        minutes={[log.clockedTime]}
+                      />
+                    </TableCell>
+                  </TableRow>
+                )
               );
             })}
           </TableBody>

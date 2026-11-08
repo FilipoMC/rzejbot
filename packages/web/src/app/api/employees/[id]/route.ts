@@ -10,7 +10,7 @@ export async function GET(
   const { id } = await params;
   const includeChanges = req.nextUrl.searchParams.get("changes");
   const res = await prisma.employee.findUnique({
-    where: { discordId: id },
+    where: { discordId: id, system: false },
     include: {
       qualification: {
         select: {
@@ -75,6 +75,7 @@ export async function PATCH(
     const res = await prisma.employee.update({
       where: {
         discordId: id,
+        system: false,
       },
       data: {
         ...body.data,

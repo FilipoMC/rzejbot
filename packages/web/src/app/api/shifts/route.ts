@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     const res = await prisma.shift.create({
       data: {
         ...body,
-        host: { connect: { discordId: body.host } },
+        host: { connect: { discordId: body.host, system: false } },
       },
       include: {
         host: { select: { discordId: true } },

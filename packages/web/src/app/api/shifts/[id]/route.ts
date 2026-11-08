@@ -89,7 +89,7 @@ export async function PATCH(
         ...body,
         host:
           body.host !== undefined ?
-            { connect: { discordId: body.host } }
+            { connect: { discordId: body.host, system: false } }
           : undefined,
       },
       include: {

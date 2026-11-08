@@ -31,6 +31,7 @@ export async function POST(
         employee: {
           connect: {
             discordId: parsedDcId.data,
+            system: false,
           },
         },
         ...bodyParsed.data,

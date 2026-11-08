@@ -1,3 +1,4 @@
+import channels from "@/config/channels";
 import { websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
 import {
@@ -6,8 +7,9 @@ import {
   failedToExecute,
   loading,
 } from "@/utils/commandResponses";
+import { fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { ChatInputCommand, CommandData } from "commandkit";
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, hyperlink } from "discord.js";
 
 export const command: CommandData = {
   name: "zresetuj-token",
@@ -80,6 +82,17 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     shift.shiftNumber,
     reportRes.data.accessToken,
   );
+
+  const channel = await fetchChannelResolvable(
+    channels.kierownicy_zmian,
+    interaction.client,
+  );
+
+  if (channel?.isSendable()) {
+    await channel.send(
+      `**${shift.shiftNumber}** NOWY LINK - ${hyperlink("podgląd raportu zmiany", websitePages.shiftReportPreview(shift.shiftNumber, reportRes.data.previewAccessToken))}`,
+    );
+  }
 
   await commandSuccess({
     interactionOrMsg: interaction,

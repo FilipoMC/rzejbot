@@ -18,6 +18,8 @@ model Employee {
   shiftReports ShiftReport[]      @relation
   loas         LOA[]
 
+  system Boolean @default(false)
+
   employeeChanges       EmployeeChange[] @relation("EmpChanges")
   employeeChangesIssued EmployeeChange[] @relation("EmpChangesIssued")
   qualification         EmployeeQual?
