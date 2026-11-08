@@ -10,6 +10,7 @@ import {
   shiftEmployeeLogAPIResponseSchema,
   shiftLogDosePostAPIResponseSchema,
   shiftLogPresenceInitialPostAPIResponseSchema,
+  shiftLogPresencePostAPIResponseSchema,
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
   shiftReportAPIResponseSchema,
@@ -19,6 +20,7 @@ import {
   shiftLogAbsencePostSchema,
   shiftLogDosesPostSchema,
   shiftLogPresenceInitialPostSchema,
+  shiftLogPresencePostSchema,
   shiftLogStationsPostSchema,
   shiftNumberSchema,
   shiftPostSchema,
@@ -317,6 +319,51 @@ ApiHelper.shifts.logEmployeeInitialPresence = async (shiftId, request) => {
 
   const bodyParsed = apiResponseSchema(
     shiftLogPresenceInitialPostAPIResponseSchema,
+  ).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.logEmployeePresence = async (shiftId, request) => {
+  const requestParsed = shiftLogPresencePostSchema.safeParse(request);
+
+  if (!requestParsed.success) {
+    Logger.error(z.treeifyError(requestParsed.error));
+    return { status: "badArgument" };
+  }
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}/logs/presence`),
+    requestOptions("POST", JSON.stringify(requestParsed.data)),
+  );
+
+  const body: unknown = await res.json().catch(() => null);
+
+  const bodyParsed = apiResponseSchema(
+    shiftLogPresencePostAPIResponseSchema,
   ).safeParse(body);
 
   if (!bodyParsed.success) {

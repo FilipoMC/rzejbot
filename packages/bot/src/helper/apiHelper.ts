@@ -24,6 +24,8 @@ import {
   EmployeeChangePostAPIResponse,
   ShiftLogPresenceInitialPostAPIResponse,
   ShiftLogPresenceInitialPost,
+  ShiftLogPresencePost,
+  ShiftLogPresencePostAPIResponse,
 } from "@shared/types/api";
 import { getContext, Logger } from "commandkit";
 import z from "zod";
@@ -159,6 +161,11 @@ interface ApiHelper {
       shiftId: number,
       request: ShiftLogPresenceInitialPost,
     ) => Promise<ApiHelperReturnType<ShiftLogPresenceInitialPostAPIResponse>>;
+
+    logEmployeePresence: (
+      shiftId: number,
+      request: ShiftLogPresencePost,
+    ) => Promise<ApiHelperReturnType<ShiftLogPresencePostAPIResponse>>;
 
     stations: {
       get: (
