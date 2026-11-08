@@ -42,6 +42,13 @@ export const shiftLogAbsencePostSchema = z.object({
   employeeDiscordId: snowflakeSchema,
 });
 
+export const shiftLogPresencePostSchema = z.array(
+  z.object({
+    employee: employeeIdentifierSchema,
+    action: z.enum(["entry", "exit"]),
+  }),
+);
+
 export const shiftReportPostSchema = z.object({
   date: anyDateSchema,
   duration: z.int().nonnegative().optional(),

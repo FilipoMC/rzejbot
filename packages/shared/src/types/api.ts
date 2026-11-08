@@ -10,6 +10,7 @@ import {
   shiftEmployeeLogAPIResponseSchema,
   shiftLogDosePostAPIResponseSchema,
   shiftLogPresenceInitialPostAPIResponseSchema,
+  shiftLogPresencePostAPIResponseSchema,
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
   shiftReportAPIResponseSchema,
@@ -27,6 +28,7 @@ import {
   shiftLogAbsencePostSchema,
   shiftLogDosesPostSchema,
   shiftLogPresenceInitialPostSchema,
+  shiftLogPresencePostSchema,
   shiftLogStationsPostSchema,
   shiftPatchSchema,
   shiftPostSchema,
@@ -50,6 +52,7 @@ export type ShiftLogStationsPost = z.input<typeof shiftLogStationsPostSchema>;
 export type ShiftLogPresenceInitialPost = z.input<
   typeof shiftLogPresenceInitialPostSchema
 >;
+export type ShiftLogPresencePost = z.input<typeof shiftLogPresencePostSchema>;
 export type ShiftLogDosesPost = z.input<typeof shiftLogDosesPostSchema>;
 // #endregion
 // #region shift api response types
@@ -74,6 +77,9 @@ export type ShiftLogPresenceInitialPostAPIResponse = z.output<
 >;
 export type ShiftLogDosesPostAPIResponse = z.output<
   typeof shiftLogDosePostAPIResponseSchema
+>;
+export type ShiftLogPresencePostAPIResponse = z.output<
+  typeof shiftLogPresencePostAPIResponseSchema
 >;
 // #endregion
 // #region employee api types

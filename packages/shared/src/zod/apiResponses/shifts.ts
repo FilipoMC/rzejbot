@@ -110,3 +110,6 @@ export const shiftLogDosePostAPIResponseSchema =
 
 export const shiftLogPresenceInitialPostAPIResponseSchema =
   shiftLogStationsPostAPIResponseSchema;
+
+export const shiftLogPresencePostAPIResponseSchema =
+  shiftLogStationsPostAPIResponseSchema;
