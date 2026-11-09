@@ -6,14 +6,15 @@ import { middlewareCheckPerms } from "@/utils/middlewareUtils";
 import kv from "@/utils/kv";
 import { EmbedBuilder } from "discord.js";
 import emoji from "@/config/emoji";
+import { kvKeys } from "@/config/other";
 
 export function beforeExecute(ctx: MiddlewareContext) {
   const metadata = ctx.command.metadata as CustomCommandMetadata;
   const commandUser =
     ctx.isMessage() ? ctx.message.author : ctx.interaction.user;
-  const devlockStatus = kv.get("devlock");
+  const devlockStatus = kv.get(kvKeys.flags.devlockActive);
   if (devlockStatus) {
-    const devlockMessage = kv.get("devlock-message") || "N/A";
+    const devlockMessage = kv.get(kvKeys.messages.devlock) || "N/A";
 
     if (!config.devs.includes(commandUser.id)) {
       const embed = new EmbedBuilder()

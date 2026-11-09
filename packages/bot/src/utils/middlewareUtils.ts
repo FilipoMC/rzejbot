@@ -6,6 +6,7 @@ import { GuildMember } from "discord.js";
 import _ from "lodash";
 import config from "@/config/config";
 import kv from "./kv";
+import { kvKeys } from "@/config/other";
 
 export function middlewareCheckPerms(ctx: MiddlewareContext) {
   if (ctx.isMessage() ? !ctx.message.guild : !ctx.interaction.inCachedGuild()) {
@@ -55,7 +56,7 @@ export function localMiddleware(
   if (
     params.devSkipPermsCheck ||
     (ctx.command.metadata as CustomCommandMetadata).devSkipPermsCheck ||
-    kv.get("devlock")
+    kv.get(kvKeys.flags.devlockActive)
   ) {
     if (config.devs.includes(commandUser.id)) {
       return;

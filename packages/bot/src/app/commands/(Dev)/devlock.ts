@@ -1,3 +1,4 @@
+import { kvKeys } from "@/config/other";
 import { CustomCommandMetadata } from "@/types/commands";
 import { createFailEmbed } from "@/utils/embeds";
 import kv from "@/utils/kv";
@@ -28,7 +29,7 @@ export const message: MessageCommand = async (ctx) => {
     : args[0] === "off" ? "OFF"
     : "UNSET";
 
-  const currentState = Boolean(kv.get("devlock") ?? false);
+  const currentState = Boolean(kv.get(kvKeys.flags.devlockActive) ?? false);
   const nextState =
     action === "ON" ? true
     : action === "OFF" ? false
@@ -37,16 +38,16 @@ export const message: MessageCommand = async (ctx) => {
   const devlockMessage = args.slice(1).join(" ") || null;
 
   if (devlockMessage && action !== "UNSET") {
-    kv.set("devlock-message", devlockMessage);
+    kv.set(kvKeys.messages.devlock, devlockMessage);
   } else if (action === "UNSET") {
-    kv.delete("devlock-message");
+    kv.delete(kvKeys.messages.devlock);
   }
 
   Logger.log({
     msg: "Devlock status update",
     state: nextState,
     stateStatus: currentState === nextState ? `UNCHANGED` : `UPDATED`,
-    message: kv.get("devlock-message"),
+    message: kv.get(kvKeys.messages.devlock),
     messageStatus:
       action === "UNSET" ? "UNSET"
       : devlockMessage ? `UPDATED`
@@ -55,7 +56,7 @@ export const message: MessageCommand = async (ctx) => {
   });
 
   if (action !== "UNSET") {
-    kv.set("devlock", nextState);
+    kv.set(kvKeys.flags.devlockActive, nextState);
   }
   updateBotPresence(client);
 

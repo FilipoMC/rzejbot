@@ -1,3 +1,4 @@
+import { kvKeys } from "@/config/other";
 import kv from "@/utils/kv";
 import { CommandData, MessageCommand } from "commandkit";
 
@@ -8,7 +9,7 @@ export const command: CommandData = {
 export const message: MessageCommand = async (ctx) => {
   const { message, channel } = ctx;
 
-  kv.set("abort", false);
+  kv.delete(kvKeys.flags.abortSpamPing);
 
   message.delete();
 
@@ -21,7 +22,7 @@ export const message: MessageCommand = async (ctx) => {
       channel.send(content);
     }
     count--;
-    if (count > 0 && !kv.get("abort")) {
+    if (count > 0 && !kv.get(kvKeys.flags.abortSpamPing)) {
       setTimeout(cb, 1000);
     }
   };

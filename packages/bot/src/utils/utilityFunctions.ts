@@ -1,3 +1,6 @@
+import config from "@/config/config";
+import { kvKeys } from "@/config/other";
+import { ButtonKit, COMMANDKIT_IS_DEV, Logger, ModalKit } from "commandkit";
 import {
   ActivityType,
   ButtonInteraction,
@@ -9,16 +12,13 @@ import {
   Interaction,
   Message,
   ModalSubmitInteraction,
-  PermissionFlagsBits,
   PermissionResolvable,
   PresenceUpdateStatus,
   User,
 } from "discord.js";
-import { ButtonKit, COMMANDKIT_IS_DEV, Logger, ModalKit } from "commandkit";
-import kv from "./kv";
-import config from "@/config/config";
 import z from "zod";
 import { failedToExecute } from "./commandResponses";
+import kv from "./kv";
 
 export async function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -83,22 +83,22 @@ export function updateBotPresence(client: Client) {
   if (!client.user) {
     return;
   }
-  if (kv.get("devlock")) {
+  if (kv.get(kvKeys.flags.devlockActive)) {
     client.user.setActivity(
-      kv.get("devlock-status")?.toString() ?? config.devlock_status,
+      kv.get(kvKeys.botStatuses.devlock)?.toString() ?? config.devlock_status,
     );
     client.user.setStatus(PresenceUpdateStatus.DoNotDisturb);
     return;
   }
   if (COMMANDKIT_IS_DEV) {
     client.user.setActivity(
-      kv.get("dev-status")?.toString() ?? config.dev_status,
+      kv.get(kvKeys.botStatuses.dev)?.toString() ?? config.dev_status,
     );
     client.user.setStatus(PresenceUpdateStatus.Idle);
   } else {
     client.user.setActivity({
       type: ActivityType.Watching,
-      name: kv.get("bot-status")?.toString() ?? config.bot_status,
+      name: kv.get(kvKeys.botStatuses.normal)?.toString() ?? config.bot_status,
     });
     client.user.setStatus(PresenceUpdateStatus.Online);
   }
