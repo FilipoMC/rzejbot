@@ -1,9 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import {
-  shiftLogDosesPostSchema,
-  shiftLogPresencePostSchema,
-} from "@shared/zod/shiftSchemas";
+import { shiftLogPresencePostSchema } from "@shared/zod/shiftSchemas";
 import { differenceInMinutes } from "date-fns";
 import _ from "lodash";
 import { revalidateTag } from "next/cache";
@@ -101,15 +98,15 @@ export async function POST(
 
           const data: Prisma.ShiftEmployeeLogUpdateInput = {};
 
-          if (row.action === "entry") {
+          if (row.action === "clock_in") {
             if (employee.shiftLogs[0].clockedIn === null) {
               data.clockedIn = dateNow;
             }
           } else {
             if (employee.shiftLogs[0].clockedIn !== null) {
               data.clockedTime = differenceInMinutes(
-                employee.shiftLogs[0].clockedIn,
                 dateNow,
+                employee.shiftLogs[0].clockedIn,
               );
             }
           }
