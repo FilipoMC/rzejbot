@@ -20,6 +20,8 @@ import { deferAfter } from "@/utils/utilityFunctions";
 import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
 import { shiftEventName } from "@/config/script";
 import { createManageShiftEmbedStage4Components } from "./stage4";
+import kv from "@/utils/kv";
+import { kvKeys } from "@/config/other";
 
 export function createManageShiftEmbedStage3Components(
   shift: ShiftAPIResponse,
@@ -31,6 +33,8 @@ export function createManageShiftEmbedStage3Components(
       interaction,
       ApiHelper.shifts.report.mark("shiftEnd", shift.id),
     );
+
+    kv.delete(kvKeys.other.activeShiftHostId);
 
     if (shiftReportRes.status !== "ok") {
       Logger.error(shiftReportRes);

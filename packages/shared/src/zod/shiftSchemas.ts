@@ -45,7 +45,7 @@ export const shiftLogAbsencePostSchema = z.object({
 export const shiftLogPresencePostSchema = z.array(
   z.object({
     employee: employeeIdentifierSchema,
-    action: z.enum(["entry", "exit"]),
+    action: z.enum(["clock_in", "clock_out"]),
   }),
 );
 

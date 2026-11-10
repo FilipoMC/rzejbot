@@ -8,7 +8,13 @@ import "@/helper/shifts";
 import "@/helper/dev";
 
 const client = new Client({
-  intents: ["Guilds", "GuildMembers", "GuildMessages", "MessageContent"],
+  intents: [
+    "Guilds",
+    "GuildMembers",
+    "GuildMessages",
+    "MessageContent",
+    "GuildVoiceStates",
+  ],
 });
 
 Logger.configure({ provider: new CustomLogger() });

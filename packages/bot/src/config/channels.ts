@@ -6,7 +6,8 @@ const channels = {
   kierownicy_zmian: "1568778161100161094",
   zmianaVC: {
     main: "1539771803663212589",
-  },
+    five: "1569804680392085634",
+  } satisfies Record<string, string>,
 };
 
 export default channels;

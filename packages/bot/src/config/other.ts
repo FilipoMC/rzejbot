@@ -19,8 +19,10 @@ export const kvKeys = {
     devlock: "devlock-message",
   },
   flags: {
-    shiftActive: "is-active-shift",
     devlockActive: "devlock",
     abortSpamPing: "abort-spam-ping",
+  },
+  other: {
+    activeShiftHostId: "active-shift-host",
   },
 };

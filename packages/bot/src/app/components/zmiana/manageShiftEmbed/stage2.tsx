@@ -38,6 +38,8 @@ import {
   removeModalHandler,
   replaceModalHandler,
 } from "./utils";
+import kv from "@/utils/kv";
+import { kvKeys } from "@/config/other";
 
 export function createManageShiftEmbedStage2Components(
   shift: ShiftAPIResponse,
@@ -109,6 +111,8 @@ export function createManageShiftEmbedStage2Components(
           return [reportRes, presenceRes];
         })(),
       );
+
+      kv.set(kvKeys.other.activeShiftHostId, shift.host.discordId);
 
       if (shiftReportRes.status !== "ok") {
         Logger.error(shiftReportRes);

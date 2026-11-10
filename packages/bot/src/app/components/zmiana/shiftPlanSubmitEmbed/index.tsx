@@ -28,6 +28,7 @@ import {
   GuildScheduledEventPrivacyLevel,
   hyperlink,
   MessageFlags,
+  spoiler,
   time,
   TimestampStyles,
   userMention,
@@ -70,7 +71,7 @@ export async function sendShiftPlanSubmitEmbed({
 
   const content = [
     codeBlock("Informacje o zmianie"),
-    `Numer zmiany - \`${shift.shiftNumber}\``,
+    `Numer zmiany - \`${shift.shiftNumber}\` ${spoiler("" + shift.id)}`,
     `Dzień zmiany - ${time(shift.plannedDate, TimestampStyles.ShortDate)}`,
     `Rozpoczęcie briefingu - ${time(shift.plannedDate, TimestampStyles.ShortTime)}`,
     `Rozpoczęcie zmiany - ${time(addMinutes(shift.plannedDate, shift.plannedBriefingDuration), TimestampStyles.ShortTime)}`,
@@ -224,6 +225,7 @@ export async function sendShiftPlanSubmitEmbed({
       schedule: shift.plannedDate,
     });
 
+    await interaction.deferUpdate();
     interaction.message.edit({ components: [] });
 
     ctx.dispose();

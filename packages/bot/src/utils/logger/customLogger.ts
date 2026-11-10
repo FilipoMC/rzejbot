@@ -13,12 +13,12 @@ export class CustomLogger extends DefaultLogger implements ILogger {
   debug(message: any): void;
   debug(strings: TemplateStringsArray, ...values: any[]): void;
   debug(messageOrStrings: any | TemplateStringsArray, ...values: any[]): void {
-    FileLogger.debug(messageOrStrings, ...values);
-
     // Don't print DEBUG level in prod
     if (!COMMANDKIT_IS_DEV) {
       return;
     }
+
+    FileLogger.debug(messageOrStrings, ...values);
 
     if (_.isPlainObject(messageOrStrings)) {
       super.debug(prettyStringifyObject(messageOrStrings));
