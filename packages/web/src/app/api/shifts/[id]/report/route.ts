@@ -60,7 +60,9 @@ export async function POST(
   req: NextRequest,
   { params }: RouteContext<"/api/shifts/[id]/report">,
 ) {
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = shiftReportPostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {
@@ -158,7 +160,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: RouteContext<"/api/shifts/[id]/report">,
 ) {
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = shiftReportPatchSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {

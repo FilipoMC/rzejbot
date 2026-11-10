@@ -59,7 +59,9 @@ export async function PATCH(
   const { id } = await params;
   const includeChanges = req.nextUrl.searchParams.get("changes");
 
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const body = employeePatchSchema.safeParse(bodyUnparsed);
 

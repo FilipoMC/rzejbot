@@ -66,7 +66,9 @@ export async function PATCH(
     );
   }
 
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = shiftPatchSchema.safeParse(bodyUnparsed);
 

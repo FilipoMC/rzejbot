@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
+  const body = await req.json().catch(() => "JSON z prismy sie rozwalil");
 
   const parsedBody = employeePostSchema.safeParse(body);
 

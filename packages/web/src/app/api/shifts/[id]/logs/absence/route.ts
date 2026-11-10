@@ -7,7 +7,9 @@ export async function POST(
   req: NextRequest,
   { params }: RouteContext<"/api/shifts/[id]/logs/absence">,
 ) {
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = shiftLogAbsencePostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {

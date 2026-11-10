@@ -16,7 +16,7 @@ export async function POST(
       { status: 400 },
     );
   }
-  const body = await req.json().catch(() => null);
+  const body = await req.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = employeeWithChangesPostSchema.safeParse(body);
   if (!bodyParsed.success) {
     return NextResponse.json(

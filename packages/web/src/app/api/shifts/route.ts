@@ -53,7 +53,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = shiftPostSchema.safeParse(bodyUnparsed);
 

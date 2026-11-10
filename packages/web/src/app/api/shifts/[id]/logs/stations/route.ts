@@ -66,7 +66,9 @@ export async function POST(
   req: NextRequest,
   { params }: RouteContext<"/api/shifts/[id]/logs/stations">,
 ) {
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = shiftLogStationsPostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {

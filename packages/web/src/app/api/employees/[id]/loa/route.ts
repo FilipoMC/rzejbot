@@ -8,7 +8,9 @@ export async function POST(
   { params }: RouteContext<"/api/employees/[id]/loa">,
 ) {
   const { id } = await params;
-  const bodyUnparsed = await req.json().catch(() => null);
+  const bodyUnparsed = await req
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = loaPostSchema.safeParse(bodyUnparsed);
 
   if (!bodyParsed.success) {
