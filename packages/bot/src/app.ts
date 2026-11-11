@@ -19,7 +19,10 @@ const client = new Client({
 
 Logger.configure({ provider: new CustomLogger() });
 
-export const PREFIX = !COMMANDKIT_IS_DEV ? "!" : ">";
+const devPrefix = process.env.BOT_DEV_PREFIX ?? ">";
+const prodPrefix = process.env.BOT_PREFIX ?? "!";
+
+export const PREFIX = !COMMANDKIT_IS_DEV ? prodPrefix : devPrefix;
 commandkit.setPrefixResolver(() => PREFIX);
 
 export default client;
