@@ -21,6 +21,7 @@ import {
   CommandData,
   Container,
   Logger,
+  ModalKit,
   OnModalKitSubmit,
   TextDisplay,
 } from "commandkit";
@@ -33,7 +34,14 @@ import {
 } from "discord.js";
 import z from "zod";
 import channels from "@/config/channels";
-import otherConfig from "@shared/config/config";
+import { sharedConfig } from "@shared/config/config";
+import { getGroupsForRank } from "@shared/config/ranks";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
+import { delay } from "lodash";
+import { wait } from "@/utils/utilityFunctions";
+
+const HandleModalBullshit = new CommandkitBullshitHandler();
+
 export const command: CommandData = {
   name: "edytuj",
   description: "Edytuj danego pracowniku",
@@ -75,11 +83,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         style={ButtonStyle.Success}
         customId="empEditOneTime"
         onClick={async (itx, ctx) => {
-          await itx.showModal(
-            await employeeEditModal(empEditModalHandler, emp),
-          );
-          ctx.dispose();
+          const modal = await employeeEditModal(empEditModalHandler, emp);
+          HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
+          await itx.showModal(modal);
           await itx.deleteReply();
+          ctx.dispose();
         }}
       >
         Edytuj
@@ -92,8 +100,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
           if (!modal) {
             return;
           } else {
+            HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
             await itx.showModal(modal);
           }
+          await interaction.deleteReply();
           ctx.dispose();
         }}
       >
@@ -247,11 +257,11 @@ export const addChangesModalHandler: OnModalKitSubmit = async (
     ...modalResponses,
     newRole: modalResponses.newRole,
   });
-
   if (res.status === "ok") {
     await commandSuccess({
       interactionOrMsg: interaction,
       description: `Pomyślnie utworzono opinię/uwagę na pracowniku ${res.data.employee.nameIC} (<@${res.data.employee.discordId}>)`,
+      useFollowUp: true,
     });
   } else if (res.status === "apiError" && res.errorStatus === "notFound") {
     await failedToExecute({
@@ -268,8 +278,10 @@ export const addChangesModalHandler: OnModalKitSubmit = async (
     ctx.dispose();
     return;
   }
+  const { employee, type, issuer, reason, note, newRole } = res.data;
 
-  if (["plus", "minus", "praise", "warn", "strike"].includes(res.data.type)) {
+  if (["plus", "minus", "praise", "warn", "strike"].includes(type)) {
+    // #region Sending empchange
     const channel = await interaction.guild.channels.fetch(
       channels.opinie_uwagi,
     );
@@ -284,17 +296,15 @@ export const addChangesModalHandler: OnModalKitSubmit = async (
 
     const container = (
       <Container
-        accentColor={
-          otherConfig.changeType[res.data.type].color as ColorResolvable
-        }
+        accentColor={sharedConfig.changeType[type].color as ColorResolvable}
       >
         <TextDisplay>
           {[
-            `## __**${otherConfig.changeType[res.data.type].prettyName}**__`,
-            `>>> Kto wystawia: ${res.data.issuer.nameIC} <@${res.data.issuer.discordId}>`,
-            `Komu wystawia: ${res.data.employee.nameIC} <@${res.data.employee.discordId}>`,
-            `Uzasadnienie: ${res.data.reason}`,
-            `Komentarz: ${res.data.note || ""}`,
+            `## __**${sharedConfig.changeType[type].prettyName}**__`,
+            `>>> Kto wystawia: ${issuer.nameIC} <@${issuer.discordId}>`,
+            `Komu wystawia: ${employee.nameIC} <@${employee.discordId}>`,
+            `Uzasadnienie: ${reason}`,
+            `Komentarz: ${note || ""}`,
           ].join("\n")}
         </TextDisplay>
       </Container>
@@ -313,7 +323,48 @@ export const addChangesModalHandler: OnModalKitSubmit = async (
       ],
       flags: "IsComponentsV2",
     });
+  } else {
+    // #region Role management
+    const emmployeeDc = await interaction.guild.members.fetch(
+      employee.discordId,
+    );
+    // "plus", "minus", "praise", "warn", "strike"
+    switch (type) {
+      case "demotion":
+      case "promotion": {
+        const rolesToAdd = [
+          ...new Set(getGroupsForRank(newRole).map((e) => e.role.id)),
+        ];
+        rolesToAdd.push(
+          ...new Set(getGroupsForRank(newRole).map((e) => e.group.id)),
+        );
+
+        const rolesToRemove: string[] = [];
+        for (const [, role] of emmployeeDc.roles.cache) {
+          rolesToRemove.push(
+            ...getGroupsForRank(role.name).map((gr) => gr.role.id),
+          );
+          rolesToRemove.push(
+            ...getGroupsForRank(role.name).map((gr) => gr.group.id),
+          );
+        }
+        Logger.debug(["R+", rolesToAdd].join("\n"));
+        Logger.debug(["R-", rolesToRemove].join("\n"));
+        const final = {
+          add: rolesToAdd.filter((e) => !rolesToRemove.includes(e)),
+          rm: rolesToRemove.filter((e) => !rolesToAdd.includes(e)),
+        };
+        await emmployeeDc.roles.remove(final.rm);
+        await emmployeeDc.roles.add(final.add);
+        break;
+      }
+      // case "suspension":  does this even do anything really
+      case "termination":
+      default:
+        break;
+    }
   }
+  // #endregion
   ctx.dispose();
   return;
 };

@@ -74,8 +74,8 @@ export const metadata: CustomCommandMetadata = {
   devSkipPermsCheck: true,
   permissions: {
     allowedRoles: [
-      ...rankGroups["Kierownictwo Elektrowni"].id,
-      ...rankGroups["Kierownictwo Bloków"].id,
+      rankGroups["Kierownictwo Elektrowni"].id,
+      rankGroups["Kierownictwo Bloków"].id,
     ],
   },
 };

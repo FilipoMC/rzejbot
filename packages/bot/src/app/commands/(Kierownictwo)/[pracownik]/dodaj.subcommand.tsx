@@ -2,6 +2,7 @@ import {
   ChatInputCommand,
   CommandData,
   Logger,
+  ModalKit,
   OnModalKitSubmit,
 } from "commandkit";
 import { ApplicationCommandOptionType, userMention } from "discord.js";
@@ -15,6 +16,7 @@ import {
   commandSuccess,
 } from "@/utils/commandResponses";
 import { employeeAddModal } from "@/app/components/employee/addEditModal";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 
 export const command: CommandData = {
   name: "dodaj",
@@ -28,7 +30,7 @@ export const command: CommandData = {
     },
   ],
 };
-
+const CommandkitBSHandler = new CommandkitBullshitHandler<ModalKit>();
 const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
   await loading({ interactionOrMsg: interaction, description: undefined });
 
@@ -114,8 +116,8 @@ const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
 };
 
 export const chatInput: ChatInputCommand = async ({ interaction }) => {
-  await interaction.showModal(
-    employeeAddModal(interaction, empAddmodalSubmitHadler),
-  );
+  const modal = employeeAddModal(interaction, empAddmodalSubmitHadler);
+  CommandkitBSHandler.replaceOldCollector(interaction.user.id, modal);
+  await interaction.showModal(modal);
   return;
 };

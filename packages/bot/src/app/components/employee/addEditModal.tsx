@@ -56,7 +56,7 @@ export function employeeAddModal(
         label="Ranga"
         description="Ranga którą nadać pracownikowi na start"
       >
-        {rzejEmployeeRanksStringSelect()}
+        {rzejEmployeeRanksStringSelect({})}
       </Label>
       <Label label="Kwalifikacje/Uprawnienia">
         <CheckboxGroup customId="qualification">

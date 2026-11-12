@@ -71,13 +71,3 @@ export const chatInput: ChatInputCommand = async ({ interaction, client }) => {
     description: undefined,
   });
 };
-
-export const metadata: CustomCommandMetadata = {
-  devSkipPermsCheck: true,
-  permissions: {
-    allowedRoles: [
-      ...rankGroups["Kierownictwo Elektrowni"].id,
-      ...rankGroups["Kierownictwo Bloków"].id,
-    ],
-  },
-};

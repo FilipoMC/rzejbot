@@ -5,7 +5,7 @@ import { MiddlewareContext } from "commandkit";
 export function beforeExecute(ctx: MiddlewareContext) {
   localMiddleware(ctx, {
     permissions: {
-      allowedRoles: [...rankGroups["Kierownictwo Elektrowni"].id],
+      allowedRoles: [rankGroups["Kierownictwo Elektrowni"].id],
     },
     devSkipPermsCheck: true,
   });

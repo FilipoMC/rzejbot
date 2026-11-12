@@ -1,3 +1,5 @@
+import { AllRanks } from "../types/other";
+
 export const mainRanks = {
   // #region main server rankId's
   // "Dyrektor Elektrowni": "1450930280037617787",
@@ -19,18 +21,29 @@ export const mainRanks = {
   // #region test server ranks
   "Dyrektor Elektrowni": "1566523889058582589",
   "Zastępca Dyrektora Elektrowni": "1566524390965780650",
-  "Główny Inżynier": "1566524507064373399",
+  "Główny Inżynier Elektrowni": "1566524507064373399",
 
-  "Starszy Inżynier Reaktora": "",
-  "Inżynier Reaktora": "",
-  "Operator Reaktora": "",
+  "Starszy Inżynier Reaktora": "1566528343912882357",
+  "Inżynier Reaktora": "1566528989852344410",
+  "Operator Reaktora": "1566529033838002348",
 
-  "Starszy Operator Niejądrowy": "",
-  "Operator Niejądrowy": "",
-  Kandydat: "",
+  "Starszy Operator Niejądrowy": "1566529089764987032",
+  "Operator Niejądrowy": "1566529174787723424",
+  Kandydat: "1569466799500697830",
   // #endregion
 } satisfies Record<string, string>;
 
+export const otherRanks = {
+  "Kierownik Bloków": "1566526082994413748",
+  "p.o. Kierownika Bloków": "1566526211063287858",
+  "Główny Szkoleniowiec": "1566529797025169478",
+  Szkoleniowiec: "1566529799680168116",
+  "Szkoleniowiec Aplikujący": "1566529800783401010",
+  "Przewodniczący Komisji Marketingowej": "1566530230321938452",
+  "Członek Komisji Marketingowej": "1566530180158062773",
+} satisfies Record<string, string>;
+
+export const allRanks = Object.assign(mainRanks, otherRanks);
 /**
  * @what_is_odpierdalating_here
  * Maps organizational power plants groups and committees to their
@@ -43,22 +56,29 @@ export const mainRanks = {
  */
 export const rankGroups = {
   "Kierownictwo Elektrowni": {
-    id: ["1566523773195260154"],
+    id: "1566523773195260154",
     ranks: [
       "Dyrektor Elektrowni",
       "Zastępca Dyrektora Elektrowni",
-      "Główny Inżynier",
+      "Główny Inżynier Elektrowni",
     ],
   },
   "Kierownictwo Bloków": {
-    id: ["1566523847908397096"],
-    ranks: {
-      "Kierownik Bloków": "1566526082994413748",
-      "p.o. Kierownika Bloków": "1566526211063287858",
-    },
+    id: "1566523847908397096",
+    ranks: ["Kierownik Bloków", "p.o. Kierownika Bloków"],
   },
   "Personel Elektrowni": {
-    id: ["1566530072070852798", "1566526310476550376"], // <- id: Arr[0] == id_roli_personelu_elektrowni || Arr[1] == id_roli_Izmiana_elektrowni
+    id: "1566530072070852798",
+    ranks: [
+      "Starszy Inżynier Reaktora",
+      "Inżynier Reaktora",
+      "Operator Reaktora",
+      "Starszy Operator Niejądrowy",
+      "Operator Niejądrowy",
+    ],
+  },
+  "I. Zmiana Elektrowni": {
+    id: "1566526310476550376",
     ranks: [
       "Starszy Inżynier Reaktora",
       "Inżynier Reaktora",
@@ -68,39 +88,77 @@ export const rankGroups = {
     ],
   },
   "Kadra Szkoleniowa": {
-    id: ["1566529719913156810"],
-    ranks: {
-      "Główny Szkoleniowiec": "1566529797025169478",
-      Szkoleniowiec: "1566529799680168116",
-      "Szkoleniowiec Aplikujący": "1566529800783401010",
-    },
+    id: "1566529719913156810",
+    ranks: [
+      "Główny Szkoleniowiec",
+      "Szkoleniowiec",
+      "Szkoleniowiec Aplikujący",
+    ],
   },
   Komisje: {
-    id: ["1566530152517865503"],
-    ranks: {
-      "Przewodniczący Komisji Marketingowej": "1566530230321938452",
-      "Członek Komisji Marketingowej": "1566530180158062773",
-    },
+    id: "1566530152517865503",
+    ranks: [
+      "Przewodniczący Komisji Marketingowej",
+      "Członek Komisji Marketingowej",
+    ],
   },
   // TODO: dodac medale, wynagrodzenie?, stopnie i tytuly?, dodatkowe role?
 } satisfies Record<
   string,
   {
-    id: string[];
-    ranks: (keyof typeof mainRanks)[] | Record<string, string>;
+    id: string;
+    ranks: (keyof typeof allRanks)[];
   }
 >;
+
+// TODO: Optimize via usage of role ids
+export function getGroupsForRank(role: string) {
+  if (!Object.keys(allRanks).includes(role)) {
+    return [];
+  }
+
+  const groupsIncludingRole = Object.entries(rankGroups).filter(([, v]) =>
+    (v.ranks as string[]).includes(
+      role.replaceAll("=", "").replaceAll("・", "").trim(),
+    ),
+  );
+  return groupsIncludingRole.map(([k]) => {
+    return {
+      group: {
+        name: k,
+        id: rankGroups[k as keyof typeof rankGroups].id,
+      },
+      role: {
+        name: role,
+        id: allRanks[role as AllRanks],
+      },
+    };
+  });
+}
 
 export const ranksOrder = Object.keys(mainRanks).reduce(
   (prev, v, idx) => prev.set(v, idx),
   new Map<string, number>(),
 );
 
+type ShortRankNameKeys =
+  | "Dyrektor Elektrowni"
+  | "Zastępca Dyrektora Elektrowni"
+  | "Główny Inżynier Elektrowni"
+  | "Kierownik Bloków"
+  | "p.o. Kierownika Bloków"
+  | "Starszy Inżynier Reaktora"
+  | "Inżynier Reaktora"
+  | "Operator Reaktora"
+  | "Starszy Operator Niejądrowy"
+  | "Operator Niejądrowy"
+  | "Kandydat";
+
 export const shortRankNames = new Map(
   Object.entries({
     "Dyrektor Elektrowni": "Dyr. El.",
     "Zastępca Dyrektora Elektrowni": "Zast. Dyr. Elek.",
-    "Główny Inżynier": "Gł. Inż.",
+    "Główny Inżynier Elektrowni": "Gł. Inż.",
     "Kierownik Bloków": "Kier. Bl.",
     "p.o. Kierownika Bloków": "p.o. Kier. Bl.",
     "Starszy Inżynier Reaktora": "St. Inż.",
@@ -109,9 +167,5 @@ export const shortRankNames = new Map(
     "Starszy Operator Niejądrowy": "St. Op. Niejądr.",
     "Operator Niejądrowy": "Op. Niejądr.",
     Kandydat: "Kand.",
-  } satisfies Record<
-    | keyof typeof mainRanks
-    | keyof (keyof (typeof rankGroups)[keyof typeof rankGroups]["ranks"]),
-    string
-  >),
+  } satisfies Pick<Record<AllRanks, string>, ShortRankNameKeys>),
 );

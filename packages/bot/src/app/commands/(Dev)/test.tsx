@@ -1,11 +1,14 @@
 /*eslint-disable*/
 import { commandError, commandSuccess } from "@/utils/commandResponses";
 import { employeeWithChangesAPIResponseSchema } from "@shared/zod/apiResponses/employee";
-import { CommandData, Logger, MessageCommand } from "commandkit";
-import { EmbedBuilder } from "discord.js";
+import { ActionRow, CommandData, Logger, MessageCommand } from "commandkit";
+import { codeBlock, EmbedBuilder } from "discord.js";
 import z from "zod";
 import channels from "@/config/channels";
 import { sendShiftPlanSubmitEmbed } from "@/app/components/zmiana/shiftPlanSubmitEmbed";
+import { allRanks, rankGroups } from "@shared/config/ranks";
+import { AllRanks } from "@shared/types/other";
+import rzejEmployeeRanksStringSelect from "@/app/components/employee/rzejRanksStringSelect";
 
 export const command: CommandData = {
   name: "test",
@@ -94,6 +97,32 @@ export const message: MessageCommand = async (ctx) => {
   //   eventDesc: "hi",
   //   shiftId: 51,
   // });
+  //   await ctx.message.reply({
+  //     content: "2",
+  //     components: [
+  //       <ActionRow>
+  //         {rzejEmployeeRanksStringSelect({
+  //           handler: async (interaction, context) => {
+  //             const arg = ctx.args().join(" ");
+  //             Logger.debug([
+  //               arg,
+  //               String(manageEmployeeRoles(interaction.values[0] as AllRanks)),
+  //             ]);
+  //             await commandSuccess({
+  //               interactionOrMsg: ctx.message,
+  //               description: String(
+  //                 codeBlock(
+  //                   "json",
+  //                   manageEmployeeRoles(interaction.values[0] as AllRanks),
+  //                 ),
+  //               ),
+  //             });
+  //           },
+  //         })}
+  //       </ActionRow>,
+  //     ],
+  //   });
+  //
 };
 
 // export const chatInput: ChatInputCommand = async ({ interaction }) => {

@@ -33,7 +33,7 @@ ApiHelper.employee.find = async (dcId) => {
     getRequestURL("employees/" + dcId),
     requestOptions("GET"),
   );
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
   );
@@ -80,7 +80,7 @@ ApiHelper.employee.findWithChanges = async (dcId) => {
     getRequestURL("employees/" + dcId, { changes: "true" }),
     requestOptions("GET"),
   );
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(
     employeeWithChangesAPIResponseSchema,
   ).safeParse(body);
@@ -126,7 +126,9 @@ ApiHelper.employee.create = async (request) => {
     getRequestURL("employees"),
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
@@ -182,7 +184,7 @@ ApiHelper.employee.loa.create = async (empDiscordId, request) => {
     requestOptions("POST", JSON.stringify(reqParsed)),
   );
 
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(loaAPIResponseSchema).safeParse(body);
 
   if (!bodyParsed.success) {
@@ -227,7 +229,7 @@ ApiHelper.employee.loa.listForEmployee = async (dId) => {
     requestOptions("GET"),
   );
 
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(loaAPIResponseSchema).safeParse(body);
 
   if (!bodyParsed.success) {
@@ -272,7 +274,7 @@ ApiHelper.employee.update = async (req) => {
     requestOptions("PATCH", JSON.stringify(reqParsed.data)),
   );
 
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
   );
@@ -347,7 +349,7 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
     getRequestURL(`employees/${employeeId}/changes`),
     requestOptions("POST", JSON.stringify(reqParsed.data)),
   );
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(
     employeeChangePostAPIResponseSchema,
   ).safeParse(body);

@@ -81,7 +81,7 @@ export const addChangesModal = (
         label="Nowa Rola"
         description="Rola którą pracownik dostanie po wysłaniu opinii (domyślnie ta same którą ma aktualnie)"
       >
-        {rzejEmployeeRanksStringSelect()}
+        {rzejEmployeeRanksStringSelect({})}
       </Label>
     </Modal>
   );
