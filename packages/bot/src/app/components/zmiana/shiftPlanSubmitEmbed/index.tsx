@@ -155,6 +155,38 @@ export async function sendShiftPlanSubmitEmbed({
             content: "Zgłoszono nieobecność",
             files: [new AttachmentBuilder(getRandomImage("declaredAbsence"))],
           });
+
+          const channel = await fetchChannelResolvable(
+            channels.kierownicy_zmian,
+            buttonInteraction.client,
+          );
+
+          if (!channel?.isSendable()) {
+            return;
+          }
+
+          const message = await channel.messages
+            .fetch()
+            .then((messages) =>
+              messages.find(
+                (msg) =>
+                  msg.content.startsWith(shiftEventName(shift.shiftNumber)) &&
+                  msg.author.id === buttonInteraction.client.user.id,
+              ),
+            );
+
+          if (message?.content.includes(buttonInteraction.user.id)) {
+            return;
+          }
+
+          if (message?.editable) {
+            await message.edit(message.content + `\n${buttonInteraction.user}`);
+            return;
+          }
+
+          channel.send(
+            `${shiftEventName(shift.shiftNumber)}\n# ZGŁOSZONE NIEOBECNOŚCI na zmianie ${shift.shiftNumber}\n\n${buttonInteraction.user}`,
+          );
         };
 
         const createActionRow = (disabled: boolean = false) =>

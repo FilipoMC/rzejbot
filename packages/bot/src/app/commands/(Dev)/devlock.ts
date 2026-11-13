@@ -6,7 +6,7 @@ import { updateBotPresence } from "@/utils/utilityFunctions";
 import { CommandData, Logger, MessageCommand } from "commandkit";
 
 export const command: CommandData = {
-  name: "devlock",
+  name: "dl",
   description: "Lockdown the bot to only developers",
 };
 

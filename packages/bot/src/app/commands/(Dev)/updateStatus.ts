@@ -5,7 +5,7 @@ import { updateBotPresence } from "@/utils/utilityFunctions";
 import { CommandData, COMMANDKIT_IS_DEV, MessageCommand } from "commandkit";
 
 export const command: CommandData = {
-  name: "updatestatus",
+  name: "su",
   description: "Update the bot's status",
 };
 
