@@ -392,6 +392,42 @@ ApiHelper.shifts.logEmployeePresence = async (shiftId, request) => {
   }
 };
 
+ApiHelper.shifts.logShiftEndClockOuts = async (shiftId) => {
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}/logs/presence/finish`),
+    requestOptions("POST"),
+  );
+
+  const body: unknown = await res.json().catch(() => false); // null is the correct response; using false instead
+
+  const bodyParsed = apiResponseSchema(z.null()).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana nie istnieje",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
 ApiHelper.shifts.report.get = async (shiftId) => {
   const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/report`),

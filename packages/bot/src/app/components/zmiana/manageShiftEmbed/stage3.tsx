@@ -29,9 +29,12 @@ export function createManageShiftEmbedStage3Components(
   stations: ShiftLogStationsGetAPIResponse,
 ) {
   const endShiftButtonCallback: OnButtonKitClick = async (interaction, ctx) => {
-    const shiftReportRes = await deferAfter(
+    const [shiftReportRes] = await deferAfter(
       interaction,
-      ApiHelper.shifts.report.mark("shiftEnd", shift.id),
+      (async () => [
+        await ApiHelper.shifts.report.mark("shiftEnd", shift.id),
+        await ApiHelper.shifts.logShiftEndClockOuts(shift.id),
+      ])(),
     );
 
     kv.delete(kvKeys.other.activeShiftHostId);

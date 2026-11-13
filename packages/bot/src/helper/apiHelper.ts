@@ -167,6 +167,10 @@ interface ApiHelper {
       request: ShiftLogPresencePost,
     ) => Promise<ApiHelperReturnType<ShiftLogPresencePostAPIResponse>>;
 
+    logShiftEndClockOuts: (
+      shiftId: number,
+    ) => Promise<ApiHelperReturnType<null>>;
+
     stations: {
       get: (
         shiftId: number,

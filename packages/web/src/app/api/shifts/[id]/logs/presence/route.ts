@@ -102,6 +102,9 @@ export async function POST(
             if (employee.shiftLogs[0].clockedIn === null) {
               data.clockedIn = dateNow;
             }
+            if (employee.shiftLogs[0].clockedTime !== null) {
+              data.clockedTime = null;
+            }
           } else {
             if (employee.shiftLogs[0].clockedIn !== null) {
               data.clockedTime = differenceInMinutes(
