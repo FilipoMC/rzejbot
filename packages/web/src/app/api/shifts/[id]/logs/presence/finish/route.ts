@@ -1,3 +1,4 @@
+import { CustomPrismaError } from "@/lib/class";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { differenceInMinutes } from "date-fns";
@@ -39,6 +40,10 @@ export async function POST(
         },
       },
     });
+
+    if (employeeLogs.length === 0) {
+      throw CustomPrismaError("P2025");
+    }
 
     await prisma.$transaction(
       employeeLogs.reduce(
