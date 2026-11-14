@@ -50,7 +50,7 @@ export function createManageShiftEmbedStage1Components(
         content: `Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
       }),
       interaction.user.send(
-        `Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
+        `**${shift.shiftNumber}** - Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
       ),
       interaction.client.channels
         .fetch(channels.kierownicy_zmian)

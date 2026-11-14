@@ -142,6 +142,16 @@ export async function sendShiftPlanSubmitEmbed({
               description: "Zgłosiłeś już nieobecność na tej zmianie",
             });
             return;
+          } else if (
+            res.status === "apiError" &&
+            res.errorStatus === "notFound"
+          ) {
+            await failedToExecute({
+              interactionOrMsg: buttonInteraction,
+              description:
+                "Nie jesteś zarejestrowanym pracownikiem ~~lub zmiana nie istnieje ale to tam raczej mało prawdopodobne~~",
+            });
+            return;
           } else if (res.status !== "ok") {
             await commandError({
               interactionOrMsg: buttonInteraction,
@@ -257,8 +267,7 @@ export async function sendShiftPlanSubmitEmbed({
       schedule: shift.plannedDate,
     });
 
-    await interaction.deferUpdate();
-    interaction.message.edit({ components: [] });
+    await interaction.message.edit({ components: [] });
 
     ctx.dispose();
   };

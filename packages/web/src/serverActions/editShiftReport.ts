@@ -7,15 +7,21 @@ import _ from "lodash";
 import { updateTag } from "next/cache";
 import z from "zod";
 
+const inputFormSchema = formSchema
+  .omit({ goalMet: true })
+  .extend({ goalMet: z.boolean() });
+
 export async function submitEditShiftReportForm(
   key: string,
   shiftNumber: string,
-  content: z.infer<typeof formSchema>,
+  content: z.infer<typeof inputFormSchema>,
 ) {
   try {
     const [keyChecked, shiftNumberChecked, contentChecked] = z
-      .tuple([z.string(), z.string(), formSchema])
+      .tuple([z.string(), z.string(), inputFormSchema])
       .parse([key, shiftNumber, content]);
+
+    console.log(contentChecked);
 
     const shiftReport = await prisma.shiftReport.findFirst({
       where: {
@@ -91,6 +97,8 @@ export async function submitEditShiftReportForm(
         shiftId: shiftReport.shiftId,
       },
       data: {
+        summary: contentChecked.summary,
+        goalMet: contentChecked.goalMet,
         shift: {
           update: {
             employeeLogs: {

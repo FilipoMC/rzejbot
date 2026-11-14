@@ -179,7 +179,7 @@ export function EdytujZmianeForm({
 
   const watched = useWatch({ control });
   useEffect(() => {
-    if (_.isEqual(watched, prevWatched)) {
+    if (_.isEqual(watched, prevWatched.current)) {
       return;
     }
     localStorage.setItem(
@@ -194,7 +194,7 @@ export function EdytujZmianeForm({
       await submitEditShiftReportForm(
         accessKey,
         shiftReport.shift.shiftNumber,
-        data,
+        { ...data, goalMet: data.goalMet === "pozytywnym" ? true : false },
       );
       localStorage.removeItem(localStorageKey);
       setFormFeedback({
@@ -429,6 +429,7 @@ export function EdytujZmianeForm({
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
+                        required
                       >
                         <SelectTrigger className="w-35">
                           <SelectValue placeholder="Wynik" />
@@ -496,6 +497,7 @@ export function EdytujZmianeForm({
               )
             ) {
               reset(computedValues);
+              localStorage.removeItem(localStorageKey);
             }
           }}
         >
