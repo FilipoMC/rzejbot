@@ -46,7 +46,13 @@ const shiftReportSelect = {
         select: {
           discordId: true,
           nameIC: true,
-          rank: true,
+          employeeChanges: {
+            orderBy: { createdAt: "desc" },
+            select: {
+              newRole: true,
+            },
+            take: 1,
+          },
           robloxId: true,
         },
       },
@@ -74,7 +80,13 @@ const shiftReportSelect = {
               id: true,
               discordId: true,
               nameIC: true,
-              rank: true,
+              employeeChanges: {
+                orderBy: { createdAt: "desc" },
+                select: {
+                  newRole: true,
+                },
+                take: 1,
+              },
               robloxId: true,
               system: true,
             },
@@ -108,8 +120,10 @@ async function getShiftReport(number: string, accessKey: string) {
   cacheTag(`shiftReportEdit:id:${res.shift.id}`);
 
   res.shift.employeeLogs.sort((a, b) => {
-    const aVal = ranksOrder.get(a.employee.rank) ?? Infinity;
-    const bVal = ranksOrder.get(b.employee.rank) ?? Infinity;
+    const aVal =
+      ranksOrder.get(a.employee.employeeChanges[0].newRole) ?? Infinity;
+    const bVal =
+      ranksOrder.get(b.employee.employeeChanges[0].newRole) ?? Infinity;
 
     return aVal - bVal || a.employee.nameIC.localeCompare(b.employee.nameIC);
   });
@@ -199,7 +213,7 @@ export default async function RaportZmiany(
                       <tr>
                         <td className="text-left font-bold">Ranga:</td>
                         <td className="text-left">
-                          {shiftReport.shift.host.rank}
+                          {shiftReport.shift.host.employeeChanges[0].newRole}
                         </td>
                       </tr>
                       <tr>
@@ -297,7 +311,7 @@ export default async function RaportZmiany(
                               <tr>
                                 <td className="text-left font-bold">Ranga:</td>
                                 <td className="text-left">
-                                  {log.employee.rank}{" "}
+                                  {log.employee.employeeChanges[0].newRole}{" "}
                                 </td>
                               </tr>
                               <tr>
@@ -315,11 +329,12 @@ export default async function RaportZmiany(
                     </TableCell>
                     <TableCell className="text-center">
                       <span className="hidden sm:block">
-                        {log.employee.rank}
+                        {log.employee.employeeChanges[0].newRole}
                       </span>
                       <span className="sm:hidden">
-                        {shortRankNames.get(log.employee.rank) ??
-                          log.employee.rank}
+                        {shortRankNames.get(
+                          log.employee.employeeChanges[0].newRole,
+                        ) ?? log.employee.employeeChanges[0].newRole}
                       </span>
                     </TableCell>
                     <TableCell className="text-center">

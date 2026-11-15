@@ -56,8 +56,57 @@ export const allRanks = Object.assign(mainRanks, otherRanks);
  */
 export const rankGroups = {
   //main
+  // "Kierownictwo Elektrowni": {
+  //   id: "1462522587878789265",
+  //   ranks: [
+  //     "Dyrektor Elektrowni",
+  //     "Zastępca Dyrektora Elektrowni",
+  //     "Główny Inżynier Elektrowni",
+  //   ],
+  // },
+  // "Kierownictwo Bloków": {
+  //   id: "1450931355885240341",
+  //   ranks: ["Kierownik Bloków", "p.o. Kierownika Bloków"],
+  // },
+  // "Personel Elektrowni": {
+  //   id: "1451206749578330142",
+  //   ranks: [
+  //     "Starszy Inżynier Reaktora",
+  //     "Inżynier Reaktora",
+  //     "Operator Reaktora",
+  //     "Starszy Operator Niejądrowy",
+  //     "Operator Niejądrowy",
+  //   ],
+  // },
+  // "I. Zmiana Elektrowni": {
+  //   id: "1450931358217277470",
+  //   ranks: [
+  //     "Starszy Inżynier Reaktora",
+  //     "Inżynier Reaktora",
+  //     "Operator Reaktora",
+  //     "Starszy Operator Niejądrowy",
+  //     "Operator Niejądrowy",
+  //   ],
+  // },
+  // "Kadra Szkoleniowa": {
+  //   id: "1468621630438772791",
+  //   ranks: [
+  //     "Główny Szkoleniowiec",
+  //     "Szkoleniowiec",
+  //     "Szkoleniowiec Aplikujący",
+  //   ],
+  // },
+  // Komisje: {
+  //   id: "1468618072536645759",
+  //   ranks: [
+  //     "Przewodniczący Komisji Marketingowej",
+  //     "Członek Komisji Marketingowej",
+  //   ],
+  // },
+
+  // test
   "Kierownictwo Elektrowni": {
-    id: "1462522587878789265",
+    id: "1566523773195260154",
     ranks: [
       "Dyrektor Elektrowni",
       "Zastępca Dyrektora Elektrowni",
@@ -103,55 +152,6 @@ export const rankGroups = {
       "Członek Komisji Marketingowej",
     ],
   },
-
-  // test
-  // "Kierownictwo Elektrowni": {
-  //   id: "1566523773195260154",
-  //   ranks: [
-  //     "Dyrektor Elektrowni",
-  //     "Zastępca Dyrektora Elektrowni",
-  //     "Główny Inżynier Elektrowni",
-  //   ],
-  // },
-  // "Kierownictwo Bloków": {
-  //   id: "1566523847908397096",
-  //   ranks: ["Kierownik Bloków", "p.o. Kierownika Bloków"],
-  // },
-  // "Personel Elektrowni": {
-  //   id: "1566530072070852798",
-  //   ranks: [
-  //     "Starszy Inżynier Reaktora",
-  //     "Inżynier Reaktora",
-  //     "Operator Reaktora",
-  //     "Starszy Operator Niejądrowy",
-  //     "Operator Niejądrowy",
-  //   ],
-  // },
-  // "I. Zmiana Elektrowni": {
-  //   id: "1566526310476550376",
-  //   ranks: [
-  //     "Starszy Inżynier Reaktora",
-  //     "Inżynier Reaktora",
-  //     "Operator Reaktora",
-  //     "Starszy Operator Niejądrowy",
-  //     "Operator Niejądrowy",
-  //   ],
-  // },
-  // "Kadra Szkoleniowa": {
-  //   id: "1566529719913156810",
-  //   ranks: [
-  //     "Główny Szkoleniowiec",
-  //     "Szkoleniowiec",
-  //     "Szkoleniowiec Aplikujący",
-  //   ],
-  // },
-  // Komisje: {
-  //   id: "1566530152517865503",
-  //   ranks: [
-  //     "Przewodniczący Komisji Marketingowej",
-  //     "Członek Komisji Marketingowej",
-  //   ],
-  // },
   // TODO: dodac medale, wynagrodzenie?, stopnie i tytuly?, dodatkowe role?
 } satisfies Record<
   string,

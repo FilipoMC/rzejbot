@@ -86,7 +86,10 @@ export default async function PlanZmiany(
                     <tbody>
                       <tr>
                         <td className="text-left font-bold">Ranga:</td>
-                        <td className="text-left"> {shift.host.rank} </td>
+                        <td className="text-left">
+                          {" "}
+                          {shift.host.employeeChanges[0].newRole}{" "}
+                        </td>
                       </tr>
                       <tr>
                         <td className="text-left font-bold">Roblox:</td>
