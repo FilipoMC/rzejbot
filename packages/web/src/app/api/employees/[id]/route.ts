@@ -23,6 +23,7 @@ export async function GET(
       employeeChanges:
         includeChanges === "true" ?
           {
+            orderBy: { createdAt: "desc" },
             select: {
               issuer: {
                 omit: {
@@ -39,7 +40,13 @@ export async function GET(
               createdAt: true,
             },
           }
-        : false,
+        : {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: {
+              newRole: true,
+            },
+          },
     },
   });
   if (!res) {
@@ -94,6 +101,7 @@ export async function PATCH(
         employeeChanges:
           includeChanges === "true" ?
             {
+              orderBy: { createdAt: "desc" },
               select: {
                 issuer: {
                   omit: {
@@ -109,7 +117,13 @@ export async function PATCH(
                 createdAt: true,
               },
             }
-          : false,
+          : {
+              orderBy: { createdAt: "desc" },
+              take: 1,
+              select: {
+                newRole: true,
+              },
+            },
       },
     });
 

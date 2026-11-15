@@ -12,7 +12,7 @@ model Employee {
   discordId    String             @unique
   robloxId     BigInt             @unique
   nameIC       String             @unique
-  rank         String
+  committees    String[]
   shiftsHosted Shift[]            @relation("EmployeeShiftsHosted")
   shiftLogs    ShiftEmployeeLog[] @relation
   shiftReports ShiftReport[]      @relation
@@ -133,13 +133,13 @@ model LOA {
 }
 
 model EmployeeChange {
-  id       Int      @id @default(autoincrement())
-  employee Employee @relation("EmpChanges", fields: [employeeId], references: [id])
-  issuer   Employee @relation("EmpChangesIssued", fields: [issuerId], references: [id])
-  type     String
-  reason   String
-  note     String
-  newRole  String
+  id         Int        @id @default(autoincrement())
+  employee   Employee   @relation("EmpChanges", fields: [employeeId], references: [id])
+  issuer     Employee   @relation("EmpChangesIssued", fields: [issuerId], references: [id])
+  type       String
+  reason     String
+  note       String?
+  newRole    String
 
   employeeId Int
   issuerId   Int

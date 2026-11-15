@@ -9,9 +9,10 @@ import {
   loading,
 } from "@/utils/commandResponses";
 import {
+  AllEmployeeRanks,
   EmployeeChangeType,
   EmployeePatch,
-  EmployeeRanks,
+  OtherEmployeeRanks,
 } from "@shared/types/api";
 import { robloxUsersByUsernamesAPIResponseSchema } from "@shared/zod/roblox/apiResponses";
 import {
@@ -28,12 +29,18 @@ import {
   ApplicationCommandOptionType,
   ButtonStyle,
   ColorResolvable,
-  User,
   userMention,
 } from "discord.js";
 import z from "zod";
 import channels from "@/config/channels";
-import otherConfig from "@shared/config/config";
+import { sharedConfig } from "@shared/config/config";
+import { getGroupsForRank } from "@shared/config/ranks";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
+import { ApiHelperReturnData } from "@/types/apiHelper";
+import _, { keyBy } from "lodash";
+
+const HandleModalBullshit = new CommandkitBullshitHandler();
+
 export const command: CommandData = {
   name: "edytuj",
   description: "Edytuj danego pracowniku",
@@ -52,14 +59,14 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     interactionOrMsg: interaction,
     description: undefined,
   });
-  const emp = await ApiHelper.employee.find(
+  const employee = await ApiHelper.employee.find(
     interaction.options.getUser("uzytkownik", true).id,
   );
-  if (emp.status !== "ok") {
-    if (emp.status === "apiError" && emp.errorStatus === "notFound") {
+  if (employee.status !== "ok") {
+    if (employee.status === "apiError" && employee.errorStatus === "notFound") {
       await failedToExecute({
         interactionOrMsg: interaction,
-        description: emp.error,
+        description: employee.error,
       });
     } else {
       await commandError({
@@ -75,11 +82,11 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         style={ButtonStyle.Success}
         customId="empEditOneTime"
         onClick={async (itx, ctx) => {
-          await itx.showModal(
-            await employeeEditModal(empEditModalHandler, emp),
-          );
-          ctx.dispose();
+          const modal = await employeeEditModal(empEditModalHandler, employee);
+          HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
+          await itx.showModal(modal);
           await itx.deleteReply();
+          ctx.dispose();
         }}
       >
         Edytuj
@@ -88,12 +95,18 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
         style={ButtonStyle.Secondary}
         customId="empAddChanges"
         onClick={async (itx, ctx) => {
-          const modal = addChangesModal(interaction, addChangesModalHandler);
+          const modal = addChangesModal(
+            interaction,
+            employee.data,
+            addChangesModalHandler(employee.data),
+          );
           if (!modal) {
             return;
           } else {
+            HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
             await itx.showModal(modal);
           }
+          await interaction.deleteReply();
           ctx.dispose();
         }}
       >
@@ -103,7 +116,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
   ];
 
   await interaction.editReply({
-    content: `Proszę kliknąć guzik aby zacząć edycję pracownika (${userMention(emp.data.discordId)})`,
+    content: `Proszę kliknąć guzik aby zacząć edycję pracownika (${userMention(employee.data.discordId)})`,
     embeds: [],
     components: aRow,
   });
@@ -162,10 +175,9 @@ export const empEditModalHandler: OnModalKitSubmit = async (
     returnObj[e] = true;
   }
 
-  const prismaRes = await ApiHelper.employee.update({
+  const prismaRes = await ApiHelper.employee.update(modalResponses.user.id, {
     discordId: modalResponses.user.id,
     nameIC: modalResponses.nameIC,
-    rank: modalResponses.rank || "",
     robloxId: resParsed.data.data[0]?.id,
     qualification: {
       update: returnObj,
@@ -220,100 +232,210 @@ export const empEditModalHandler: OnModalKitSubmit = async (
   return;
 };
 
-export const addChangesModalHandler: OnModalKitSubmit = async (
-  interaction,
-  ctx,
-) => {
-  const modalResponses = {
-    user: interaction.fields.getSelectedUsers("user", true).at(0) as User,
-    type: interaction.fields.getRadioGroup("type", true) as EmployeeChangeType,
-    reason: interaction.fields.getTextInputValue("reason"),
-    note: interaction.fields.getTextInputValue("note"),
-    newRole: interaction.fields
-      .getStringSelectValues("rank")
-      .at(0) as EmployeeRanks,
-  };
-
-  if (!interaction.inCachedGuild()) {
-    return;
-  }
-
-  const res = await ApiHelper.employee.changes.create(modalResponses.user.id, {
-    issuer: {
-      connect: {
-        discordId: interaction.user.id,
-      },
-    },
-    ...modalResponses,
-    newRole: modalResponses.newRole,
-  });
-
-  if (res.status === "ok") {
-    await commandSuccess({
-      interactionOrMsg: interaction,
-      description: `Pomyślnie utworzono opinię/uwagę na pracowniku ${res.data.employee.nameIC} (<@${res.data.employee.discordId}>)`,
-    });
-  } else if (res.status === "apiError" && res.errorStatus === "notFound") {
-    await failedToExecute({
-      interactionOrMsg: interaction,
-      description: `Nie znaleziono pracownika (<@${modalResponses.user.id}>) w bazie danych`,
-    });
-    ctx.dispose();
-    return;
-  } else {
-    await commandError({
+export const addChangesModalHandler =
+  (
+    employee: ApiHelperReturnData<typeof ApiHelper.employee.find>,
+  ): OnModalKitSubmit =>
+  async (interaction, ctx) => {
+    await loading({
       interactionOrMsg: interaction,
       description: undefined,
     });
-    ctx.dispose();
-    return;
-  }
+    const modalResponses = {
+      employeeId: interaction.customId.split("-")[1] as string,
+      type: interaction.fields.getRadioGroup(
+        "type",
+        true,
+      ) as EmployeeChangeType,
+      reason: interaction.fields.getTextInputValue("reason"),
+      note: interaction.fields.getTextInputValue("note"),
+      newRole: interaction.fields
+        .getStringSelectValues("rank")
+        .at(0) as AllEmployeeRanks,
+      committees: interaction.fields.getStringSelectValues(
+        "committees",
+      ) as OtherEmployeeRanks[],
+    };
 
-  if (["plus", "minus", "praise", "warn", "strike"].includes(res.data.type)) {
-    const channel = await interaction.guild.channels.fetch(
-      channels.opinie_uwagi,
-    );
-    if (!channel?.isSendable()) {
-      await commandError({
-        interactionOrMsg: interaction,
-        description: `Wystąpił problem podczas wysyłania wiadomości na kanał, pomyślnie zapisano opinię w bazie danych. Należy manualnie wysłać wiadomość:\n\n`,
-        ephemeral: true,
-      });
+    if (!interaction.inCachedGuild()) {
       return;
     }
 
-    const container = (
-      <Container
-        accentColor={
-          otherConfig.changeType[res.data.type].color as ColorResolvable
-        }
-      >
-        <TextDisplay>
-          {[
-            `## __**${otherConfig.changeType[res.data.type].prettyName}**__`,
-            `>>> Kto wystawia: ${res.data.issuer.nameIC} <@${res.data.issuer.discordId}>`,
-            `Komu wystawia: ${res.data.employee.nameIC} <@${res.data.employee.discordId}>`,
-            `Uzasadnienie: ${res.data.reason}`,
-            `Komentarz: ${res.data.note || ""}`,
-          ].join("\n")}
-        </TextDisplay>
-      </Container>
+    const oldRole = employee.employeeChanges.data[0]?.newRole;
+    const isRankChanging = oldRole !== modalResponses.newRole;
+    const isCommitteeChanging = !_.isEqual(
+      employee.committees,
+      modalResponses.committees,
     );
-    await channel.send({
-      components: [
-        container,
-        <ActionRow>
-          <Button
-            style={ButtonStyle.Link}
-            url="https://files.catbox.moe/ivmvf6.png"
-          >
-            Odwołaj się
-          </Button>
-        </ActionRow>,
-      ],
-      flags: "IsComponentsV2",
+
+    let empchangeCreateRes = null;
+    if (
+      isRankChanging ||
+      ["plus", "minus", "praise", "warn", "strike"].includes(
+        modalResponses.type,
+      )
+    ) {
+      empchangeCreateRes = await ApiHelper.employee.changes.create(
+        employee.discordId,
+        {
+          issuer: { connect: { discordId: interaction.user.id } },
+          ...modalResponses,
+        },
+      );
+      // #region
+      if (
+        empchangeCreateRes.status === "apiError" &&
+        empchangeCreateRes.errorStatus === "notFound"
+      ) {
+        await failedToExecute({
+          interactionOrMsg: interaction,
+          description: `Nie znaleziono pracownika w bazie danych`,
+        });
+        ctx.dispose();
+        return;
+      } else if (empchangeCreateRes.status !== "ok") {
+        await commandError({
+          interactionOrMsg: interaction,
+          description: undefined,
+        });
+        ctx.dispose();
+        return;
+      }
+      // #endregion
+    }
+    if (isCommitteeChanging) {
+      const empUpdateRes = await ApiHelper.employee.update(employee.discordId, {
+        committees: modalResponses.committees.map((e) =>
+          e.replaceAll("_", " "),
+        ) as OtherEmployeeRanks[],
+      });
+      if (empUpdateRes.status !== "ok") {
+        await commandError({
+          interactionOrMsg: interaction,
+          description:
+            "Wystąpił błąd podczas aktualizacji danych pracownika w bazie danych, proszę o kontakt z deweloperami w celu sprawdzenia co poszło nie tak",
+        });
+        ctx.dispose();
+        return;
+      }
+    }
+
+    if (
+      ["plus", "minus", "praise", "warn", "strike"].includes(
+        modalResponses.type,
+      )
+    ) {
+      const { employee, issuer } = empchangeCreateRes!.data;
+      // #region Sending empchange
+      const channel = await interaction.guild.channels.fetch(
+        channels.opinie_uwagi,
+      );
+      if (!channel?.isSendable()) {
+        await commandError({
+          interactionOrMsg: interaction,
+          description: `Wystąpił problem podczas wysyłania wiadomości na kanał, pomyślnie zapisano opinię w bazie danych. Należy manualnie wysłać wiadomość:\n\n`,
+          ephemeral: true,
+        });
+        ctx.dispose();
+        return;
+      }
+
+      const container = (
+        <Container
+          accentColor={
+            sharedConfig.changeType[modalResponses.type]
+              .color as ColorResolvable
+          }
+        >
+          <TextDisplay>
+            {[
+              `## __**${sharedConfig.changeType[modalResponses.type].prettyName}**__`,
+              `>>> Kto wystawia: ${issuer.nameIC} <@${issuer.discordId}>`,
+              `Komu wystawia: ${employee.nameIC} <@${employee.discordId}>`,
+              `Uzasadnienie: ${modalResponses.reason}`,
+              modalResponses.note ? `Komentarz: ${modalResponses.note}` : "",
+            ].join("\n")}
+          </TextDisplay>
+        </Container>
+      );
+      await channel.send({
+        components: [container],
+        flags: "IsComponentsV2",
+      });
+    } else {
+      // #region Role management
+      const emmployeeDc = await interaction.guild.members.fetch(
+        employee.discordId,
+      );
+      // "plus", "minus", "praise", "warn", "strike"
+      switch (modalResponses.type) {
+        case "demotion":
+        case "promotion": {
+          const rolesToAdd = [
+            ...new Set(
+              getGroupsForRank(modalResponses.newRole).map((e) => e.role.id),
+            ),
+          ];
+          rolesToAdd.push(
+            ...new Set(
+              getGroupsForRank(modalResponses.newRole).map((e) => e.group.id),
+            ),
+          );
+          for (const committee of modalResponses.committees.map((e) =>
+            e.replaceAll("_", " "),
+          )) {
+            rolesToAdd.push(
+              ...new Set(getGroupsForRank(committee).map((e) => e.group.id)),
+            );
+            rolesToAdd.push(
+              ...new Set(getGroupsForRank(committee).map((e) => e.role.id)),
+            );
+          }
+
+          const rolesToRemoveLoop: string[] = [];
+          for (const [, role] of emmployeeDc.roles.cache) {
+            rolesToRemoveLoop.push(
+              ...getGroupsForRank(role.name).map((gr) => gr.role.id),
+            );
+            rolesToRemoveLoop.push(
+              ...getGroupsForRank(role.name).map((gr) => gr.group.id),
+            );
+          }
+          for (const committee of employee.committees) {
+            rolesToRemoveLoop.push(
+              ...new Set(getGroupsForRank(committee).map((e) => e.role.id)),
+            );
+            rolesToRemoveLoop.push(
+              ...new Set(getGroupsForRank(committee).map((e) => e.group.id)),
+            );
+          }
+          const rolesToRemove = [...new Set(rolesToRemoveLoop)];
+          // Logger.debug(["R+", rolesToAdd].join("\n"));
+          // Logger.debug(["R-", rolesToRemove].join("\n"));
+          const final = {
+            add: rolesToAdd.filter((e) => !rolesToRemove.includes(e)),
+            rm: rolesToRemove.filter((e) => !rolesToAdd.includes(e)),
+          };
+          // Logger.debug({
+          //   add: final.add.map((e) => `<@&${e}>`),
+          //   rm: final.rm.map((e) => `<@&${e}>`),
+          // });
+          await emmployeeDc.roles.remove(final.rm);
+          await emmployeeDc.roles.add(final.add);
+          break;
+        }
+        // case "suspension":  does this even do anything really
+        case "termination":
+        default:
+          break;
+      }
+    }
+    // #endregion
+    await commandSuccess({
+      interactionOrMsg: interaction,
+      description: `Pomyślnie utworzono opinię/uwagę na pracowniku ${employee.nameIC} (<@${employee.discordId}>)`,
+      useFollowUp: false,
     });
-  }
-  ctx.dispose();
-  return;
-};
+    ctx.dispose();
+    return;
+  };

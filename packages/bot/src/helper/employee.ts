@@ -33,7 +33,7 @@ ApiHelper.employee.find = async (dcId) => {
     getRequestURL("employees/" + dcId),
     requestOptions("GET"),
   );
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
   );
@@ -80,7 +80,7 @@ ApiHelper.employee.findWithChanges = async (dcId) => {
     getRequestURL("employees/" + dcId, { changes: "true" }),
     requestOptions("GET"),
   );
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(
     employeeWithChangesAPIResponseSchema,
   ).safeParse(body);
@@ -126,7 +126,9 @@ ApiHelper.employee.create = async (request) => {
     getRequestURL("employees"),
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
@@ -182,7 +184,7 @@ ApiHelper.employee.loa.create = async (empDiscordId, request) => {
     requestOptions("POST", JSON.stringify(reqParsed)),
   );
 
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(loaAPIResponseSchema).safeParse(body);
 
   if (!bodyParsed.success) {
@@ -227,7 +229,7 @@ ApiHelper.employee.loa.listForEmployee = async (dId) => {
     requestOptions("GET"),
   );
 
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(loaAPIResponseSchema).safeParse(body);
 
   if (!bodyParsed.success) {
@@ -256,11 +258,27 @@ ApiHelper.employee.loa.listForEmployee = async (dId) => {
   }
 };
 
-ApiHelper.employee.update = async (req) => {
+ApiHelper.employee.update = async (discordId, req) => {
+  const parsedDCID = snowflakeSchema.safeParse(discordId);
+  if (!parsedDCID.success) {
+    Logger.error(z.treeifyError(parsedDCID.error));
+    return {
+      status: "badArgument",
+      error: parsedDCID.error,
+    };
+  }
+  const emplDiscordId = parsedDCID.data;
+
   const reqParsed = employeePatchSchema.safeParse(req);
 
   if (!reqParsed.success) {
     Logger.error(z.treeifyError(reqParsed.error));
+    Logger.debug([
+      import.meta.filename,
+      "empupdate/req",
+      z.prettifyError(reqParsed.error),
+    ]);
+    Logger.debug(req);
     return {
       status: "badArgument",
       error: reqParsed.error,
@@ -268,17 +286,23 @@ ApiHelper.employee.update = async (req) => {
   }
 
   const res = await fetchWithErrorHandling(
-    getRequestURL(`employees/${reqParsed.data?.discordId}`),
+    getRequestURL(`employees/${emplDiscordId}`),
     requestOptions("PATCH", JSON.stringify(reqParsed.data)),
   );
 
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(employeeAPIResponseSchema).safeParse(
     body,
   );
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
+    Logger.debug([
+      import.meta.filename,
+      "empupdate/body",
+      z.prettifyError(bodyParsed.error),
+    ]);
+    Logger.debug(body);
     return {
       status: "apiResponseParsingError",
     };
@@ -319,7 +343,12 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!reqParsed.success) {
     Logger.error(z.treeifyError(reqParsed.error));
-    Logger.debug([reqParsed.data, z.prettifyError(reqParsed.error)]);
+    Logger.debug([
+      import.meta.filename,
+      "changescreate/req",
+      reqParsed.data,
+      z.prettifyError(reqParsed.error),
+    ]);
     return {
       status: "badArgument",
       error: reqParsed.error,
@@ -328,6 +357,11 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!discordId.success) {
     Logger.error(z.treeifyError(discordId.error));
+    Logger.debug([
+      import.meta.filename,
+      "changescreate/discordid",
+      z.prettifyError(discordId.error),
+    ]);
     return {
       status: "badArgument",
       error: discordId.error,
@@ -347,13 +381,18 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
     getRequestURL(`employees/${employeeId}/changes`),
     requestOptions("POST", JSON.stringify(reqParsed.data)),
   );
-  const body = await res.json().catch(() => null);
+  const body = await res.json().catch(() => "JSON z prismy sie rozwalil");
   const bodyParsed = apiResponseSchema(
     employeeChangePostAPIResponseSchema,
   ).safeParse(body);
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
+    Logger.debug([
+      import.meta.filename,
+      "changescreate/body",
+      z.prettifyError(bodyParsed.error),
+    ]);
     return {
       status: "apiResponseParsingError",
     };

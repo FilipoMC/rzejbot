@@ -6,8 +6,8 @@ export function beforeExecute(ctx: MiddlewareContext) {
   localMiddleware(ctx, {
     permissions: {
       allowedRoles: [
-        ...rankGroups["Kierownictwo Elektrowni"].id,
-        ...rankGroups["Kierownictwo Bloków"].id,
+        rankGroups["Kierownictwo Elektrowni"].id,
+        rankGroups["Kierownictwo Bloków"].id,
       ],
     },
     devSkipPermsCheck: true,

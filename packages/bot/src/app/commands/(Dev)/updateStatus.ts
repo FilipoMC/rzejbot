@@ -2,6 +2,7 @@ import { kvKeys } from "@/config/other";
 import { CustomCommandMetadata } from "@/types/commands";
 import kv from "@/utils/kv";
 import { updateBotPresence } from "@/utils/utilityFunctions";
+import { rankGroups } from "@shared/config/ranks";
 import { CommandData, COMMANDKIT_IS_DEV, MessageCommand } from "commandkit";
 
 export const command: CommandData = {
@@ -31,4 +32,9 @@ export const message: MessageCommand = async (ctx) => {
 
 export const metadata: CustomCommandMetadata = {
   aliases: ["us", "su"],
+  skipLocalMiddleware: true,
+  permissions: {
+    allowedRoles: [rankGroups["Kierownictwo Elektrowni"].id],
+  },
+  devSkipPermsCheck: true,
 };

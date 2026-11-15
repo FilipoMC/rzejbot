@@ -2,6 +2,7 @@ import {
   ChatInputCommand,
   CommandData,
   Logger,
+  ModalKit,
   OnModalKitSubmit,
 } from "commandkit";
 import { ApplicationCommandOptionType, userMention } from "discord.js";
@@ -15,6 +16,8 @@ import {
   commandSuccess,
 } from "@/utils/commandResponses";
 import { employeeAddModal } from "@/app/components/employee/addEditModal";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
+import { EmployeeRanks } from "@shared/types/api";
 
 export const command: CommandData = {
   name: "dodaj",
@@ -28,7 +31,7 @@ export const command: CommandData = {
     },
   ],
 };
-
+const CommandkitBSHandler = new CommandkitBullshitHandler<ModalKit>();
 const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
   await loading({ interactionOrMsg: interaction, description: undefined });
 
@@ -36,7 +39,7 @@ const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
     user: interaction.fields.getSelectedUsers("user", true).at(0)!,
     nameIC: interaction.fields.getTextInputValue("nameIC"),
     robloxUser: interaction.fields.getTextInputValue("robloxName"),
-    rank: interaction.fields.getStringSelectValues("rank")[0],
+    rank: interaction.fields.getStringSelectValues("rank")[0] as EmployeeRanks,
     qual: interaction.fields.getCheckboxGroup("qualification"),
   };
 
@@ -77,6 +80,7 @@ const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
     discordId: modalResponses.user.id,
     nameIC: modalResponses.nameIC,
     rank: modalResponses.rank || "",
+    committees: [],
     robloxId: resParsed.data.data[0]?.id,
     qualification: {
       create: returnObj,
@@ -114,8 +118,8 @@ const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
 };
 
 export const chatInput: ChatInputCommand = async ({ interaction }) => {
-  await interaction.showModal(
-    employeeAddModal(interaction, empAddmodalSubmitHadler),
-  );
+  const modal = employeeAddModal(interaction, empAddmodalSubmitHadler);
+  CommandkitBSHandler.replaceOldCollector(interaction.user.id, modal);
+  await interaction.showModal(modal);
   return;
 };

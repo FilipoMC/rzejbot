@@ -46,7 +46,9 @@ ApiHelper.shifts.create = async (request) => {
     getRequestURL("shifts"),
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
 
@@ -88,7 +90,9 @@ ApiHelper.shifts.getById = async (shiftId) => {
     requestOptions("GET"),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
 
@@ -137,7 +141,9 @@ ApiHelper.shifts.getByShiftNumber = async (shiftNumber) => {
     requestOptions("GET"),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
 
@@ -177,7 +183,9 @@ ApiHelper.shifts.getActive = async () => {
     requestOptions("GET"),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
 
@@ -220,7 +228,9 @@ ApiHelper.shifts.changeApproval = async (shiftId, approved) => {
     getRequestURL(`shifts/${shiftId}`),
     requestOptions("PATCH", JSON.stringify(request)),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
 
@@ -264,7 +274,9 @@ ApiHelper.shifts.logEmployeeAbsence = async (shiftId, request) => {
     getRequestURL(`shifts/${shiftId}/logs/absence`),
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftEmployeeLogAPIResponseSchema,
@@ -315,7 +327,9 @@ ApiHelper.shifts.logEmployeeInitialPresence = async (shiftId, request) => {
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftLogPresenceInitialPostAPIResponseSchema,
@@ -360,7 +374,9 @@ ApiHelper.shifts.logEmployeePresence = async (shiftId, request) => {
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftLogPresencePostAPIResponseSchema,
@@ -434,7 +450,9 @@ ApiHelper.shifts.report.get = async (shiftId) => {
     requestOptions("GET"),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
     body,
@@ -482,7 +500,9 @@ ApiHelper.shifts.report.update = async (shiftId, request) => {
     requestOptions("PATCH", JSON.stringify(requestParsed.data)),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
     body,
@@ -525,7 +545,9 @@ ApiHelper.shifts.report.markBriefingStart = async (shiftId, date) => {
     getRequestURL(`shifts/${shiftId}/report`),
     requestOptions("POST", JSON.stringify(request)),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftReportPostAPIResponseSchema,
@@ -608,7 +630,9 @@ ApiHelper.shifts.stations.get = async (shiftId) => {
     requestOptions("GET"),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftLogStationsGetAPIResponseSchema,
@@ -650,7 +674,9 @@ ApiHelper.shifts.stations.log = async (shiftId, request) => {
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftLogStationsPostAPIResponseSchema,
@@ -695,7 +721,9 @@ ApiHelper.shifts.report.logDoses = async (shiftId, request) => {
     requestOptions("POST", JSON.stringify(requestParsed.data)),
   );
 
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftLogDosePostAPIResponseSchema,
@@ -737,7 +765,9 @@ ApiHelper.shifts.report.changeApproval = async (shiftId, approved) => {
     getRequestURL(`shifts/${shiftId}/report`),
     requestOptions("PATCH", JSON.stringify(request)),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(shiftReportAPIResponseSchema).safeParse(
     body,
@@ -774,7 +804,9 @@ ApiHelper.shifts.report.resetAccessToken = async (shiftId) => {
     getRequestURL(`shifts/${shiftId}/report/reset-token`),
     requestOptions("POST"),
   );
-  const body: unknown = await res.json().catch(() => null);
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
 
   const bodyParsed = apiResponseSchema(
     shiftReportPostAPIResponseSchema,

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { employeePostSchema } from "@shared/zod/employeeSchemas";
 import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { sharedConfig } from "@shared/config/config";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => "JSON z prismy sie rozwalil");
@@ -17,7 +18,21 @@ export async function POST(req: NextRequest) {
 
   try {
     const res = await prisma.employee.create({
-      data: parsedBody.data,
+      data: {
+        ...parsedBody.data,
+        employeeChanges: {
+          create: {
+            newRole: parsedBody.data.rank,
+            type: "promotion" satisfies keyof typeof sharedConfig.changeType,
+            reason: "Awans Inicjujący",
+            issuer: {
+              connect: {
+                discordId: parsedBody.data.discordId,
+              },
+            },
+          },
+        },
+      },
       include: {
         qualification: {
           select: {

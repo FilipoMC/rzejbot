@@ -47,6 +47,13 @@ export async function POST(
                 szkoleniowiec: true,
               },
             },
+            employeeChanges: {
+              orderBy: { createdAt: "desc" },
+              select: {
+                newRole: true,
+              },
+              take: 1,
+            },
           },
         },
         issuer: {

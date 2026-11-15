@@ -1,7 +1,7 @@
 import z from "zod";
 import { snowflakeSchema } from "./discordSchemas";
 import { anyDateSchema } from "./dateTimeSchemas";
-import { mainRanks } from "../config/ranks";
+import { allRanks, mainRanks, otherRanks } from "../config/ranks";
 import { sharedConfig } from "../config/config";
 export const nameICSchema = z
   .string()
@@ -13,6 +13,14 @@ export const nameICSchema = z
 
 export const employeeRanksSchema = z.enum(
   Object.keys(mainRanks) as (keyof typeof mainRanks)[],
+);
+
+export const allEmployeeRanksSchema = z.enum(
+  Object.keys(allRanks) as (keyof typeof allRanks)[],
+);
+
+export const otherRanksSchema = z.enum(
+  Object.keys(otherRanks) as (keyof typeof otherRanks)[],
 );
 
 // warn = uwaga pisemna; strike = nagana
@@ -48,7 +56,8 @@ export const employeePostSchema = z.object({
   discordId: snowflakeSchema,
   robloxId: z.int().positive(),
   nameIC: nameICSchema,
-  rank: z.string().trim().max(200),
+  rank: employeeRanksSchema,
+  committees: z.array(otherRanksSchema),
   qualification: z.object({
     create: z.object({
       pracownik: z.boolean().optional(),
@@ -63,7 +72,7 @@ export const employeePatchSchema = z.object({
   discordId: snowflakeSchema.optional(),
   robloxId: z.int().positive().optional(),
   nameIC: nameICSchema.optional(),
-  rank: z.string().trim().max(200).optional(),
+  committees: z.array(otherRanksSchema).optional(),
   qualification: z
     .object({
       update: z.object({
@@ -87,7 +96,7 @@ export const employeeWithChangesPostSchema = z.object({
     connect: z.object({ discordId: snowflakeSchema }),
   }),
   type: employeeChangeTypeSchema,
-  newRole: employeeRanksSchema,
+  newRole: allEmployeeRanksSchema,
   reason: z.string().max(500),
-  note: z.string().max(250),
+  note: z.string().max(250).optional(),
 });

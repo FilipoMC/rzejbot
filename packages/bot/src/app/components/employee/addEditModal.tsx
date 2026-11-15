@@ -56,7 +56,7 @@ export function employeeAddModal(
         label="Ranga"
         description="Ranga którą nadać pracownikowi na start"
       >
-        {rzejEmployeeRanksStringSelect()}
+        {rzejEmployeeRanksStringSelect({})}
       </Label>
       <Label label="Kwalifikacje/Uprawnienia">
         <CheckboxGroup customId="qualification">
@@ -127,7 +127,11 @@ export async function employeeEditModal(
               <StringSelectMenuOption
                 label={e}
                 value={e}
-                default={e === employee.data.rank ? true : false}
+                default={
+                  e === employee.data.employeeChanges.data[0]!.newRole ?
+                    true
+                  : false
+                }
               />
             );
           })}
