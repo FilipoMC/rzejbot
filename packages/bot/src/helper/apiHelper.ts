@@ -1,5 +1,5 @@
 import { websiteUrl } from "@/config/script";
-import { ApiHelperReturnType } from "@/types/apiHelper";
+import { ApiHelperData, ApiHelperReturnType } from "@/types/apiHelper";
 import { commandError } from "@/utils/commandResponses";
 import {
   EmployeeAPIResponse,
@@ -75,8 +75,6 @@ export function requestOptions(
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-type ApiHelperData<T> = T extends { status: "ok"; data: infer D } ? D : never;
-
 export async function apiHelperUnsafe<
   T extends (...args: any[]) => Promise<any>,
 >(
@@ -222,9 +220,13 @@ interface ApiHelper {
       ApiHelperReturnType<EmployeeAPIResponse, z.ZodError<EmployeePost>>
     >;
     update: (
+      dcId: string,
       req: EmployeePatch,
     ) => Promise<
-      ApiHelperReturnType<EmployeeAPIResponse, z.ZodError<EmployeePatch>>
+      ApiHelperReturnType<
+        EmployeeAPIResponse,
+        z.ZodError<EmployeePatch | string>
+      >
     >;
     changes: {
       create: (

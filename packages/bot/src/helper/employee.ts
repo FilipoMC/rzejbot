@@ -258,11 +258,27 @@ ApiHelper.employee.loa.listForEmployee = async (dId) => {
   }
 };
 
-ApiHelper.employee.update = async (req) => {
+ApiHelper.employee.update = async (discordId, req) => {
+  const parsedDCID = snowflakeSchema.safeParse(discordId);
+  if (!parsedDCID.success) {
+    Logger.error(z.treeifyError(parsedDCID.error));
+    return {
+      status: "badArgument",
+      error: parsedDCID.error,
+    };
+  }
+  const emplDiscordId = parsedDCID.data;
+
   const reqParsed = employeePatchSchema.safeParse(req);
 
   if (!reqParsed.success) {
     Logger.error(z.treeifyError(reqParsed.error));
+    Logger.debug([
+      import.meta.filename,
+      "empupdate/req",
+      z.prettifyError(reqParsed.error),
+    ]);
+    Logger.debug(req);
     return {
       status: "badArgument",
       error: reqParsed.error,
@@ -270,7 +286,7 @@ ApiHelper.employee.update = async (req) => {
   }
 
   const res = await fetchWithErrorHandling(
-    getRequestURL(`employees/${reqParsed.data?.discordId}`),
+    getRequestURL(`employees/${emplDiscordId}`),
     requestOptions("PATCH", JSON.stringify(reqParsed.data)),
   );
 
@@ -281,6 +297,12 @@ ApiHelper.employee.update = async (req) => {
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
+    Logger.debug([
+      import.meta.filename,
+      "empupdate/body",
+      z.prettifyError(bodyParsed.error),
+    ]);
+    Logger.debug(body);
     return {
       status: "apiResponseParsingError",
     };
@@ -321,7 +343,12 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!reqParsed.success) {
     Logger.error(z.treeifyError(reqParsed.error));
-    Logger.debug([reqParsed.data, z.prettifyError(reqParsed.error)]);
+    Logger.debug([
+      import.meta.filename,
+      "changescreate/req",
+      reqParsed.data,
+      z.prettifyError(reqParsed.error),
+    ]);
     return {
       status: "badArgument",
       error: reqParsed.error,
@@ -330,6 +357,11 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!discordId.success) {
     Logger.error(z.treeifyError(discordId.error));
+    Logger.debug([
+      import.meta.filename,
+      "changescreate/discordid",
+      z.prettifyError(discordId.error),
+    ]);
     return {
       status: "badArgument",
       error: discordId.error,
@@ -356,6 +388,11 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
+    Logger.debug([
+      import.meta.filename,
+      "changescreate/body",
+      z.prettifyError(bodyParsed.error),
+    ]);
     return {
       status: "apiResponseParsingError",
     };

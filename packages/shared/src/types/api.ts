@@ -17,12 +17,14 @@ import {
   shiftReportPostAPIResponseSchema,
 } from "../zod/apiResponses/shifts";
 import {
+  allEmployeeRanksSchema,
   employeeChangeTypeSchema,
   employeePatchSchema,
   employeePostSchema,
   employeeRanksSchema,
   employeeWithChangesPostSchema,
   loaPostSchema,
+  otherRanksSchema,
 } from "../zod/employeeSchemas";
 import {
   shiftLogAbsencePostSchema,
@@ -104,4 +106,6 @@ export type LoaAPIResponse = z.output<typeof loaAPIResponseSchema>;
 /** @description  plus | minus | praise: pochwała | promotion: awans | warn: uwaga | strike: nagana | suspension: zawieszenie | demotion: wypowiedzenie zmieniajace | termination: zwolnienie dysyplinarne */
 export type EmployeeChangeType = z.infer<typeof employeeChangeTypeSchema>;
 export type EmployeeRanks = z.infer<typeof employeeRanksSchema>;
+export type AllEmployeeRanks = z.infer<typeof allEmployeeRanksSchema>;
+export type OtherEmployeeRanks = z.infer<typeof otherRanksSchema>;
 // #endregion

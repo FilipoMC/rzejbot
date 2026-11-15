@@ -2,27 +2,12 @@ import z from "zod";
 import { snowflakeSchema } from "../discordSchemas";
 import { isoDateStringSchema } from "../dateTimeSchemas";
 import {
+  allEmployeeRanksSchema,
   employeeChangeTypeSchema,
   employeeRanksSchema,
   nameICSchema,
+  otherRanksSchema,
 } from "../employeeSchemas";
-
-export const employeeAPIResponseSchema = z.object({
-  id: z.number().positive(),
-  discordId: snowflakeSchema,
-  robloxId: z.number().positive(),
-  nameIC: z.string(),
-  rank: z.string(),
-  qualification: z.object({
-    pracownik: z.boolean(),
-    jadrowy: z.boolean(),
-    kierownikZmiany: z.boolean(),
-    szkoleniowiec: z.boolean(),
-  }),
-
-  updatedAt: isoDateStringSchema,
-  createdAt: isoDateStringSchema,
-});
 
 export const employeeChangeSchema = z.object({
   issuer: z.object({
@@ -30,7 +15,8 @@ export const employeeChangeSchema = z.object({
     discordId: snowflakeSchema,
     robloxId: z.number(),
     nameIC: nameICSchema,
-    rank: employeeRanksSchema,
+    committees: z.array(otherRanksSchema),
+    system: z.boolean(),
   }),
   id: z.number().nonnegative(),
   type: employeeChangeTypeSchema,
@@ -39,6 +25,34 @@ export const employeeChangeSchema = z.object({
   newRole: employeeRanksSchema,
   issuerId: z.number().nonnegative(),
   employeeId: z.number().nonnegative(),
+  updatedAt: isoDateStringSchema,
+  createdAt: isoDateStringSchema,
+});
+
+export const employeeAPIResponseSchema = z.object({
+  id: z.number().positive(),
+  discordId: snowflakeSchema,
+  robloxId: z.number().positive(),
+  nameIC: z.string(),
+  committees: z.array(otherRanksSchema),
+  qualification: z.object({
+    pracownik: z.boolean(),
+    jadrowy: z.boolean(),
+    kierownikZmiany: z.boolean(),
+    szkoleniowiec: z.boolean(),
+  }),
+  employeeChanges: z.union([
+    z.array(employeeChangeSchema).transform((change) => {
+      return { includedQuals: true, data: change };
+    }),
+    z
+      .array(employeeChangeSchema.pick({ newRole: true }))
+      .length(1)
+      .transform((e) => {
+        return { includedQuals: false, data: e };
+      }),
+  ]),
+
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });

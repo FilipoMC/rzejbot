@@ -32,3 +32,10 @@ export type ApiHelperReturnType<
       errorStatus: "invalidData";
       error: TOtherErr;
     };
+
+export type ApiHelperData<T> =
+  T extends { status: "ok"; data: infer D } ? D : never;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ApiHelperReturnData<T extends (...args: any[]) => Promise<any>> =
+  ApiHelperData<Awaited<ReturnType<T>>>;

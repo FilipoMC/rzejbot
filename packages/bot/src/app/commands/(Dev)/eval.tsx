@@ -1,4 +1,6 @@
+import config from "@/config/config";
 import { CustomCommandMetadata } from "@/types/commands";
+import { failedToExecute } from "@/utils/commandResponses";
 import { createFailEmbed } from "@/utils/embeds";
 import kv_default from "@/utils/kv";
 import {
@@ -56,7 +58,13 @@ const tokens = [
 
 export const message: MessageCommand = async (ctx) => {
   const { message, client } = ctx;
-
+  if (!config.devs.includes(message.author.id)) {
+    await failedToExecute({
+      interactionOrMsg: message,
+      description: "nice try",
+    });
+    return;
+  }
   const msg = message;
   void msg;
 
@@ -150,6 +158,13 @@ export const chatInput: ChatInputCommand = async (ctx) => {
   const { interaction, client } = ctx;
 
   if (!interaction.inCachedGuild()) {
+    return;
+  }
+  if (!config.devs.includes(interaction.user.id)) {
+    await failedToExecute({
+      interactionOrMsg: interaction,
+      description: "nice try",
+    });
     return;
   }
 

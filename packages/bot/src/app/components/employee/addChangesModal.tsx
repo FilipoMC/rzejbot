@@ -4,18 +4,24 @@ import {
   OnModalKitSubmit,
   RadioGroup,
   RadioGroupOption,
+  StringSelectMenu,
+  StringSelectMenuOption,
   TextInput,
-  UserSelectMenu,
 } from "commandkit";
 import {
   ChatInputCommandInteraction,
   GuildMember,
   TextInputStyle,
 } from "discord.js";
-import emoji from "@/config/emoji";
 import rzejEmployeeRanksStringSelect from "./rzejRanksStringSelect";
+import { otherRanks } from "@shared/config/ranks";
+import { ApiHelper } from "@/helper/apiHelper";
+import { ApiHelperReturnData } from "@/types/apiHelper";
+import { OtherEmployeeRanks } from "@shared/types/api";
+
 export const addChangesModal = (
   interaction: ChatInputCommandInteraction,
+  employee: ApiHelperReturnData<typeof ApiHelper.employee.find>,
   handler: OnModalKitSubmit,
 ) => {
   if (!interaction.inCachedGuild()) {
@@ -24,25 +30,13 @@ export const addChangesModal = (
   const target =
     interaction.options.getMember("uzytkownik") ??
     interaction.options.getUser("uzytkownik", true);
-  const isTargetInGuild = target instanceof GuildMember;
   return (
     <Modal
-      customId="empAddChangesModal"
+      customId={`empAddChangesModal-${target.id}`}
       title="Dodaj opinię do pracownika"
       onSubmit={handler}
       options={{ once: true }}
     >
-      <Label
-        label="Użytkownik"
-        description={
-          isTargetInGuild ? undefined : (
-            emoji.warningUnicode +
-            " Nie znaleziono użytkownika w serwerze Discord"
-          )
-        }
-      >
-        <UserSelectMenu customId="user" required defaultValues={[target.id]} />
-      </Label>
       <Label label="Typ">
         <RadioGroup customId="type" required>
           <RadioGroupOption label="Plus" value="plus" />
@@ -81,7 +75,25 @@ export const addChangesModal = (
         label="Nowa Rola"
         description="Rola którą pracownik dostanie po wysłaniu opinii (domyślnie ta same którą ma aktualnie)"
       >
-        {rzejEmployeeRanksStringSelect({})}
+        {rzejEmployeeRanksStringSelect({
+          defaultRank: employee.employeeChanges.data[0]?.newRole,
+        })}
+      </Label>
+      <Label label="Komisje">
+        <StringSelectMenu
+          customId="committees"
+          maxValues={Object.keys(otherRanks).length}
+        >
+          {Object.keys(otherRanks).map((r) => {
+            return (
+              <StringSelectMenuOption
+                label={r}
+                value={r.replaceAll(" ", "_")}
+                default={employee.committees.includes(r as OtherEmployeeRanks)}
+              />
+            );
+          })}
+        </StringSelectMenu>
       </Label>
     </Modal>
   );
