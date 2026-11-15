@@ -76,7 +76,7 @@ export const addChangesModal = (
         description="Rola którą pracownik dostanie po wysłaniu opinii (domyślnie ta same którą ma aktualnie)"
       >
         {rzejEmployeeRanksStringSelect({
-          defaultRank: employee.employeeChanges.data[0]?.newRole,
+          defaultRank: employee.employeeChanges.data[0]!.newRole,
         })}
       </Label>
       <Label label="Komisje">

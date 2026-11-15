@@ -6,7 +6,9 @@ export function displayEditEmpEmbed(user: User, employee: EmployeeAPIResponse) {
   const decideEmoji = (bool: boolean) => (bool ? emoji.yes : emoji.no);
   return new EmbedBuilder()
     .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
-    .setDescription(`### ${employee.rank} ${employee.nameIC}`)
+    .setDescription(
+      `### ${employee.employeeChanges.data[0]!.newRole} ${employee.nameIC}`,
+    )
     .addFields([
       // { name: "Statystyki", value: [`Obecności na zmianach: ${employee.data.}`].join("\n") },
       {

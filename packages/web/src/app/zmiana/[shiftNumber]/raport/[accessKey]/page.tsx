@@ -42,7 +42,6 @@ const shiftReportSelect = (date: Date) => {
         id: true,
         shiftNumber: true,
         unit: true,
-
         host: {
           select: {
             discordId: true,
@@ -58,7 +57,6 @@ const shiftReportSelect = (date: Date) => {
             },
           },
         },
-
         employeeLogs: {
           where: {
             clockedIn: { not: null },
@@ -76,7 +74,6 @@ const shiftReportSelect = (date: Date) => {
             stationTimes: true,
             rating: true,
             mode: true,
-
             employee: {
               select: {
                 id: true,

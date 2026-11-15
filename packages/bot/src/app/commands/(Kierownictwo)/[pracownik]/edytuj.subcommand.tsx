@@ -353,7 +353,7 @@ export const addChangesModalHandler =
               `>>> Kto wystawia: ${issuer.nameIC} <@${issuer.discordId}>`,
               `Komu wystawia: ${employee.nameIC} <@${employee.discordId}>`,
               `Uzasadnienie: ${modalResponses.reason}`,
-              `Komentarz: ${modalResponses.note || ""}`,
+              modalResponses.note ? `Komentarz: ${modalResponses.note}` : "",
             ].join("\n")}
           </TextDisplay>
         </Container>
@@ -381,7 +381,9 @@ export const addChangesModalHandler =
               getGroupsForRank(modalResponses.newRole).map((e) => e.group.id),
             ),
           );
-          for (const committee of modalResponses.committees) {
+          for (const committee of modalResponses.committees.map((e) =>
+            e.replaceAll("_", " "),
+          )) {
             rolesToAdd.push(
               ...new Set(getGroupsForRank(committee).map((e) => e.group.id)),
             );
@@ -400,29 +402,24 @@ export const addChangesModalHandler =
             );
           }
           for (const committee of employee.committees) {
-            rolesToAdd.push(
+            rolesToRemoveLoop.push(
               ...new Set(getGroupsForRank(committee).map((e) => e.role.id)),
             );
-            rolesToAdd.push(
+            rolesToRemoveLoop.push(
               ...new Set(getGroupsForRank(committee).map((e) => e.group.id)),
             );
           }
           const rolesToRemove = [...new Set(rolesToRemoveLoop)];
-          Logger.debug(["R+", rolesToAdd].join("\n"));
-          Logger.debug(["R-", rolesToRemove].join("\n"));
+          // Logger.debug(["R+", rolesToAdd].join("\n"));
+          // Logger.debug(["R-", rolesToRemove].join("\n"));
           const final = {
             add: rolesToAdd.filter((e) => !rolesToRemove.includes(e)),
             rm: rolesToRemove.filter((e) => !rolesToAdd.includes(e)),
           };
-          Logger.debug(
-            JSON.stringify(
-              final,
-              ([k, v]) => {
-                return `<@&${v}>`;
-              },
-              2,
-            ),
-          );
+          // Logger.debug({
+          //   add: final.add.map((e) => `<@&${e}>`),
+          //   rm: final.rm.map((e) => `<@&${e}>`),
+          // });
           await emmployeeDc.roles.remove(final.rm);
           await emmployeeDc.roles.add(final.add);
           break;

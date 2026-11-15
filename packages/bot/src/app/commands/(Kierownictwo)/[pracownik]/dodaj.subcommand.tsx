@@ -17,6 +17,7 @@ import {
 } from "@/utils/commandResponses";
 import { employeeAddModal } from "@/app/components/employee/addEditModal";
 import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
+import { EmployeeRanks } from "@shared/types/api";
 
 export const command: CommandData = {
   name: "dodaj",
@@ -38,7 +39,7 @@ const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
     user: interaction.fields.getSelectedUsers("user", true).at(0)!,
     nameIC: interaction.fields.getTextInputValue("nameIC"),
     robloxUser: interaction.fields.getTextInputValue("robloxName"),
-    rank: interaction.fields.getStringSelectValues("rank")[0],
+    rank: interaction.fields.getStringSelectValues("rank")[0] as EmployeeRanks,
     qual: interaction.fields.getCheckboxGroup("qualification"),
   };
 
@@ -79,6 +80,7 @@ const empAddmodalSubmitHadler: OnModalKitSubmit = async (interaction, ctx) => {
     discordId: modalResponses.user.id,
     nameIC: modalResponses.nameIC,
     rank: modalResponses.rank || "",
+    committees: [],
     robloxId: resParsed.data.data[0]?.id,
     qualification: {
       create: returnObj,
