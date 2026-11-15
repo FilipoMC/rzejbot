@@ -1,5 +1,7 @@
 import { kvKeys } from "@/config/other";
+import { CustomCommandMetadata } from "@/types/commands";
 import kv from "@/utils/kv";
+import { rankGroups } from "@shared/config/ranks";
 import { CommandData, MessageCommand } from "commandkit";
 
 export const command: CommandData = {
@@ -28,4 +30,12 @@ export const message: MessageCommand = async (ctx) => {
   };
 
   setTimeout(cb, 1000);
+};
+
+export const metadata: CustomCommandMetadata = {
+  skipLocalMiddleware: true,
+  permissions: {
+    allowedRoles: [rankGroups["Kierownictwo Elektrowni"].id],
+  },
+  devSkipPermsCheck: true,
 };

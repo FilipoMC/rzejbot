@@ -1,13 +1,18 @@
 import { addChangesModal } from "@/app/components/employee/addChangesModal";
 import { employeeEditModal } from "@/app/components/employee/addEditModal";
 import { displayEditEmpEmbed } from "@/app/components/employee/displayEditEmpEmbed";
+import channels from "@/config/channels";
 import { ApiHelper } from "@/helper/apiHelper";
+import { ApiHelperReturnData } from "@/types/apiHelper";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 import {
-  failedToExecute,
   commandError,
   commandSuccess,
+  failedToExecute,
   loading,
 } from "@/utils/commandResponses";
+import { sharedConfig } from "@shared/config/config";
+import { getGroupsForRank } from "@shared/config/ranks";
 import {
   AllEmployeeRanks,
   EmployeeChangeType,
@@ -31,13 +36,8 @@ import {
   ColorResolvable,
   userMention,
 } from "discord.js";
+import _ from "lodash";
 import z from "zod";
-import channels from "@/config/channels";
-import { sharedConfig } from "@shared/config/config";
-import { getGroupsForRank } from "@shared/config/ranks";
-import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
-import { ApiHelperReturnData } from "@/types/apiHelper";
-import _, { keyBy } from "lodash";
 
 const HandleModalBullshit = new CommandkitBullshitHandler();
 

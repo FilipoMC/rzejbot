@@ -1,3 +1,5 @@
+import { displayEditEmpEmbed } from "@/app/components/employee/displayEditEmpEmbed";
+import { ApiHelper } from "@/helper/apiHelper";
 import {
   commandError,
   failedToExecute,
@@ -5,8 +7,6 @@ import {
 } from "@/utils/commandResponses";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { ApplicationCommandOptionType } from "discord.js";
-import { ApiHelper } from "@/helper/apiHelper";
-import { displayEditEmpEmbed } from "@/app/components/employee/displayEditEmpEmbed";
 
 export const command: CommandData = {
   name: "wyswietl",
