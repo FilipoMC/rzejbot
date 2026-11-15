@@ -42,9 +42,12 @@ export const employeeAPIResponseSchema = z.object({
     szkoleniowiec: z.boolean(),
   }),
   employeeChanges: z.union([
-    z.array(employeeChangeSchema).transform((change) => {
-      return { includedQuals: true, data: change };
-    }),
+    z
+      .array(employeeChangeSchema)
+      .min(1)
+      .transform((change) => {
+        return { includedQuals: true, data: change };
+      }),
     z
       .array(employeeChangeSchema.pick({ newRole: true }))
       .length(1)

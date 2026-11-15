@@ -28,62 +28,78 @@ import { cacheLife, cacheTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { EdytujZmianeForm } from "./form";
-const shiftReportSelect = {
-  date: true,
-  briefingDuration: true,
-  duration: true,
-  approved: true,
-  goalMet: true,
-  summary: true,
+const shiftReportSelect = (date: Date) => {
+  return {
+    date: true,
+    briefingDuration: true,
+    duration: true,
+    approved: true,
+    goalMet: true,
+    summary: true,
 
-  shift: {
-    select: {
-      id: true,
-      shiftNumber: true,
-      unit: true,
+    shift: {
+      select: {
+        id: true,
+        shiftNumber: true,
+        unit: true,
 
-      host: {
-        select: {
-          discordId: true,
-          nameIC: true,
-          rank: true,
-          robloxId: true,
+        host: {
+          select: {
+            discordId: true,
+            nameIC: true,
+            robloxId: true,
+            employeeChanges: {
+              where: {
+                createdAt: { lte: date },
+              },
+              orderBy: { createdAt: "desc" },
+              take: 1,
+              select: { newRole: true },
+            },
+          },
         },
-      },
 
-      employeeLogs: {
-        where: {
-          clockedIn: { not: null },
-        },
-        select: {
-          id: true,
+        employeeLogs: {
+          where: {
+            clockedIn: { not: null },
+          },
+          select: {
+            id: true,
 
-          exposureTime: true,
-          dose: true,
+            exposureTime: true,
+            dose: true,
 
-          clockedIn: true,
-          clockedTime: true,
+            clockedIn: true,
+            clockedTime: true,
 
-          stations: true,
-          stationTimes: true,
-          rating: true,
-          mode: true,
+            stations: true,
+            stationTimes: true,
+            rating: true,
+            mode: true,
 
-          employee: {
-            select: {
-              id: true,
-              discordId: true,
-              nameIC: true,
-              rank: true,
-              robloxId: true,
-              system: true,
+            employee: {
+              select: {
+                id: true,
+                discordId: true,
+                nameIC: true,
+                robloxId: true,
+                system: true,
+                employeeChanges: {
+                  where: {
+                    createdAt: { lte: date },
+                  },
+                  orderBy: { createdAt: "desc" },
+                  take: 1,
+                  select: { newRole: true },
+                },
+              },
             },
           },
         },
       },
     },
-  },
-} satisfies Prisma.ShiftReportSelect;
+  } satisfies Prisma.ShiftReportSelect;
+};
 
 async function getShiftReport(number: string, accessKey: string) {
   "use cache";
@@ -92,12 +108,29 @@ async function getShiftReport(number: string, accessKey: string) {
   cacheTag(`shiftReportEdit:number:${number}`);
   cacheLife("days");
 
+  const firstRes = await prisma.shift.findFirst({
+    where: {
+      shiftNumber: number,
+    },
+    include: {
+      report: {
+        select: {
+          date: true,
+        },
+      },
+    },
+  });
+
+  if (!firstRes) {
+    return null;
+  }
+
   const res = await prisma.shiftReport.findFirst({
     where: {
       shift: { shiftNumber: number },
       accessTokenHash: hashAccessKey(accessKey),
     },
-    select: shiftReportSelect,
+    select: shiftReportSelect(firstRes.report?.date ?? firstRes.plannedDate),
   });
 
   if (!res) {
@@ -108,8 +141,10 @@ async function getShiftReport(number: string, accessKey: string) {
   cacheTag(`shiftReportEdit:id:${res.shift.id}`);
 
   res.shift.employeeLogs.sort((a, b) => {
-    const aVal = ranksOrder.get(a.employee.rank) ?? Infinity;
-    const bVal = ranksOrder.get(b.employee.rank) ?? Infinity;
+    const aVal =
+      ranksOrder.get(a.employee.employeeChanges[0].newRole) ?? Infinity;
+    const bVal =
+      ranksOrder.get(b.employee.employeeChanges[0].newRole) ?? Infinity;
 
     return aVal - bVal || a.employee.nameIC.localeCompare(b.employee.nameIC);
   });
@@ -199,7 +234,7 @@ export default async function RaportZmiany(
                       <tr>
                         <td className="text-left font-bold">Ranga:</td>
                         <td className="text-left">
-                          {shiftReport.shift.host.rank}
+                          {shiftReport.shift.host.employeeChanges[0].newRole}
                         </td>
                       </tr>
                       <tr>
@@ -297,7 +332,7 @@ export default async function RaportZmiany(
                               <tr>
                                 <td className="text-left font-bold">Ranga:</td>
                                 <td className="text-left">
-                                  {log.employee.rank}{" "}
+                                  {log.employee.employeeChanges[0].newRole}{" "}
                                 </td>
                               </tr>
                               <tr>
@@ -315,11 +350,12 @@ export default async function RaportZmiany(
                     </TableCell>
                     <TableCell className="text-center">
                       <span className="hidden sm:block">
-                        {log.employee.rank}
+                        {log.employee.employeeChanges[0].newRole}
                       </span>
                       <span className="sm:hidden">
-                        {shortRankNames.get(log.employee.rank) ??
-                          log.employee.rank}
+                        {shortRankNames.get(
+                          log.employee.employeeChanges[0].newRole,
+                        ) ?? log.employee.employeeChanges[0].newRole}
                       </span>
                     </TableCell>
                     <TableCell className="text-center">

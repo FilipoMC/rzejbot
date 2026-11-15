@@ -35,15 +35,61 @@ async function getShiftReport(number: string) {
   cacheTag(`shiftReport:number:${number}`);
   cacheLife("days");
 
+  const firstRes = await prisma.shift.findFirst({
+    where: {
+      shiftNumber: number,
+    },
+    select: {
+      plannedDate: true,
+      report: {
+        select: {
+          date: true,
+        },
+      },
+    },
+  });
+
+  if (!firstRes) {
+    return null;
+  }
+
   const res = await prisma.shiftReport.findFirst({
     where: { shift: { shiftNumber: number } },
     include: {
       shift: {
         include: {
-          host: true,
+          host: {
+            include: {
+              employeeChanges: {
+                where: {
+                  createdAt: {
+                    lte: firstRes.report?.date ?? firstRes.plannedDate,
+                  },
+                },
+                orderBy: { createdAt: "desc" },
+                take: 1,
+                select: { newRole: true },
+              },
+            },
+          },
           employeeLogs: {
             where: { clockedIn: { not: null } },
-            include: { employee: true },
+            include: {
+              employee: {
+                include: {
+                  employeeChanges: {
+                    where: {
+                      createdAt: {
+                        lte: firstRes.report?.date ?? firstRes.plannedDate,
+                      },
+                    },
+                    orderBy: { createdAt: "desc" },
+                    take: 1,
+                    select: { newRole: true },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -63,8 +109,10 @@ async function getShiftReport(number: string) {
   cacheTag(`shiftReport:id:${res.shiftId}`);
 
   res.shift.employeeLogs.sort((a, b) => {
-    const aVal = ranksOrder.get(a.employee.rank) ?? Infinity;
-    const bVal = ranksOrder.get(b.employee.rank) ?? Infinity;
+    const aVal =
+      ranksOrder.get(a.employee.employeeChanges[0].newRole) ?? Infinity;
+    const bVal =
+      ranksOrder.get(b.employee.employeeChanges[0].newRole) ?? Infinity;
 
     return aVal - bVal || a.employee.nameIC.localeCompare(b.employee.nameIC);
   });
@@ -193,7 +241,7 @@ export async function RaportZmianyComponent({
                       <tr>
                         <td className="text-left font-bold">Ranga:</td>
                         <td className="text-left">
-                          {shiftReport.shift.host.rank}
+                          {shiftReport.shift.host.employeeChanges[0].newRole}
                         </td>
                       </tr>
                       <tr>
@@ -291,7 +339,7 @@ export async function RaportZmianyComponent({
                               <tr>
                                 <td className="text-left font-bold">Ranga:</td>
                                 <td className="text-left">
-                                  {log.employee.rank}{" "}
+                                  {log.employee.employeeChanges[0].newRole}{" "}
                                 </td>
                               </tr>
                               <tr>
@@ -309,11 +357,12 @@ export async function RaportZmianyComponent({
                     </TableCell>
                     <TableCell className="text-center">
                       <span className="hidden sm:block">
-                        {log.employee.rank}
+                        {log.employee.employeeChanges[0].newRole}
                       </span>
                       <span className="sm:hidden">
-                        {shortRankNames.get(log.employee.rank) ??
-                          log.employee.rank}
+                        {shortRankNames.get(
+                          log.employee.employeeChanges[0].newRole,
+                        ) ?? log.employee.employeeChanges[0].newRole}
                       </span>
                     </TableCell>
                     <TableCell className="text-center">

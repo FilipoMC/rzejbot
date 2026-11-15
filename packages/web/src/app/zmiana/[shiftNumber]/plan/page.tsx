@@ -85,10 +85,6 @@ export default async function PlanZmiany(
                   <table>
                     <tbody>
                       <tr>
-                        <td className="text-left font-bold">Ranga:</td>
-                        <td className="text-left"> {shift.host.rank} </td>
-                      </tr>
-                      <tr>
                         <td className="text-left font-bold">Roblox:</td>
                         <td className="text-left">
                           {" "}
