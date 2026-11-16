@@ -1,10 +1,7 @@
 const config = {
-  guild: "placeholder",
-  client_id: "placeholder",
-  dev_client_id: "placeholder",
-  bot_status: "Chrząszczyżewoszyce powiat Łękołody",
-  dev_status: "Chrząszczyżewoszyce powiat Łękołody",
-  devlock_status: "Chrząszczyżewoszyce powiat Łękołody",
+  bot_status: "rzejbot przez rz",
+  dev_status: "dewowanie",
+  devlock_status: "Coś się zepsuło sit tight",
   devs: ["705701074975195178", "725981321196732436"],
 };
 
