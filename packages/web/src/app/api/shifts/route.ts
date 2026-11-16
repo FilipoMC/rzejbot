@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    revalidateTag(`shift:number:${res.shiftNumber}`, "max");
+    revalidateTag(`shift:number:${res.shiftNumber}`, { expire: 0 });
 
     return NextResponse.json(
       {

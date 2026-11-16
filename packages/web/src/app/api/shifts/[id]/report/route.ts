@@ -212,7 +212,7 @@ export async function PATCH(
       },
     });
 
-    revalidateTag(`shiftReport:number:${res.shift.shiftNumber}`, "max");
+    revalidateTag(`shiftReport:number:${res.shift.shiftNumber}`, { expire: 0 });
 
     return NextResponse.json(
       {

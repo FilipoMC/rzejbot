@@ -21,8 +21,6 @@ export async function submitEditShiftReportForm(
       .tuple([z.string(), z.string(), inputFormSchema])
       .parse([key, shiftNumber, content]);
 
-    console.log(contentChecked);
-
     const shiftReport = await prisma.shiftReport.findFirst({
       where: {
         shift: {
