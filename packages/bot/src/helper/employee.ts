@@ -119,6 +119,7 @@ ApiHelper.employee.create = async (request) => {
   const requestParsed = employeePostSchema.safeParse(request);
   if (!requestParsed.success) {
     Logger.error(z.treeifyError(requestParsed.error));
+    Logger.debug(request);
     return { status: "badArgument", error: requestParsed.error };
   }
 
@@ -136,6 +137,7 @@ ApiHelper.employee.create = async (request) => {
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
+    Logger.debug(body);
     return { status: "apiResponseParsingError" };
   }
 

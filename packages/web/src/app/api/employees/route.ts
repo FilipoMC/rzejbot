@@ -16,10 +16,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const { discordId, committees, nameIC, robloxId, qualification } =
+    parsedBody.data;
+
   try {
     const res = await prisma.employee.create({
       data: {
-        ...parsedBody.data,
+        discordId,
+        committees,
+        nameIC,
+        robloxId,
+        qualification,
         employeeChanges: {
           create: {
             newRole: parsedBody.data.rank,
@@ -41,6 +48,11 @@ export async function POST(req: NextRequest) {
             pracownik: true,
             szkoleniowiec: true,
           },
+        },
+        employeeChanges: {
+          orderBy: { createdAt: "desc" },
+          select: { newRole: true },
+          take: 1,
         },
       },
     });
