@@ -68,7 +68,7 @@ export async function POST(
       ),
     );
 
-    revalidateTag(`shiftReport:id:${shiftId}`, "max");
+    revalidateTag(`shiftReport:id:${shiftId}`, { expire: 0 });
 
     return NextResponse.json({ ok: true, data: null });
   } catch (err) {
