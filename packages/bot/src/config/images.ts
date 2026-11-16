@@ -36,6 +36,11 @@ const images = {
   declaredAbsence: [
     "https://files.catbox.moe/ivmvf6.png",
     "https://files.catbox.moe/h4ob9x.gif",
+    "https://files.catbox.moe/3yqj0g.gif",
+    "https://files.catbox.moe/zair8t.gif",
+    "https://files.catbox.moe/nxy6w7.gif",
+    "https://files.catbox.moe/e7bzb4.gif",
+    "https://files.catbox.moe/7442uu.gif",
   ],
 } satisfies Record<string, string[]>;
 

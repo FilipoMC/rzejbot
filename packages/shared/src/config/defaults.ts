@@ -4,7 +4,7 @@ export const defaultShiftNotes = `Przy rozpoczęciu zmiany udać się do audytor
 
 **Sprawdzić gotowość operatorów, wyłączyć system automatycznej kontroli, spełniać zapotrzebowanie na energię elektryczną.**
 
-**10 minut przed zakończeniem zmiany rozpocząć zmniejszanie mocy, ustabilizować reaktor na 20% APR i uruchomić jego automatyczną kontrolę.**
+**10 minut przed zakończeniem zmiany rozpocząć zmniejszanie mocy, ustabilizować reaktor na 20% APRM i uruchomić jego automatyczną kontrolę.**
 
 W trakcie normalnej pracy, **przełączyć wszystkie panele na tryb manualny**. Sposób utrzymania temperatury prętów kontrolnych dostosowywać według uznania kierownika zmiany.
 

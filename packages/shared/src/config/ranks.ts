@@ -1,46 +1,28 @@
 import { AllRanks } from "../types/other";
 
 export const mainRanks = {
-  // main server rankId's
-  // "Dyrektor Elektrowni": "1450930280037617787",
-  // "Zastępca Dyrektora Elektrowni": "1467529036858130514",
-  // "Główny Inżynier": "1450931343444672542",
+  "Dyrektor Elektrowni": "1450930280037617787",
+  "Zastępca Dyrektora Elektrowni": "1467529036858130514",
+  "Główny Inżynier Elektrowni": "1450931343444672542",
 
-  // "Kierownik Bloków": "1450931356833157301",
-  // "p.o. Kierownika Bloków": "1566526211063287858",
-
-  // "Starszy Inżynier Reaktora": "1450931358921789440",
-  // "Inżynier Reaktora": "1450939750684033064",
-  // "Operator Reaktora": "1450939912894414909",
-
-  // "Starszy Operator Niejądrowy": "1450939914882646228",
-  // "Operator Niejądrowy": "1450939916677812406",
-  // Kandydat: "1450942654660739183",
-
-  //test server ranks
-  "Dyrektor Elektrowni": "1566523889058582589",
-  "Zastępca Dyrektora Elektrowni": "1566524390965780650",
-  "Główny Inżynier Elektrowni": "1566524507064373399",
-
-  "Kierownik Bloków": "1566526082994413748",
+  "Kierownik Bloków": "1450931356833157301",
   "p.o. Kierownika Bloków": "1566526211063287858",
 
-  "Starszy Inżynier Reaktora": "1566528343912882357",
-  "Inżynier Reaktora": "1566528989852344410",
-  "Operator Reaktora": "1566529033838002348",
+  "Starszy Inżynier Reaktora": "1450931358921789440",
+  "Inżynier Reaktora": "1450939750684033064",
+  "Operator Reaktora": "1450939912894414909",
 
-  "Starszy Operator Niejądrowy": "1566529089764987032",
-  "Operator Niejądrowy": "1566529174787723424",
-  Kandydat: "1569466799500697830",
+  "Starszy Operator Niejądrowy": "1450939914882646228",
+  "Operator Niejądrowy": "1450939916677812406",
+  Kandydat: "1450942654660739183",
 } satisfies Record<string, string>;
 
 export const otherRanks = {
-  // test server ranks
-  "Główny Szkoleniowiec": "1566529797025169478",
-  Szkoleniowiec: "1566529799680168116",
-  "Szkoleniowiec Aplikujący": "1566529800783401010",
-  "Przewodniczący Komisji Marketingowej": "1566530230321938452",
-  "Członek Komisji Marketingowej": "1566530180158062773",
+  "Główny Szkoleniowiec": "1468623711073472703",
+  Szkoleniowiec: "1468623874546729197",
+  "Szkoleniowiec Aplikujący": "1468623965781233847",
+  "Przewodniczący Komisji Marketingowej": "1485716905833529376",
+  "Członek Komisji Marketingowej": "1485717351788712106",
 } satisfies Record<string, string>;
 
 export const allRanks = Object.assign(mainRanks, otherRanks);
@@ -55,58 +37,8 @@ export const allRanks = Object.assign(mainRanks, otherRanks);
  *   mapping custom rank titles to their specific Discord role IDs.
  */
 export const rankGroups = {
-  //main
-  // "Kierownictwo Elektrowni": {
-  //   id: "1462522587878789265",
-  //   ranks: [
-  //     "Dyrektor Elektrowni",
-  //     "Zastępca Dyrektora Elektrowni",
-  //     "Główny Inżynier Elektrowni",
-  //   ],
-  // },
-  // "Kierownictwo Bloków": {
-  //   id: "1450931355885240341",
-  //   ranks: ["Kierownik Bloków", "p.o. Kierownika Bloków"],
-  // },
-  // "Personel Elektrowni": {
-  //   id: "1451206749578330142",
-  //   ranks: [
-  //     "Starszy Inżynier Reaktora",
-  //     "Inżynier Reaktora",
-  //     "Operator Reaktora",
-  //     "Starszy Operator Niejądrowy",
-  //     "Operator Niejądrowy",
-  //   ],
-  // },
-  // "I. Zmiana Elektrowni": {
-  //   id: "1450931358217277470",
-  //   ranks: [
-  //     "Starszy Inżynier Reaktora",
-  //     "Inżynier Reaktora",
-  //     "Operator Reaktora",
-  //     "Starszy Operator Niejądrowy",
-  //     "Operator Niejądrowy",
-  //   ],
-  // },
-  // "Kadra Szkoleniowa": {
-  //   id: "1468621630438772791",
-  //   ranks: [
-  //     "Główny Szkoleniowiec",
-  //     "Szkoleniowiec",
-  //     "Szkoleniowiec Aplikujący",
-  //   ],
-  // },
-  // Komisje: {
-  //   id: "1468618072536645759",
-  //   ranks: [
-  //     "Przewodniczący Komisji Marketingowej",
-  //     "Członek Komisji Marketingowej",
-  //   ],
-  // },
-
-  // test
   "Kierownictwo Elektrowni": {
-    id: "1566523773195260154",
+    id: "1462522587878789265",
     ranks: [
       "Dyrektor Elektrowni",
       "Zastępca Dyrektora Elektrowni",
@@ -114,11 +46,11 @@ export const rankGroups = {
     ],
   },
   "Kierownictwo Bloków": {
-    id: "1566523847908397096",
+    id: "1450931355885240341",
     ranks: ["Kierownik Bloków", "p.o. Kierownika Bloków"],
   },
   "Personel Elektrowni": {
-    id: "1566530072070852798",
+    id: "1451206749578330142",
     ranks: [
       "Starszy Inżynier Reaktora",
       "Inżynier Reaktora",
@@ -128,7 +60,7 @@ export const rankGroups = {
     ],
   },
   "I. Zmiana Elektrowni": {
-    id: "1566526310476550376",
+    id: "1450931358217277470",
     ranks: [
       "Starszy Inżynier Reaktora",
       "Inżynier Reaktora",
@@ -138,7 +70,7 @@ export const rankGroups = {
     ],
   },
   "Kadra Szkoleniowa": {
-    id: "1566529719913156810",
+    id: "1468621630438772791",
     ranks: [
       "Główny Szkoleniowiec",
       "Szkoleniowiec",
@@ -146,7 +78,7 @@ export const rankGroups = {
     ],
   },
   Komisje: {
-    id: "1566530152517865503",
+    id: "1468618072536645759",
     ranks: [
       "Przewodniczący Komisji Marketingowej",
       "Członek Komisji Marketingowej",
