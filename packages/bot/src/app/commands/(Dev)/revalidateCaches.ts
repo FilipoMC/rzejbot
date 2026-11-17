@@ -8,6 +8,10 @@ export const command: CommandData = {
 };
 
 export const message: MessageCommand = async (ctx) => {
+  if (ctx.message.channel.isSendable()) {
+    ctx.message.channel.sendTyping();
+  }
+
   const res = await ApiHelper.dev.revalidateCaches();
 
   if (res.status !== "ok") {

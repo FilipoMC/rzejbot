@@ -25,6 +25,7 @@ import {
   registerButtonHandler,
   replaceModalHandler,
   createShiftManageEmbedComponentsFilter,
+  disposeShiftHandlers,
 } from "./utils";
 import {
   commandError,
@@ -41,6 +42,8 @@ export function createManageShiftEmbedStage4Components(
   shiftReport: ShiftReportAPIResponse,
   stations: ShiftLogStationsGetAPIResponse,
 ) {
+  disposeShiftHandlers(shift.id);
+
   const endDebriefingButtonCallback: OnButtonKitClick = async (
     interaction,
     ctx,
@@ -53,6 +56,8 @@ export function createManageShiftEmbedStage4Components(
     });
 
     ctx.dispose();
+
+    disposeShiftHandlers(shift.id);
   };
 
   const endDebriefingButton = (
@@ -60,7 +65,10 @@ export function createManageShiftEmbedStage4Components(
       customId={`end-debriefing_${shift.id}`}
       style={ButtonStyle.Danger}
       onClick={endDebriefingButtonCallback}
-      options={{ once: true }}
+      options={{
+        once: true,
+        filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+      }}
     >
       Zakończ debriefing
     </Button>
@@ -160,6 +168,12 @@ export function createManageShiftEmbedStage4Components(
           description:
             usersNotFound +
             " nie są w rejestrze pracowników. Pozostałe dawki zostały zanotowane.",
+          interactionOrMsg: modalInteraction,
+          useFollowUp: true,
+        });
+      } else {
+        await commandSuccess({
+          description: undefined,
           interactionOrMsg: modalInteraction,
           useFollowUp: true,
         });
