@@ -14,6 +14,7 @@ import {
   getShiftManageEmbed,
   registerButtonHandler,
   createShiftManageEmbedComponentsFilter,
+  disposeShiftHandlers,
 } from "./utils";
 import { commandError } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
@@ -28,6 +29,8 @@ export function createManageShiftEmbedStage3Components(
   shiftReport: ShiftReportAPIResponse,
   stations: ShiftLogStationsGetAPIResponse,
 ) {
+  disposeShiftHandlers(shift.id);
+
   const endShiftButtonCallback: OnButtonKitClick = async (interaction, ctx) => {
     const [shiftReportRes] = await deferAfter(
       interaction,
@@ -88,6 +91,8 @@ export function createManageShiftEmbedStage3Components(
       Zakończ zmianę
     </Button>
   );
+
+  registerButtonHandler(shift.id, endShiftButton);
 
   const setStationsButtonCallback: OnButtonKitClick = async (
     interaction,

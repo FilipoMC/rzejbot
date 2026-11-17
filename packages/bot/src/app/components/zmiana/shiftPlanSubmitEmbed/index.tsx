@@ -203,7 +203,7 @@ export async function sendShiftPlanSubmitEmbed({
           new ActionRowBuilder<ButtonKit>().setComponents(
             <Button
               customId={`absence_${shift.id}`}
-              style={ButtonStyle.Success}
+              style={ButtonStyle.Danger}
               onClick={disabled ? undefined : absenceButtonCallback}
               disabled={disabled}
               options={{
