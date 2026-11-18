@@ -4,9 +4,11 @@ export const defaultShiftNotes = `Przy rozpoczęciu zmiany udać się do audytor
 
 **Sprawdzić gotowość operatorów, wyłączyć system automatycznej kontroli, spełniać zapotrzebowanie na energię elektryczną.**
 
+W trakcie zmiany, w razie uzyskania stabilności systemów, operatorzy zajmują pozycje siedzące.
+
 **10 minut przed zakończeniem zmiany rozpocząć zmniejszanie mocy, ustabilizować reaktor na 20% APRM i uruchomić jego automatyczną kontrolę.**
 
-W trakcie normalnej pracy, **przełączyć wszystkie panele na tryb manualny**. Sposób utrzymania temperatury prętów kontrolnych dostosowywać według uznania kierownika zmiany.
+W trakcie normalnej pracy, **przełączyć wszystkie panele na tryb manualny**.
 
 **__Stosować się do procedur i poleceń właściwego przełożonego! Nie ignorować zaleceń dotyczących bezpieczeństwa i higieny pracy! Wszelkie usterki i anomalie zgłaszać właściwemu przełożonemu!__**`;
 
