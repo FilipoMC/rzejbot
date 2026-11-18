@@ -1,11 +1,9 @@
 import { sendShiftPlanSubmitEmbed } from "@/app/components/zmiana/shiftPlanSubmitEmbed";
-import { CustomCommandMetadata } from "@/types/commands";
 import {
   commandError,
   commandSuccess,
   failedToExecute,
 } from "@/utils/commandResponses";
-import { rankGroups } from "@shared/config/ranks";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
 
