@@ -150,7 +150,7 @@ async function getShiftReport(number: string, accessKey: string) {
 }
 
 export default async function RaportZmiany(
-  props: PageProps<"/zmiana/[shiftNumber]/raport/[accessKey]">,
+  props: PageProps<"/zmiana/[shiftNumber]/raport/edytuj/[accessKey]">,
 ) {
   const { shiftNumber, accessKey } = await props.params;
 

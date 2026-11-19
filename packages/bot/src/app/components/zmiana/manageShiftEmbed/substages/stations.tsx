@@ -437,8 +437,6 @@ export function createManageShiftEmbedSetStationsComponents(
     actionRowsContent.push([customButton]);
   }
 
-  console.log(JSON.stringify(actionRowsContent, null, 2));
-
   return actionRowsContent.map((v) =>
     new ActionRowBuilder<ButtonKit>().setComponents(v),
   );

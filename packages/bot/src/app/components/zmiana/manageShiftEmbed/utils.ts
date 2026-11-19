@@ -1,5 +1,6 @@
 import config from "@/config/config";
-import { KitArray } from "@/types/components/zmiana";
+import { websitePages } from "@/config/script";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 import {
   ShiftAPIResponse,
   ShiftLogStationsGetAPIResponse,
@@ -9,45 +10,30 @@ import { ButtonKit, ModalKit } from "commandkit";
 import { addMinutes } from "date-fns";
 import {
   EmbedBuilder,
+  hyperlink,
   Interaction,
   time,
   TimestampStyles,
   userMention,
 } from "discord.js";
 
-function disposeHandlers(handlers: KitArray) {
-  for (const handler of handlers) {
-    handler.dispose();
-  }
-}
-
-const buttonHandlers = new Map<number, ButtonKit[]>();
-const modalHandlers = new Map<number, ModalKit>();
+const buttonBSHandler = new CommandkitBullshitHandler<ButtonKit, number>();
+const modalBSHandler = new CommandkitBullshitHandler<ModalKit, number>();
 
 export function disposeShiftHandlers(shiftId: number) {
-  const handlers = buttonHandlers.get(shiftId);
-  if (handlers) {
-    disposeHandlers(handlers);
-  }
-  buttonHandlers.delete(shiftId);
+  buttonBSHandler.disposeCollector(shiftId);
 }
 
 export function registerButtonHandler(shiftId: number, handler: ButtonKit) {
-  const array = buttonHandlers.get(shiftId) ?? [];
-  array.push(handler);
-  buttonHandlers.set(shiftId, array);
+  buttonBSHandler.addCollector(shiftId, handler);
 }
 
 export function replaceModalHandler(shiftId: number, handler: ModalKit) {
-  const oldHandler = modalHandlers.get(shiftId);
-  oldHandler?.dispose();
-  modalHandlers.set(shiftId, handler);
+  modalBSHandler.replaceOldCollector(shiftId, handler);
 }
 
 export function removeModalHandler(shiftId: number) {
-  const oldHandler = modalHandlers.get(shiftId);
-  oldHandler?.dispose();
-  modalHandlers.delete(shiftId);
+  modalBSHandler.disposeCollector(shiftId);
 }
 
 export function createShiftManageEmbedComponentsFilter(hostId: string) {
@@ -73,6 +59,7 @@ export function getShiftManageEmbed(
   shiftReport?: ShiftReportAPIResponse,
   stations?: ShiftLogStationsGetAPIResponse,
   footer: boolean = true,
+  shiftReportLink: boolean = true,
 ) {
   const a =
     shiftReport?.date ?
@@ -118,6 +105,12 @@ export function getShiftManageEmbed(
         `**Kierownik zmiany:** ${userMention(shift.host.discordId)}\n` +
         (shiftReport?.cohost?.discordId ?
           `**Nadzorujący przełożony:** ${userMention(shiftReport.cohost.discordId)}`
+        : "") +
+        (shiftReportLink ?
+          hyperlink(
+            "*Link do raportu zmiany*",
+            websitePages.shiftReport(shift.shiftNumber),
+          )
         : ""),
     )
     .setFields([

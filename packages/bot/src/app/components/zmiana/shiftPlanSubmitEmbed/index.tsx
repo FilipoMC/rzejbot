@@ -5,11 +5,6 @@ import channels from "@/config/channels";
 import other from "@/config/other";
 import { getRandomImage, shiftEventName, websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
-import {
-  commandError,
-  failedToExecute,
-  loading,
-} from "@/utils/commandResponses";
 import { fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { createTask } from "@commandkit/tasks";
 import { Button, ButtonKit, Logger, OnButtonKitClick } from "commandkit";
@@ -20,19 +15,33 @@ import {
 } from "date-fns";
 import {
   ActionRowBuilder,
-  AttachmentBuilder,
   ButtonStyle,
   Client,
   codeBlock,
   GuildScheduledEventEntityType,
   GuildScheduledEventPrivacyLevel,
   hyperlink,
-  MessageFlags,
   spoiler,
   time,
   TimestampStyles,
   userMention,
 } from "discord.js";
+import z from "zod";
+
+export const eventHandledAbsenceButton = {
+  customId: {
+    prefix: "absence",
+    make(shiftId: number) {
+      return `${this.prefix}_${shiftId}`;
+    },
+    get validator() {
+      return z.tuple(
+        [z.literal(this.prefix), z.coerce.number()],
+        "bad customId for absence button",
+      );
+    },
+  },
+};
 
 interface SendShiftPlanSubmitEmbedProps {
   client: Client;
@@ -122,93 +131,12 @@ export async function sendShiftPlanSubmitEmbed({
           })
           .catch(() => null);
 
-        const absenceButtonCallback: OnButtonKitClick = async (
-          buttonInteraction,
-        ) => {
-          await buttonInteraction.deferReply({
-            flags: MessageFlags.Ephemeral,
-          });
-          await loading({
-            interactionOrMsg: buttonInteraction,
-            description: undefined,
-          });
-          const res = await ApiHelper.shifts.logEmployeeAbsence(shift.id, {
-            employeeDiscordId: buttonInteraction.user.id,
-          });
-
-          if (res.status === "apiError" && res.errorStatus === "conflict") {
-            await failedToExecute({
-              interactionOrMsg: buttonInteraction,
-              description: "Zgłosiłeś już nieobecność na tej zmianie",
-            });
-            return;
-          } else if (
-            res.status === "apiError" &&
-            res.errorStatus === "notFound"
-          ) {
-            await failedToExecute({
-              interactionOrMsg: buttonInteraction,
-              description:
-                "Nie jesteś zarejestrowanym pracownikiem ~~lub zmiana nie istnieje ale to tam raczej mało prawdopodobne~~",
-            });
-            return;
-          } else if (res.status !== "ok") {
-            await commandError({
-              interactionOrMsg: buttonInteraction,
-              description: "Wystąpił błąd podczas komunikacji z serwerem",
-            });
-            return;
-          }
-
-          await buttonInteraction.editReply({
-            embeds: [],
-            content: "Zgłoszono nieobecność",
-            files: [new AttachmentBuilder(getRandomImage("declaredAbsence"))],
-          });
-
-          const channel = await fetchChannelResolvable(
-            channels.kierownicy_zmian,
-            buttonInteraction.client,
-          );
-
-          if (!channel?.isSendable()) {
-            return;
-          }
-
-          const message = await channel.messages
-            .fetch()
-            .then((messages) =>
-              messages.find(
-                (msg) =>
-                  msg.content.startsWith(shiftEventName(shift.shiftNumber)) &&
-                  msg.author.id === buttonInteraction.client.user.id,
-              ),
-            );
-
-          if (message?.content.includes(buttonInteraction.user.id)) {
-            return;
-          }
-
-          if (message?.editable) {
-            await message.edit(message.content + `\n${buttonInteraction.user}`);
-            return;
-          }
-
-          channel.send(
-            `${shiftEventName(shift.shiftNumber)}\n# ZGŁOSZONE NIEOBECNOŚCI na zmianie ${shift.shiftNumber}\n\n${buttonInteraction.user}`,
-          );
-        };
-
         const createActionRow = (disabled: boolean = false) =>
           new ActionRowBuilder<ButtonKit>().setComponents(
             <Button
-              customId={`absence_${shift.id}`}
-              style={ButtonStyle.Success}
-              onClick={disabled ? undefined : absenceButtonCallback}
+              customId={eventHandledAbsenceButton.customId.make(shift.id)}
+              style={ButtonStyle.Danger}
               disabled={disabled}
-              options={{
-                time: differenceInMilliseconds(shift.plannedDate, new Date()),
-              }}
             >
               Zgłoś nieobecność
             </Button>,

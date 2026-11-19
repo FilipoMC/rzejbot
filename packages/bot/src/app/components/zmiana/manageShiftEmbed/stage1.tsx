@@ -15,6 +15,7 @@ import { createManageShiftEmbedStage2Components } from "./stage2";
 import {
   createShiftManageEmbedComponentsFilter,
   getShiftManageEmbed,
+  registerButtonHandler,
 } from "./utils";
 
 export function createManageShiftEmbedStage1Components(
@@ -93,6 +94,8 @@ export function createManageShiftEmbedStage1Components(
       Rozpocznij briefing
     </Button>
   );
+
+  registerButtonHandler(shift.id, startBriefingButton);
 
   return [new ActionRowBuilder<ButtonKit>().addComponents(startBriefingButton)];
 }

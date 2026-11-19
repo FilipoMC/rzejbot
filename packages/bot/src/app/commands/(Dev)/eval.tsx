@@ -68,6 +68,10 @@ export const message: MessageCommand = async (ctx) => {
   const msg = message;
   void msg;
 
+  if (ctx.message.channel.isSendable()) {
+    ctx.message.channel.sendTyping();
+  }
+
   const args = ctx.args();
 
   if (!message.inGuild()) {

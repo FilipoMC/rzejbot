@@ -190,7 +190,7 @@ export function createManageShiftEmbedStage2Components(
             ),
           }}
         >
-          <Label label="Przełożony">
+          <Label label="Obecni">
             <StringSelectMenu
               minValues={1}
               maxValues={shiftVC.members.entries().toArray().length - 1}

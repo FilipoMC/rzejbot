@@ -83,7 +83,7 @@ export async function sendShiftManageEmbed({
 
   if (!shiftReport) {
     components = createManageShiftEmbedStage1Components(shift);
-    embed = getShiftManageEmbed(shift);
+    embed = getShiftManageEmbed(shift, undefined, undefined, true, false);
   } else if (shiftReport.briefingDuration === null) {
     const stations = await getStations();
 
