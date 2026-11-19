@@ -38,6 +38,15 @@ export async function POST(
         employee: {
           select: { id: true },
         },
+        shift: {
+          select: {
+            report: {
+              select: {
+                duration: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -59,7 +68,12 @@ export async function POST(
                 id: log.id,
               },
               data: {
-                clockedTime: differenceInMinutes(dateNow, log.clockedIn),
+                clockedTime: Math.min(
+                  differenceInMinutes(dateNow, log.clockedIn, {
+                    roundingMethod: "ceil",
+                  }),
+                  log.shift.report?.duration ?? Number.MAX_SAFE_INTEGER,
+                ),
               },
             }),
           ];

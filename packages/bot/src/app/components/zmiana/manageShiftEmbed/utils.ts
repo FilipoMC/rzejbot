@@ -1,4 +1,5 @@
 import config from "@/config/config";
+import { websitePages } from "@/config/script";
 import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 import {
   ShiftAPIResponse,
@@ -9,6 +10,7 @@ import { ButtonKit, ModalKit } from "commandkit";
 import { addMinutes } from "date-fns";
 import {
   EmbedBuilder,
+  hyperlink,
   Interaction,
   time,
   TimestampStyles,
@@ -57,6 +59,7 @@ export function getShiftManageEmbed(
   shiftReport?: ShiftReportAPIResponse,
   stations?: ShiftLogStationsGetAPIResponse,
   footer: boolean = true,
+  shiftReportLink: boolean = true,
 ) {
   const a =
     shiftReport?.date ?
@@ -102,6 +105,12 @@ export function getShiftManageEmbed(
         `**Kierownik zmiany:** ${userMention(shift.host.discordId)}\n` +
         (shiftReport?.cohost?.discordId ?
           `**Nadzorujący przełożony:** ${userMention(shiftReport.cohost.discordId)}`
+        : "") +
+        (shiftReportLink ?
+          hyperlink(
+            "*Link do raportu zmiany*",
+            websitePages.shiftReport(shift.shiftNumber),
+          )
         : ""),
     )
     .setFields([
