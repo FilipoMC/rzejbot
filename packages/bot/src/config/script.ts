@@ -9,7 +9,7 @@ export const websitePages = {
   shiftReport: (number: string) =>
     `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/raport`,
   shiftReportEdit: (number: string, accessToken: string) =>
-    `${websitePages.shiftReport(number)}/${accessToken}`,
+    `${websitePages.shiftReport(number)}/edytuj/${accessToken}`,
   shiftReportPreview: (number: string, accessToken: string) =>
     `${websitePages.shiftReport(number)}/podglad/${accessToken}`,
 };
