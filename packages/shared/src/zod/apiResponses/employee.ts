@@ -2,7 +2,6 @@ import z from "zod";
 import { snowflakeSchema } from "../discordSchemas";
 import { isoDateStringSchema } from "../dateTimeSchemas";
 import {
-  allEmployeeRanksSchema,
   employeeChangeTypeSchema,
   employeeRanksSchema,
   nameICSchema,

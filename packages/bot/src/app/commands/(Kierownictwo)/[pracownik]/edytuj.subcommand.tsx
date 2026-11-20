@@ -16,30 +16,44 @@ import {
 } from "@shared/types/api";
 import { robloxUsersByUsernamesAPIResponseSchema } from "@shared/zod/roblox/apiResponses";
 import {
-  ActionRow,
   Button,
+  ButtonKit,
   ChatInputCommand,
   CommandData,
   Container,
+  Label,
   Logger,
+  Modal,
+  ModalKit,
+  OnButtonKitClick,
   OnModalKitSubmit,
+  StringSelectMenu,
+  StringSelectMenuOption,
   TextDisplay,
 } from "commandkit";
 import {
+  ActionRowBuilder,
   ApplicationCommandOptionType,
+  ButtonInteraction,
   ButtonStyle,
   ColorResolvable,
+  ComponentType,
   userMention,
 } from "discord.js";
 import z from "zod";
 import channels from "@/config/channels";
 import { sharedConfig } from "@shared/config/config";
-import { getGroupsForRank } from "@shared/config/ranks";
+import {
+  committeesGrouped,
+  getGroupsForRank,
+  rankGroups,
+} from "@shared/config/ranks";
 import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 import { ApiHelperReturnData } from "@/types/apiHelper";
-import _, { keyBy } from "lodash";
+import _ from "lodash";
 
-const HandleModalBullshit = new CommandkitBullshitHandler();
+const HandleModalBullshit = new CommandkitBullshitHandler<ModalKit>();
+const HandleButtonBullshit = new CommandkitBullshitHandler<ButtonKit>();
 
 export const command: CommandData = {
   name: "edytuj",
@@ -76,49 +90,130 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     }
     return;
   }
-  const aRow = [
-    <ActionRow>
+
+  const committeeButtons: ButtonKit[] = [];
+  for (const group in committeesGrouped) {
+    const groupCustomID = group.replaceAll(" ", "_");
+
+    const buttonHandlerFunc: OnButtonKitClick = async (modalItx, modalCtx) => {
+      const modal = (
+        <Modal
+          title="Pracownik Edytuj | Role Dodatkowe"
+          customId={`empeditmodal-${modalItx.user.id}`}
+          options={{ once: false }}
+          onSubmit={editCommitteesHandler(employee.data)}
+        >
+          {committeesGrouped[group as keyof typeof committeesGrouped].map(
+            (k) => {
+              const rankGroupBeingIndexed =
+                rankGroups[k.value as keyof typeof rankGroups];
+              return (
+                <Label label={k.value}>
+                  <StringSelectMenu
+                    customId={`${k.value.replaceAll(" ", "_")}`}
+                    maxValues={
+                      k.allowMultiChoice ?
+                        rankGroupBeingIndexed.ranks.length
+                      : 1
+                    }
+                  >
+                    {rankGroupBeingIndexed.ranks.map((r) => {
+                      Logger.debug({
+                        r,
+                        b: employee.data.committees,
+                        c: (employee.data.committees as string[]).includes(r),
+                      });
+                      return (
+                        <StringSelectMenuOption
+                          label={r}
+                          value={r.replaceAll(" ", "_")}
+                          default={(
+                            employee.data.committees as string[]
+                          ).includes(r)}
+                        />
+                      );
+                    })}
+                  </StringSelectMenu>
+                </Label>
+              );
+            },
+          )}
+        </Modal>
+      );
+      await showModal({ itx: modalItx, ctx: modalCtx }, modal);
+    };
+    const button = (
       <Button
-        style={ButtonStyle.Success}
-        customId="empEditOneTime"
-        onClick={async (itx, ctx) => {
-          const modal = await employeeEditModal(empEditModalHandler, employee);
-          HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
-          await itx.showModal(modal);
-          await itx.deleteReply();
-          ctx.dispose();
-        }}
-      >
-        Edytuj
-      </Button>
-      <Button
+        customId={groupCustomID}
         style={ButtonStyle.Secondary}
-        customId="empAddChanges"
-        onClick={async (itx, ctx) => {
-          const modal = addChangesModal(
+        onClick={buttonHandlerFunc}
+      >
+        {group}
+      </Button>
+    );
+    committeeButtons.push(button);
+  }
+
+  async function showModal(
+    { itx, ctx }: { itx: ButtonInteraction; ctx: ButtonKit },
+    modal: ModalKit,
+  ) {
+    HandleModalBullshit.replaceOldCollector(itx.user.id, modal);
+    await itx.showModal(modal);
+    await itx.deleteReply();
+    ctx.dispose();
+  }
+
+  const empEditButton = (
+    <Button
+      style={ButtonStyle.Success}
+      customId={`empEditOneTime-${interaction.user.id}`}
+      onClick={async (itx, ctx) => {
+        await showModal(
+          { itx, ctx },
+          await employeeEditModal(empEditModalHandler, employee),
+        );
+      }}
+    >
+      Edytuj
+    </Button>
+  );
+
+  const addChangesButton = (
+    <Button
+      customId={`empeditpromotiondemotion-${interaction.user.id}`}
+      style={ButtonStyle.Primary}
+      onClick={async (itx, ctx) =>
+        await showModal(
+          { itx, ctx },
+          addChangesModal(
             interaction,
             employee.data,
             addChangesModalHandler(employee.data),
-          );
-          if (!modal) {
-            return;
-          } else {
-            HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
-            await itx.showModal(modal);
-          }
-          await interaction.deleteReply();
-          ctx.dispose();
-        }}
-      >
-        Dodaj opinię
-      </Button>
-    </ActionRow>,
-  ];
+          ),
+        )
+      }
+    >
+      Zmiany w rangach pracownika
+    </Button>
+  );
+  const aRow = new ActionRowBuilder<ButtonKit>().addComponents([
+    empEditButton,
+    addChangesButton,
+    // TODO: fix
+    committeeButtons[0],
+  ]);
 
+  Logger.debug(aRow);
+  HandleButtonBullshit.replaceOldCollector(interaction.user.id, [
+    empEditButton,
+    addChangesButton,
+    ...committeeButtons,
+  ]);
   await interaction.editReply({
     content: `Proszę kliknąć guzik aby zacząć edycję pracownika (${userMention(employee.data.discordId)})`,
     embeds: [],
-    components: aRow,
+    components: [aRow],
   });
 };
 
@@ -435,6 +530,84 @@ export const addChangesModalHandler =
       interactionOrMsg: interaction,
       description: `Pomyślnie utworzono opinię/uwagę na pracowniku ${employee.nameIC} (<@${employee.discordId}>)`,
       useFollowUp: false,
+    });
+    ctx.dispose();
+    return;
+  };
+
+export const editCommitteesHandler =
+  (
+    employee: ApiHelperReturnData<typeof ApiHelper.employee.update>,
+  ): OnModalKitSubmit =>
+  async (interaction, ctx) => {
+    const com = interaction.fields.fields
+      .map((modalData) => {
+        if (modalData.type === ComponentType.StringSelect) {
+          return modalData.values.map((r) => r.replaceAll("_", " "));
+        } else {
+          throw "How?";
+        }
+      })
+      .flat();
+
+    Logger.debug(com);
+    const res = await ApiHelper.employee.update(employee.discordId, {
+      committees: com as OtherEmployeeRanks[],
+    });
+    if (res.status !== "ok") {
+      await commandError({
+        interactionOrMsg: interaction,
+        description: "Wystąpił błąd podczas zapisywania zmian w bazie danych",
+      });
+    }
+
+    const rolesToAdd: string[] = [];
+    for (const committee of com) {
+      rolesToAdd.push(
+        ...new Set(getGroupsForRank(committee).map((e) => e.group.id)),
+      );
+      rolesToAdd.push(
+        ...new Set(getGroupsForRank(committee).map((e) => e.role.id)),
+      );
+    }
+
+    const rolesToRemoveLoop: string[] = [];
+    for (const committee of employee.committees) {
+      rolesToRemoveLoop.push(
+        ...new Set(getGroupsForRank(committee).map((e) => e.role.id)),
+      );
+      rolesToRemoveLoop.push(
+        ...new Set(getGroupsForRank(committee).map((e) => e.group.id)),
+      );
+    }
+    const rolesToRemove = [...new Set(rolesToRemoveLoop)];
+    // Logger.debug(["R+", rolesToAdd].join("\n"));
+    // Logger.debug(["R-", rolesToRemove].join("\n"));
+    const final = {
+      add: rolesToAdd.filter((e) => !rolesToRemove.includes(e)),
+      rm: rolesToRemove.filter((e) => !rolesToAdd.includes(e)),
+    };
+    // Logger.debug({
+    //   add: final.add.map((e) => `<@&${e}>`),
+    //   rm: final.rm.map((e) => `<@&${e}>`),
+    // });
+
+    const employeeDc = await interaction.guild?.members.fetch(
+      employee.discordId,
+    );
+    if (!employeeDc) {
+      await commandError({
+        interactionOrMsg: interaction,
+        description:
+          "Nawet deweloperzy nie wiedzą jak to jest możliwe, spróbuj ponownie.",
+      });
+      throw "Jakim cudem employeeDc jest undefined???\n" + import.meta.filename;
+    }
+    await employeeDc.roles.remove(final.rm);
+    await employeeDc.roles.add(final.add);
+    await commandSuccess({
+      interactionOrMsg: interaction,
+      description: "Pomyślnie zmieniono komisje pracownika",
     });
     ctx.dispose();
     return;

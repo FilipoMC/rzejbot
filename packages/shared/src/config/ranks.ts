@@ -161,6 +161,16 @@ export const rankGroups = {
   }
 >;
 
+export const committeesGrouped = {
+  "Kadra Szkoleniowa & KM": [
+    { allowMultiChoice: true, value: "Kadra Szkoleniowa" },
+    { allowMultiChoice: true, value: "Komisje" },
+  ],
+} satisfies Record<
+  string,
+  { allowMultiChoice: boolean; value: keyof typeof rankGroups }[]
+>;
+
 // TODO: Optimize via usage of role ids
 export function getGroupsForRank(role: string) {
   if (!Object.keys(allRanks).includes(role)) {
@@ -169,7 +179,7 @@ export function getGroupsForRank(role: string) {
 
   const groupsIncludingRole = Object.entries(rankGroups).filter(([, v]) =>
     (v.ranks as string[]).includes(
-      role.replaceAll("=", "").replaceAll("・", "").trim(),
+      role.replaceAll(/[^a-zA-Z0-9 ]/g, "").trim(),
     ),
   );
   return groupsIncludingRole.map(([k]) => {

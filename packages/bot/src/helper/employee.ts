@@ -273,11 +273,6 @@ ApiHelper.employee.update = async (discordId, req) => {
 
   if (!reqParsed.success) {
     Logger.error(z.treeifyError(reqParsed.error));
-    Logger.debug([
-      import.meta.filename,
-      "empupdate/req",
-      z.prettifyError(reqParsed.error),
-    ]);
     Logger.debug(req);
     return {
       status: "badArgument",
@@ -297,12 +292,6 @@ ApiHelper.employee.update = async (discordId, req) => {
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
-    Logger.debug([
-      import.meta.filename,
-      "empupdate/body",
-      z.prettifyError(bodyParsed.error),
-    ]);
-    Logger.debug(body);
     return {
       status: "apiResponseParsingError",
     };
@@ -343,12 +332,6 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!reqParsed.success) {
     Logger.error(z.treeifyError(reqParsed.error));
-    Logger.debug([
-      import.meta.filename,
-      "changescreate/req",
-      reqParsed.data,
-      z.prettifyError(reqParsed.error),
-    ]);
     return {
       status: "badArgument",
       error: reqParsed.error,
@@ -357,11 +340,6 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!discordId.success) {
     Logger.error(z.treeifyError(discordId.error));
-    Logger.debug([
-      import.meta.filename,
-      "changescreate/discordid",
-      z.prettifyError(discordId.error),
-    ]);
     return {
       status: "badArgument",
       error: discordId.error,
@@ -388,11 +366,6 @@ ApiHelper.employee.changes.create = async (dcId, req) => {
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
-    Logger.debug([
-      import.meta.filename,
-      "changescreate/body",
-      z.prettifyError(bodyParsed.error),
-    ]);
     return {
       status: "apiResponseParsingError",
     };

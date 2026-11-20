@@ -7,6 +7,7 @@ import {
   StringSelectMenu,
   StringSelectMenuOption,
   TextInput,
+  UserSelectMenu,
 } from "commandkit";
 import {
   ChatInputCommandInteraction,
@@ -37,6 +38,9 @@ export const addChangesModal = (
       onSubmit={handler}
       options={{ once: true }}
     >
+      <Label label="Użytkownik">
+        <UserSelectMenu customId="user" defaultValues={employee.discordId} />
+      </Label>
       <Label label="Typ">
         <RadioGroup customId="type" required>
           <RadioGroupOption label="Plus" value="plus" />
@@ -79,7 +83,7 @@ export const addChangesModal = (
           defaultRank: employee.employeeChanges.data[0]!.newRole,
         })}
       </Label>
-      <Label label="Komisje">
+      {/* <Label label="Komisje">
         <StringSelectMenu
           customId="committees"
           maxValues={Object.keys(otherRanks).length}
@@ -94,7 +98,7 @@ export const addChangesModal = (
             );
           })}
         </StringSelectMenu>
-      </Label>
+      </Label> */}
     </Modal>
   );
 };

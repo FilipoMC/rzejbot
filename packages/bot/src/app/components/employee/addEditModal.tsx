@@ -9,7 +9,11 @@ import {
   CheckboxGroupOption,
   OnModalKitSubmit,
 } from "commandkit";
-import { ChatInputCommandInteraction, TextInputStyle } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  GuildMember,
+  TextInputStyle,
+} from "discord.js";
 import { ApiHelperReturnType } from "@/types/apiHelper";
 import { EmployeeAPIResponse } from "@shared/types/api";
 import { getRobloxUsersByIds } from "@/utils/api";
@@ -41,6 +45,10 @@ export function employeeAddModal(
           customId="nameIC"
           style={TextInputStyle.Short}
           placeholder="Oliwier Baran"
+          value={
+            (interaction.options.getMember("uzytkownik") as GuildMember)
+              ?.displayName ?? ""
+          }
           required
         />
       </Label>
