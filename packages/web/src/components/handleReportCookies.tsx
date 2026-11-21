@@ -28,22 +28,15 @@ export default function TokenHandler({
         type,
       });
 
-      const response = await fetch(
-        `/api/site/shift/report/token-cookie?${params}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        },
-      );
+      await fetch(`/api/site/shift/report/token-cookie?${params}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
 
-      if (response.ok) {
-        router.replace(
-          `/zmiana/${number}/raport/${type === "edit" ? "edytuj" : "podglad"}`,
-        );
-      } else {
-        router.replace("/notfound");
-      }
+      router.replace(
+        `/zmiana/${number}/raport/${type === "edit" ? "edytuj" : "podglad"}`,
+      );
     }
 
     saveToken();
