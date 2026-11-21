@@ -25,7 +25,7 @@ import { ranksOrder, shortRankNames } from "@shared/config/ranks";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { EdytujZmianeForm } from "./form";
 const shiftReportSelect = (date: Date) => {
@@ -162,8 +162,12 @@ export default async function RaportZmiany(
 
   const shiftReport = await getShiftReport(shiftNumberParsed.data, accessKey);
 
-  if (!shiftReport || shiftReport.approved) {
+  if (!shiftReport) {
     notFound();
+  }
+
+  if (shiftReport.approved) {
+    redirect(`/zmiana/${shiftNumber}/raport`);
   }
 
   const employeeDoseList = shiftReport.shift.employeeLogs

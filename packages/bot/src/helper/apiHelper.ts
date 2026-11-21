@@ -147,7 +147,7 @@ interface ApiHelper {
 
     changeApproval: (
       shiftId: number,
-      approved: boolean,
+      status: { approved?: boolean; approvedByUM?: boolean },
     ) => Promise<ApiHelperReturnType<ShiftAPIResponse>>;
 
     logEmployeeAbsence: (
@@ -202,7 +202,7 @@ interface ApiHelper {
       ) => Promise<ApiHelperReturnType<ShiftLogDosesPostAPIResponse>>;
       changeApproval: (
         shiftId: number,
-        approved: boolean,
+        status: { approved?: boolean; approvedByUM?: boolean },
       ) => Promise<ApiHelperReturnType<ShiftReportAPIResponse>>;
       resetAccessToken: (
         shiftId: number,

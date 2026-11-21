@@ -1,3 +1,4 @@
+import { ElectronicSigned } from "@/components/electronicSigned";
 import FormatDate from "@/components/formatDate";
 import RichText from "@/components/richText";
 import RobloxUsername from "@/components/robloxUsername";
@@ -7,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { getManagers } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
 import { toPlain } from "@/lib/utils";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
@@ -31,9 +33,11 @@ async function getShift(number: string) {
     return null;
   }
 
+  const managers = await getManagers(res.plannedDate);
+
   cacheTag(`shift:id:${res.id}`);
 
-  return toPlain(res);
+  return toPlain({ ...res, managers });
 }
 
 export default async function PlanZmiany(
@@ -166,6 +170,13 @@ export default async function PlanZmiany(
           <RichText>{shift.notes}</RichText>
         </p>
       </div>
+
+      {shift.managers && (
+        <ElectronicSigned
+          managers={shift.managers}
+          approvedByUM={shift.approvedByUM}
+        />
+      )}
     </div>
   );
 }

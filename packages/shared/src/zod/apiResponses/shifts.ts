@@ -18,6 +18,7 @@ export const shiftAPIResponseSchema = z.object({
     discordId: snowflakeSchema,
   }),
   approved: z.boolean(),
+  approvedByUM: z.boolean(),
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });
@@ -60,6 +61,8 @@ export const shiftReportAPIResponseSchema = z.object({
   cohostLocation: z.string().nullable(),
   goalMet: z.boolean().nullable(),
   summary: z.string().nullable(),
+  approved: z.boolean(),
+  approvedByUM: z.boolean(),
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });

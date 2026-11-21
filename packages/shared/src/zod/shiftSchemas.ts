@@ -36,6 +36,7 @@ export const shiftPatchSchema = z.object({
   shiftGoal: z.string().trim().max(5000).optional(),
   notes: z.string().trim().max(10_000).optional(),
   approved: z.boolean().optional(),
+  approvedByUM: z.boolean().optional(),
 });
 
 export const shiftLogAbsencePostSchema = z.object({
@@ -68,6 +69,7 @@ export const shiftReportPatchSchema = z.object({
   goalMet: z.boolean().nullish(),
   summary: z.string().nullish(),
   approved: z.boolean().optional(),
+  approvedByUM: z.boolean().optional(),
 });
 
 export const shiftLogStationsPostSchema = z.array(

@@ -70,7 +70,8 @@ model Shift {
   shiftGoal               String
   notes                   String
 
-  approved Boolean @default(false)
+  approvedByUM Boolean @default(true)
+  approved     Boolean @default(false)
 
   report ShiftReport? @relation
 
@@ -95,6 +96,7 @@ model ShiftReport {
 
   accessTokenHash        String
   previewAccessTokenHash String
+  approvedByUM           Boolean @default(false)
   approved               Boolean @default(false)
 
   accidents Accident[] @relation
