@@ -113,7 +113,8 @@ const handler: EventHandler<"interactionCreate"> = async (interaction) => {
       messages.find(
         (msg) =>
           msg.content.startsWith(shiftEventName(shift.shiftNumber)) &&
-          msg.author.id === interaction.client.user.id,
+          msg.author.id === interaction.client.user.id &&
+          msg.editable,
       ),
     );
 
