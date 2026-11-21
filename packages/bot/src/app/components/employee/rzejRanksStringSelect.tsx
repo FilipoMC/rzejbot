@@ -11,7 +11,7 @@ import { StringSelectMenuInteraction } from "discord.js";
 
 export default function rzejEmployeeRanksStringSelect({
   customId = "rank",
-  defaultRank = "Kandydat",
+  defaultRank = "Operator Niejądrowy",
   handler,
 }: {
   customId?: string;

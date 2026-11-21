@@ -95,11 +95,14 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
   for (const group in committeesGrouped) {
     const groupCustomID = group.replaceAll(" ", "_");
 
-    const buttonHandlerFunc: OnButtonKitClick = async (modalItx, modalCtx) => {
+    const buttonHandlerFunc: OnButtonKitClick = async (
+      buttonItx,
+      buttonCtx,
+    ) => {
       const modal = (
         <Modal
           title="Pracownik Edytuj | Role Dodatkowe"
-          customId={`empeditmodal-${modalItx.user.id}`}
+          customId={`empeditmodal-${buttonItx.user.id}`}
           options={{ once: false }}
           onSubmit={editCommitteesHandler(employee.data)}
         >
@@ -140,7 +143,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
           )}
         </Modal>
       );
-      await showModal({ itx: modalItx, ctx: modalCtx }, modal);
+      await showModal({ itx: buttonItx, ctx: buttonCtx }, modal);
     };
     const button = (
       <Button
@@ -197,23 +200,41 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       Zmiany w rangach pracownika
     </Button>
   );
-  const aRow = new ActionRowBuilder<ButtonKit>().addComponents([
-    empEditButton,
-    addChangesButton,
-    // TODO: fix
-    committeeButtons[0],
-  ]);
+  // const aRow = new ActionRowBuilder<ButtonKit>().addComponents([
+  //   empEditButton,
+  //   addChangesButton,
+  //   // TODO: fix
+  //   committeeButtons[0],
+  // ]);
+  const aRow: Array<ButtonKit[]> = [[], [], [], [], []];
+  committeeButtons.unshift(empEditButton, addChangesButton);
+  committeeButtons.forEach((button, i) => {
+    return aRow[Math.floor((i + 1) / 5)]!.push(button);
+  });
+  if (aRow.length > 5) {
+    Logger.error(
+      [import.meta.filename, "ActionRow ma więcej niż 5 wierszy"].join("\n"),
+    );
+    throw "nie";
+  }
+  HandleButtonBullshit.replaceOldCollector(
+    interaction.user.id,
+    committeeButtons,
+  );
 
-  Logger.debug(aRow);
-  HandleButtonBullshit.replaceOldCollector(interaction.user.id, [
-    empEditButton,
-    addChangesButton,
-    ...committeeButtons,
-  ]);
+  const components = aRow.reduce(
+    (prev: Array<ActionRowBuilder<ButtonKit>>, row) => {
+      if (row.length === 0) {
+        return prev;
+      }
+      return [...prev, new ActionRowBuilder<ButtonKit>().setComponents(row)];
+    },
+    [],
+  );
   await interaction.editReply({
     content: `Proszę kliknąć guzik aby zacząć edycję pracownika (${userMention(employee.data.discordId)})`,
     embeds: [],
-    components: [aRow],
+    components,
   });
 };
 
@@ -245,12 +266,10 @@ export const empEditModalHandler: OnModalKitSubmit = async (
   );
 
   if (!resParsed.success) {
-    Logger.error(z.treeifyError(resParsed.error));
     return;
   }
 
   if (!resParsed.data.data[0]) {
-    Logger.debug(JSON.stringify(resParsed, null, 2));
     await failedToExecute({
       interactionOrMsg: interaction,
       description: "Podana nazwa użytkownika Roblox nie jest poprawna",
@@ -550,7 +569,6 @@ export const editCommitteesHandler =
       })
       .flat();
 
-    Logger.debug(com);
     const res = await ApiHelper.employee.update(employee.discordId, {
       committees: com as OtherEmployeeRanks[],
     });

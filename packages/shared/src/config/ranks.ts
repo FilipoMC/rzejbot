@@ -15,7 +15,6 @@ export const mainRanks = {
 
   // "Starszy Operator Niejądrowy": "1450939914882646228",
   // "Operator Niejądrowy": "1450939916677812406",
-  // Kandydat: "1450942654660739183",
 
   //test server ranks
   "Dyrektor Elektrowni": "1566523889058582589",
@@ -31,7 +30,6 @@ export const mainRanks = {
 
   "Starszy Operator Niejądrowy": "1566529089764987032",
   "Operator Niejądrowy": "1566529174787723424",
-  Kandydat: "1569466799500697830",
 } satisfies Record<string, string>;
 
 export const otherRanks = {
@@ -41,6 +39,16 @@ export const otherRanks = {
   "Szkoleniowiec Aplikujący": "1566529800783401010",
   "Przewodniczący Komisji Marketingowej": "1566530230321938452",
   "Członek Komisji Marketingowej": "1566530180158062773",
+  // Wynagrodzenia
+  Kierownicze: "1573485324280270909",
+  Wyższe: "1573485325949599825",
+  Specjalistyczne: "1573485328113598514",
+  Najniższe: "1573485329539932312",
+  "Pracownik Miesiąca": "1573485449886957678",
+  // Stopnie I Tytuły
+  Profesor: "1573485560499142766",
+  "Doktor Habilitowany": "1573485564009648199",
+  Doktor: "1573485566392139776",
 } satisfies Record<string, string>;
 
 export const allRanks = Object.assign(mainRanks, otherRanks);
@@ -152,6 +160,20 @@ export const rankGroups = {
       "Członek Komisji Marketingowej",
     ],
   },
+  Wynagrodzenie: {
+    id: "1573485228905857146",
+    ranks: [
+      "Kierownicze",
+      "Wyższe",
+      "Specjalistyczne",
+      "Najniższe",
+      "Pracownik Miesiąca",
+    ],
+  },
+  "Stopnie I Tytuły": {
+    id: "1573485492643823626",
+    ranks: ["Profesor", "Doktor Habilitowany", "Doktor"],
+  },
   // TODO: dodac medale, wynagrodzenie?, stopnie i tytuly?, dodatkowe role?
 } satisfies Record<
   string,
@@ -163,8 +185,12 @@ export const rankGroups = {
 
 export const committeesGrouped = {
   "Kadra Szkoleniowa & KM": [
-    { allowMultiChoice: true, value: "Kadra Szkoleniowa" },
-    { allowMultiChoice: true, value: "Komisje" },
+    { allowMultiChoice: false, value: "Kadra Szkoleniowa" },
+    { allowMultiChoice: false, value: "Komisje" },
+  ],
+  "Stopnie Naukowe & Wynagrodzenie": [
+    { allowMultiChoice: true, value: "Stopnie I Tytuły" },
+    { allowMultiChoice: true, value: "Wynagrodzenie" },
   ],
 } satisfies Record<
   string,
@@ -211,8 +237,7 @@ type ShortRankNameKeys =
   | "Inżynier Reaktora"
   | "Operator Reaktora"
   | "Starszy Operator Niejądrowy"
-  | "Operator Niejądrowy"
-  | "Kandydat";
+  | "Operator Niejądrowy";
 
 export const shortRankNames = new Map(
   Object.entries({
@@ -226,6 +251,5 @@ export const shortRankNames = new Map(
     "Operator Reaktora": "Op. Reak.",
     "Starszy Operator Niejądrowy": "St. Op. Niejądr.",
     "Operator Niejądrowy": "Op. Niejądr.",
-    Kandydat: "Kand.",
   } satisfies Pick<Record<AllRanks, string>, ShortRankNameKeys>),
 );
