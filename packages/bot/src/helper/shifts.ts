@@ -219,10 +219,16 @@ ApiHelper.shifts.getActive = async () => {
   }
 };
 
-ApiHelper.shifts.changeApproval = async (shiftId, approved) => {
+ApiHelper.shifts.changeApproval = async (shiftId, status) => {
   const request: ShiftPatch = {
-    approved,
+    ...status,
   };
+
+  if (status.approved === undefined && status.approvedByUM === undefined) {
+    return {
+      status: "badArgument",
+    };
+  }
 
   const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}`),
@@ -756,10 +762,16 @@ ApiHelper.shifts.report.logDoses = async (shiftId, request) => {
   }
 };
 
-ApiHelper.shifts.report.changeApproval = async (shiftId, approved) => {
+ApiHelper.shifts.report.changeApproval = async (shiftId, status) => {
   const request: ShiftReportPatch = {
-    approved,
+    ...status,
   };
+
+  if (status.approved === undefined && status.approvedByUM === undefined) {
+    return {
+      status: "badArgument",
+    };
+  }
 
   const res = await fetchWithErrorHandling(
     getRequestURL(`shifts/${shiftId}/report`),

@@ -4,7 +4,7 @@ import { toPlain } from "@/lib/utils";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { RaportZmianyComponent } from "../../page";
 
 async function getShiftReport(number: string, accessKey: string) {
@@ -48,8 +48,12 @@ export default async function RaportZmiany(
 
   const shiftReport = await getShiftReport(shiftNumberParsed.data, accessKey);
 
-  if (!shiftReport || shiftReport.approved) {
+  if (!shiftReport) {
     notFound();
+  }
+
+  if (shiftReport.approved) {
+    redirect(`/zmiana/${shiftNumber}/raport`);
   }
 
   return RaportZmianyComponent({ shiftNumber, isPreview: true });

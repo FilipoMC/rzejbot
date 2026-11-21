@@ -5,8 +5,10 @@ import channels from "@/config/channels";
 import other from "@/config/other";
 import { getRandomImage, shiftEventName, websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
+import { noPermissions } from "@/utils/commandResponses";
 import { fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { createTask } from "@commandkit/tasks";
+import { mainRanks } from "@shared/config/ranks";
 import { Button, ButtonKit, Logger, OnButtonKitClick } from "commandkit";
 import {
   addMinutes,
@@ -113,6 +115,15 @@ export async function sendShiftPlanSubmitEmbed({
       return;
     }
 
+    if (
+      !interaction.member.roles.cache.has(
+        mainRanks["Główny Inżynier Elektrowni"],
+      )
+    ) {
+      await noPermissions({ interactionOrMsg: interaction });
+      return;
+    }
+
     await Promise.all([
       (async () => {
         const event = await interaction.guild.scheduledEvents
@@ -183,7 +194,7 @@ export async function sendShiftPlanSubmitEmbed({
           });
         }
       })(),
-      ApiHelper.shifts.changeApproval(shiftId, true),
+      ApiHelper.shifts.changeApproval(shiftId, { approved: true }),
     ]);
 
     createTask({

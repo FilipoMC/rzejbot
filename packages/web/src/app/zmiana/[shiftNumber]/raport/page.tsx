@@ -1,5 +1,7 @@
+import { ElectronicSigned } from "@/components/electronicSigned";
 import FormatDate from "@/components/formatDate";
 import FormatDateOrNA from "@/components/formatDateOrNA";
+import RichText from "@/components/richText";
 import RobloxUsername from "@/components/robloxUsername";
 import {
   Popover,
@@ -16,9 +18,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getRobloxUsersByIds } from "@/lib/api";
+import { getManagers } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
 import { getShiftStations } from "@/lib/sharedDbActions";
 import { toPlain } from "@/lib/utils";
+import { ranksOrder, shortRankNames } from "@shared/config/ranks";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
 import { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
@@ -26,8 +30,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment, Suspense } from "react";
 import StationRows from "./stationRows";
-import RichText from "@/components/richText";
-import { ranksOrder, shortRankNames } from "@shared/config/ranks";
 
 async function getShiftReport(number: string) {
   "use cache";
@@ -108,6 +110,11 @@ async function getShiftReport(number: string) {
 
   cacheTag(`shiftReport:id:${res.shiftId}`);
 
+  const managers =
+    res.approved ?
+      await getManagers(firstRes.report?.date ?? firstRes.plannedDate)
+    : null;
+
   res.shift.employeeLogs.sort((a, b) => {
     const aVal =
       ranksOrder.get(a.employee.employeeChanges[0].newRole) ?? Infinity;
@@ -117,7 +124,10 @@ async function getShiftReport(number: string) {
     return aVal - bVal || a.employee.nameIC.localeCompare(b.employee.nameIC);
   });
 
-  return toPlain(res);
+  return toPlain({
+    ...res,
+    managers,
+  });
 }
 
 export default async function RaportZmiany(
@@ -586,6 +596,28 @@ export async function RaportZmianyComponent({
               <RichText>{shiftReport.summary ?? "N/A"}</RichText>
             </div>
           </div>
+          {/* if the host is signed below dont include the upper one */}
+          {![
+            shiftReport.managers?.unit.actingUM?.nameIC,
+            shiftReport.managers?.unit.mainUM?.nameIC,
+            shiftReport.managers?.mainME.nameIC,
+          ].includes(shiftReport.shift.host.nameIC) && (
+            <div className="mt-10 self-center flex max-w-200 w-full italic text-muted-foreground">
+              <div className="flex flex-col items-center">
+                <div className="hidden sm:block">
+                  / / / Podpis Elektrowniczny / / /
+                </div>
+                <div className="sm:hidden">/ / / Podp. Elektr. / / /</div>
+                <div>Kier. Zm. {shiftReport.shift.host.nameIC}</div>
+              </div>
+            </div>
+          )}
+          {shiftReport.managers && (
+            <ElectronicSigned
+              approvedByUM={shiftReport.approvedByUM}
+              managers={shiftReport.managers}
+            />
+          )}
         </>
       )}
     </div>

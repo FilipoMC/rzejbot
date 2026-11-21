@@ -6,13 +6,15 @@ import {
   loading,
 } from "@/utils/commandResponses";
 import { ChatInputCommand, CommandData } from "commandkit";
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, Channel, hyperlink } from "discord.js";
 import channels from "@/config/channels";
 import { websitePages } from "@/config/script";
+import { mainRanks, rankGroups } from "@shared/config/ranks";
+import { CustomCommandMetadata } from "@/types/commands";
 
 export const command: CommandData = {
   name: "zatwierdz",
-  description: "Zatwierdź plan zmiany.",
+  description: "Zatwierdź raport zmiany.",
   options: [
     {
       name: "zmiana",
@@ -29,6 +31,27 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     description: "Pobieranie zmiany...",
   });
   const shiftNumber = interaction.options.getString("zmiana", true);
+
+  if (!interaction.inCachedGuild()) {
+    return;
+  }
+
+  await interaction.member.fetch();
+
+  const roles = interaction.member.roles.cache;
+
+  const isME = roles.has(mainRanks["Główny Inżynier Elektrowni"]);
+  const isUM =
+    roles.has(mainRanks["Kierownik Bloków"]) ||
+    roles.has(mainRanks["p.o. Kierownika Bloków"]);
+
+  if (!isME && !isUM) {
+    await failedToExecute({
+      interactionOrMsg: interaction,
+      description: "Nie jesteś GI ani KB",
+    });
+    return;
+  }
 
   const shiftRes = await ApiHelper.shifts.getByShiftNumber(shiftNumber);
 
@@ -62,10 +85,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
   const shift = shiftRes.data;
 
-  const reportRes = await ApiHelper.shifts.report.changeApproval(
-    shift.id,
-    true,
-  );
+  const reportRes = await ApiHelper.shifts.report.changeApproval(shift.id, {
+    approved: isME ? true : undefined,
+    approvedByUM: isUM ? true : undefined,
+  });
 
   if (reportRes.status !== "ok") {
     await commandError({
@@ -80,27 +103,60 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     description: "Wysyłanie stosownych wiadomości...",
   });
 
-  const channel = await interaction.client.channels.fetch(channels.raporty);
+  const stuffToSend: Array<{ channel: Channel | null; content: string }> = [];
 
-  const shiftReportUrl = websitePages.shiftReport(shift.shiftNumber);
+  if (isUM) {
+    const channel = await interaction.client.channels.fetch(
+      channels.kierownicy_zmian,
+    );
 
-  try {
-    if (channel?.isSendable()) {
-      await channel.send(shiftReportUrl);
-    } else {
-      throw "tak";
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (e) {
-    await commandError({
-      interactionOrMsg: interaction,
-      description: `Wysłanie raportu nie powiodło się, lecz jest on zatwierdzony; proszę wysłać go ręcznie: ${shiftReportUrl}`,
-    });
-    return;
+    const content = `${hyperlink(`Raport ze zmiany ${shift.shiftNumber}`, websitePages.shiftReport(shift.shiftNumber))} został zatwierdzony przez Kierownika Bloków`;
+
+    stuffToSend.push({ channel, content });
   }
 
-  await commandSuccess({
-    interactionOrMsg: interaction,
-    description: undefined,
-  });
+  if (isME) {
+    const channel = await interaction.client.channels.fetch(channels.raporty);
+
+    const content = websitePages.shiftReport(shift.shiftNumber);
+
+    stuffToSend.push({ channel, content });
+  }
+
+  let success = true;
+
+  for (const { channel, content } of stuffToSend) {
+    try {
+      if (channel?.isSendable()) {
+        await channel.send(content);
+      } else {
+        throw "tak";
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      success = false;
+    }
+  }
+
+  if (success) {
+    await commandSuccess({
+      interactionOrMsg: interaction,
+      description: undefined,
+    });
+  } else {
+    await commandError({
+      interactionOrMsg: interaction,
+      description: `Wysłanie raportu nie powiodło się, lecz jest on zatwierdzony; proszę wysłać go ręcznie: ${websitePages.shiftReport(shift.shiftNumber)}`,
+    });
+  }
+};
+
+export const metadata: CustomCommandMetadata = {
+  skipLocalMiddleware: true,
+  permissions: {
+    allowedRoles: [
+      rankGroups["Kierownictwo Elektrowni"].id,
+      rankGroups["Kierownictwo Bloków"].id,
+    ],
+  },
 };
