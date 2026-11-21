@@ -9,7 +9,7 @@ import {
 } from "@/utils/commandResponses";
 import { fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { ChatInputCommand, CommandData } from "commandkit";
-import { ApplicationCommandOptionType, hyperlink } from "discord.js";
+import { ApplicationCommandOptionType, hyperlink, spoiler } from "discord.js";
 
 export const command: CommandData = {
   name: "zresetuj-token",
@@ -96,6 +96,6 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
   await commandSuccess({
     interactionOrMsg: interaction,
-    description: `Zresetowano token do raportu zmiany, nowy link: ${shiftReportUrl}`,
+    description: `Zresetowano token do raportu zmiany, ${hyperlink("nowy link", shiftReportUrl)}`,
   });
 };
