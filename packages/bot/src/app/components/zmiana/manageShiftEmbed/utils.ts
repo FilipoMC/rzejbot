@@ -12,6 +12,7 @@ import {
   EmbedBuilder,
   hyperlink,
   Interaction,
+  strikethrough,
   time,
   TimestampStyles,
   userMention,
@@ -93,7 +94,13 @@ export function getShiftManageEmbed(
       stations
         .map(
           ({ station, operators }) =>
-            `${station}: *${operators.map(({ employeeNameIC }) => employeeNameIC).join("*, *")}*`,
+            `${station}: *${operators
+              .map(({ employeeNameIC }, idx, arr) =>
+                idx === arr.length - 1 ?
+                  employeeNameIC
+                : strikethrough(employeeNameIC),
+              )
+              .join("*, *")}*`,
         )
         .join("\n")
     : "N/A";
@@ -104,7 +111,7 @@ export function getShiftManageEmbed(
       `**Data zmiany:** ${time(shift.plannedDate, TimestampStyles.ShortDate)}\n` +
         `**Kierownik zmiany:** ${userMention(shift.host.discordId)}\n` +
         (shiftReport?.cohost?.discordId ?
-          `**Nadzorujący przełożony:** ${userMention(shiftReport.cohost.discordId)}`
+          `**Nadzorujący przełożony:** ${userMention(shiftReport.cohost.discordId)}\n`
         : "") +
         (shiftReportLink ?
           hyperlink(
