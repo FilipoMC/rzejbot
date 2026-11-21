@@ -595,6 +595,15 @@ export async function RaportZmianyComponent({
             <div className="text-justify w-full whitespace-pre-wrap">
               <RichText>{shiftReport.summary ?? "N/A"}</RichText>
             </div>
+            {isPreview && (
+              <div className="text-muted-foreground text-sm">
+                <span className="italic">Słowa:</span>{" "}
+                {
+                  (shiftReport.summary ?? "").split(/[\s\n]/).filter(Boolean)
+                    .length
+                }
+              </div>
+            )}
           </div>
           {/* if the host is signed below dont include the upper one */}
           {![
