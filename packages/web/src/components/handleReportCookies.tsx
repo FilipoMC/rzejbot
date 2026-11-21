@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function TokenHandler({
   token,
@@ -14,7 +14,14 @@ export default function TokenHandler({
 }) {
   const router = useRouter();
 
+  const started = useRef(false);
+
   useEffect(() => {
+    if (started.current) {
+      return;
+    }
+    started.current = true;
+
     async function saveToken() {
       const params = new URLSearchParams({
         number,
@@ -35,7 +42,7 @@ export default function TokenHandler({
           `/zmiana/${number}/raport/${type === "edit" ? "edytuj" : "podglad"}`,
         );
       } else {
-        // router.replace("/notfound");
+        router.replace("/notfound");
       }
     }
 

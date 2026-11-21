@@ -1,12 +1,47 @@
 import { hashAccessKey } from "@/lib/accessKeys";
 import { prisma } from "@/lib/prisma";
 import { shiftNumberSchema } from "@shared/zod/shiftSchemas";
+import { cacheLife, cacheTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
 const zodSchema = z.object({
   token: z.string().min(1).max(500),
 });
+
+async function checkIfHasPerms(
+  number: string,
+  token: string,
+  type: "preview" | "edit",
+) {
+  "use cache";
+
+  cacheTag("all");
+  cacheTag(`shiftReport:number:${number}`);
+  cacheTag(`shiftReportEdit:number:${number}`);
+  cacheLife("days");
+
+  const res = await prisma.shiftReport.findFirst({
+    where: {
+      shift: {
+        shiftNumber: number,
+      },
+      ...(type === "edit" ?
+        { accessTokenHash: hashAccessKey(token) }
+      : { previewAccessTokenHash: hashAccessKey(token) }),
+    },
+    select: { shiftId: true },
+  });
+
+  if (!res) {
+    return false;
+  }
+
+  cacheTag(`shiftReport:id:${res.shiftId}`);
+  cacheTag(`shiftReportEdit:id:${res.shiftId}`);
+
+  return true;
+}
 
 export async function POST(req: NextRequest) {
   const bodyUnparsed = await req
@@ -43,28 +78,18 @@ export async function POST(req: NextRequest) {
   const shiftNumber = shiftNumberParsed.data;
   const type = typeParsed.data;
 
-  const res = await prisma.shiftReport.findFirst({
-    where: {
-      shift: {
-        shiftNumber,
-      },
-      ...(type === "edit" ?
-        { accessTokenHash: hashAccessKey(body.token) }
-      : { previewAccessTokenHash: hashAccessKey(body.token) }),
-    },
-    select: { shiftId: true },
-  });
+  const hasPerms = await checkIfHasPerms(shiftNumber, body.token, type);
 
-  if (!res) {
+  if (!hasPerms) {
     return NextResponse.json(
       { ok: false, error: "Unauthorized" },
       { status: 401 },
     );
   }
 
-  const response = NextResponse.json({ ok: true, data: null }, { status: 200 });
+  const res = NextResponse.json({ ok: true, data: null }, { status: 200 });
 
-  response.cookies.set(
+  res.cookies.set(
     `report_${type}_token_${shiftNumber.replace("/", "-")}`,
     body.token,
     {
@@ -76,5 +101,5 @@ export async function POST(req: NextRequest) {
     },
   );
 
-  return response;
+  return res;
 }
