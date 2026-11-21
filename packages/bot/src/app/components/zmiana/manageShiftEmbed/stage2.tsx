@@ -37,9 +37,11 @@ import {
   registerButtonHandler,
   removeModalHandler,
   replaceModalHandler,
+  shiftManageEmbedCollectorTime,
 } from "./utils";
 import kv from "@/utils/kv";
 import { kvKeys } from "@/config/other";
+import client from "@/app";
 
 export function createManageShiftEmbedStage2Components(
   shift: ShiftAPIResponse,
@@ -188,6 +190,7 @@ export function createManageShiftEmbedStage2Components(
             filter: createShiftManageEmbedComponentsFilter(
               shift.host.discordId,
             ),
+            time: shiftManageEmbedCollectorTime,
           }}
         >
           <Label label="Obecni">
@@ -249,6 +252,7 @@ export function createManageShiftEmbedStage2Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Rozpocznij zmianę
@@ -319,6 +323,7 @@ export function createManageShiftEmbedStage2Components(
         options={{
           once: false,
           filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+          time: shiftManageEmbedCollectorTime,
         }}
       >
         <Label label="Przełożony">
@@ -358,6 +363,7 @@ export function createManageShiftEmbedStage2Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Przełożony
@@ -393,6 +399,7 @@ export function createManageShiftEmbedStage2Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Stanowiska

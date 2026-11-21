@@ -15,6 +15,7 @@ import {
   registerButtonHandler,
   createShiftManageEmbedComponentsFilter,
   disposeShiftHandlers,
+  shiftManageEmbedCollectorTime,
 } from "./utils";
 import { commandError } from "@/utils/commandResponses";
 import { deferAfter } from "@/utils/utilityFunctions";
@@ -86,6 +87,7 @@ export function createManageShiftEmbedStage3Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Zakończ zmianę
@@ -121,6 +123,7 @@ export function createManageShiftEmbedStage3Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Stanowiska
