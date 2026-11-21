@@ -26,6 +26,7 @@ import {
   replaceModalHandler,
   createShiftManageEmbedComponentsFilter,
   disposeShiftHandlers,
+  shiftManageEmbedCollectorTime,
 } from "./utils";
 import {
   commandError,
@@ -68,6 +69,7 @@ export function createManageShiftEmbedStage4Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Zakończ debriefing
@@ -199,6 +201,7 @@ export function createManageShiftEmbedStage4Components(
         options={{
           once: false,
           filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+          time: shiftManageEmbedCollectorTime,
         }}
       >
         <Label label="Dawki">
@@ -237,6 +240,7 @@ export function createManageShiftEmbedStage4Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Dawki

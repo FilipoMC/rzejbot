@@ -47,6 +47,8 @@ export function createShiftManageEmbedComponentsFilter(hostId: string) {
   };
 }
 
+export const shiftManageEmbedCollectorTime = 3 * 60 * 60 * 1000;
+
 function getTimes(a: string, b: string, c: string) {
   return (
     `Rozpocz. briefingu: ${a}\n` +

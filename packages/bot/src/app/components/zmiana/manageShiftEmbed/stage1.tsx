@@ -16,6 +16,7 @@ import {
   createShiftManageEmbedComponentsFilter,
   getShiftManageEmbed,
   registerButtonHandler,
+  shiftManageEmbedCollectorTime,
 } from "./utils";
 
 export function createManageShiftEmbedStage1Components(
@@ -89,6 +90,7 @@ export function createManageShiftEmbedStage1Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Rozpocznij briefing
