@@ -10,7 +10,7 @@ export const sharedConfig = {
 
     // trzyosobowe u2
     // +
-    "Operator Chłodzenia": 3,
+    "Operator MCC": 3,
 
     // dwuosobowe u1
 
@@ -19,7 +19,7 @@ export const sharedConfig = {
 
     // trzyosobowe u1
     // +
-    "U1 - Chłodzenie": 101,
+    "U1 - MCC": 101,
 
     // pozostale
 
@@ -60,13 +60,9 @@ export const stationsGrouped = {
   U2_MCR: [
     station("Operator ATC"),
     station("Operator BOP"),
-    station("Operator Chłodzenia"),
+    station("Operator MCC"),
   ],
-  U1_MCR: [
-    station("U1 - ATC"),
-    station("U1 - BOP"),
-    station("U1 - Chłodzenie"),
-  ],
+  U1_MCR: [station("U1 - ATC"), station("U1 - BOP"), station("U1 - MCC")],
   Inne: [
     station("Operator TCR"),
     station("Operator FWP"),

@@ -11,7 +11,7 @@ import {
 import { fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { EventHandler } from "commandkit";
 import { addMinutes } from "date-fns";
-import { AttachmentBuilder, MessageFlags } from "discord.js";
+import { AttachmentBuilder } from "discord.js";
 
 const handler: EventHandler<"interactionCreate"> = async (interaction) => {
   if (!interaction.isButton()) {
@@ -23,6 +23,8 @@ const handler: EventHandler<"interactionCreate"> = async (interaction) => {
   if (splitCustomId[0] !== eventHandledAbsenceButton.customId.prefix) {
     return;
   }
+
+  await loading({ interactionOrMsg: interaction, description: undefined });
 
   const parseRes =
     eventHandledAbsenceButton.customId.validator.safeParse(splitCustomId);
@@ -60,9 +62,6 @@ const handler: EventHandler<"interactionCreate"> = async (interaction) => {
     return;
   }
 
-  await interaction.deferReply({
-    flags: MessageFlags.Ephemeral,
-  });
   await loading({
     interactionOrMsg: interaction,
     description: undefined,
