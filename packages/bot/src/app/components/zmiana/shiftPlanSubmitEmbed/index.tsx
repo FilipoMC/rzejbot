@@ -216,6 +216,7 @@ export async function sendShiftPlanSubmitEmbed({
       customId={`approve-shift-plan_${shift.id}`}
       style={ButtonStyle.Success}
       onClick={onButtonClick}
+      options={{ time: 24 * 60 * 60 * 1000 }}
     >
       Zatwierdź
     </Button>
