@@ -40,7 +40,7 @@ const handler: EventHandler<"voiceStateUpdate"> = async (
   const isZmianaVc = (id: string | null) => id && zmianaVCIds.includes(id);
   const isZmianaVcState = (state: VoiceState) => isZmianaVc(state.channelId);
 
-  if (!oldState.channelId && !oldState.channelId) {
+  if (!oldState.channelId && !newState.channelId) {
     return;
   }
 

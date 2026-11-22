@@ -22,11 +22,14 @@ import {
   MessageFlags,
   StringSelectMenuOptionBuilder,
   userMention,
+  VoiceBasedChannel,
 } from "discord.js";
 
 import channels from "@/config/channels";
+import { kvKeys } from "@/config/other";
 import { commandError, commandSuccess } from "@/utils/commandResponses";
-import { deferAfter } from "@/utils/utilityFunctions";
+import kv from "@/utils/kv";
+import { deferAfter, fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { addMinutes } from "date-fns";
 import { createManageShiftEmbedStage3Components } from "./stage3";
 import { createManageShiftEmbedSetStationsComponents } from "./substages/stations";
@@ -38,8 +41,6 @@ import {
   removeModalHandler,
   replaceModalHandler,
 } from "./utils";
-import kv from "@/utils/kv";
-import { kvKeys } from "@/config/other";
 
 export function createManageShiftEmbedStage2Components(
   shift: ShiftAPIResponse,
@@ -52,14 +53,18 @@ export function createManageShiftEmbedStage2Components(
     interaction,
     ctx,
   ) => {
-    const shiftVC = await interaction.client.channels.fetch(
-      channels.zmianaVC.main,
+    const shiftVCs = await Promise.all(
+      Object.values(channels.zmianaVC).map((v) =>
+        fetchChannelResolvable(v, interaction.client),
+      ),
     );
 
-    if (!shiftVC?.isVoiceBased()) {
+    if (
+      !shiftVCs.every((v): v is VoiceBasedChannel => Boolean(v?.isVoiceBased()))
+    ) {
       Logger.error({
         msg: "Invalid channel in config",
-        path: "channels.zmianaVC.main",
+        path: "channels.zmianaVC",
       });
       await commandError({
         interactionOrMsg: interaction,
@@ -68,14 +73,44 @@ export function createManageShiftEmbedStage2Components(
       return;
     }
 
+    const shiftVCMembers = shiftVCs.flatMap((channel) =>
+      channel.members.values().toArray(),
+    );
+
     const onModalSubmit: OnModalKitSubmit = async (
       modalInteraction,
       modalCtx,
     ) => {
+      const shiftVCs = await Promise.all(
+        Object.values(channels.zmianaVC).map((v) =>
+          fetchChannelResolvable(v, interaction.client),
+        ),
+      );
+
+      if (
+        !shiftVCs.every((v): v is VoiceBasedChannel =>
+          Boolean(v?.isVoiceBased()),
+        )
+      ) {
+        Logger.error({
+          msg: "Invalid channel in config",
+          path: "channels.zmianaVC",
+        });
+        await commandError({
+          interactionOrMsg: interaction,
+          description: undefined,
+        });
+        return;
+      }
+
+      const shiftVCMembers = shiftVCs.flatMap((channel) =>
+        channel.members.values().toArray(),
+      );
+
       const selectedMemberIds = modalInteraction.fields
         .getStringSelectValues("employees")
         .reduce((prev, memberUsername) => {
-          const member = shiftVC.members.find(
+          const member = shiftVCMembers.find(
             (v) => v.user.username === memberUsername,
           );
           if (member) {
@@ -193,10 +228,10 @@ export function createManageShiftEmbedStage2Components(
           <Label label="Obecni">
             <StringSelectMenu
               minValues={1}
-              maxValues={shiftVC.members.entries().toArray().length - 1}
+              maxValues={shiftVCMembers.entries().toArray().length - 1}
               customId="employees"
             >
-              {...shiftVC.members.reduce((prev, member) => {
+              {...shiftVCMembers.reduce((prev, member) => {
                 if (shift.host.discordId !== member.user.id) {
                   return [
                     ...prev,
