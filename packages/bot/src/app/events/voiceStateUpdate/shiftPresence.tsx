@@ -1,3 +1,4 @@
+import { shiftManageEmbedCollectorTime } from "@/app/components/zmiana/manageShiftEmbed/utils";
 import channels from "@/config/channels";
 import config from "@/config/config";
 import emoji from "@/config/emoji";
@@ -118,6 +119,7 @@ const handler: EventHandler<"voiceStateUpdate"> = async (
       options={{
         filter: (itx) =>
           itx.user.id === shiftHostId || config.devs.includes(itx.user.id),
+        time: shiftManageEmbedCollectorTime,
       }}
       style={ButtonStyle.Success}
     >
@@ -135,6 +137,7 @@ const handler: EventHandler<"voiceStateUpdate"> = async (
       options={{
         filter: (itx) =>
           itx.user.id === shiftHostId || config.devs.includes(itx.user.id),
+        time: shiftManageEmbedCollectorTime,
       }}
       style={ButtonStyle.Danger}
     >

@@ -1,5 +1,5 @@
 import config from "@/config/config";
-import { websitePages } from "@/config/script";
+import { shiftEventName, websitePages } from "@/config/script";
 import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 import {
   ShiftAPIResponse,
@@ -108,7 +108,7 @@ export function getShiftManageEmbed(
     : "N/A";
 
   const embed = new EmbedBuilder()
-    .setTitle(`Zmiana ${shift.shiftNumber}`)
+    .setTitle(shiftEventName(shift.shiftNumber))
     .setDescription(
       `**Data zmiany:** ${time(shift.plannedDate, TimestampStyles.ShortDate)}\n` +
         `**Kierownik zmiany:** ${userMention(shift.host.discordId)}\n` +
