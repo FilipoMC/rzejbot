@@ -1,3 +1,4 @@
+import { generateAccessKey } from "@/lib/accessKeys";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { shiftNumberSchema, shiftPostSchema } from "@shared/zod/shiftSchemas";
@@ -29,6 +30,9 @@ export async function GET(req: NextRequest) {
             discordId: true,
           },
         },
+      },
+      omit: {
+        previewAccessTokenHash: true,
       },
     });
 
@@ -67,6 +71,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const { hashedKey, rawKey } = generateAccessKey();
+
   const body = bodyParsed.data;
 
   try {
@@ -74,9 +80,13 @@ export async function POST(req: NextRequest) {
       data: {
         ...body,
         host: { connect: { discordId: body.host, system: false } },
+        previewAccessTokenHash: hashedKey,
       },
       include: {
         host: { select: { discordId: true } },
+      },
+      omit: {
+        previewAccessTokenHash: true,
       },
     });
 
@@ -85,7 +95,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ok: true,
-        data: res,
+        data: { ...res, previewAccessToken: rawKey },
       },
       { status: 201 },
     );

@@ -1,13 +1,19 @@
-import { sendShiftPlanSubmitEmbed } from "@/app/components/zmiana/shiftPlanSubmitEmbed";
-import other from "@/config/other";
+import channels from "@/config/channels";
+import other, { kvKeys } from "@/config/other";
+import { websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
 import {
+  commandError,
   commandSuccess,
   failedToExecute,
   loading,
 } from "@/utils/commandResponses";
-import { createFailEmbed } from "@/utils/embeds";
-import { safeParseWithReply } from "@/utils/utilityFunctions";
+import { createCommandErrorEmbed, createFailEmbed } from "@/utils/embeds";
+import kv from "@/utils/kv";
+import {
+  fetchChannelResolvable,
+  safeParseWithReply,
+} from "@/utils/utilityFunctions";
 import { sharedConfig } from "@shared/config/config";
 import {
   defaultShiftGoal,
@@ -36,6 +42,7 @@ import {
   ApplicationCommandOptionType,
   codeBlock,
   EmbedBuilder,
+  hyperlink,
   MessageFlags,
   TextInputStyle,
 } from "discord.js";
@@ -161,7 +168,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       }
 
       if (!embed) {
-        embed = createFailEmbed(
+        embed = createCommandErrorEmbed(
           "Wystąpił błąd podczas komunikacji z serwerem.",
         );
       }
@@ -183,11 +190,27 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       return;
     }
 
-    await sendShiftPlanSubmitEmbed({
-      client: interaction.client,
+    kv.set(
+      kvKeys.other.shiftPlanEventDescription(shift.data.shiftNumber),
       eventDesc,
-      shiftId: shift.data.id,
-    });
+    );
+
+    const channel = await fetchChannelResolvable(
+      channels.kierownicy_zmian,
+      interaction.client,
+    );
+
+    if (!channel?.isSendable()) {
+      await commandError({
+        interactionOrMsg: interaction,
+        description: undefined,
+      });
+      return;
+    }
+
+    await channel.send(
+      `**${shift.data.shiftNumber}** - Przesłano do zatwierdzenia ${hyperlink("plan zmiany", websitePages.shiftPlanPreview(shift.data.shiftNumber, shift.data.previewAccessToken))}`,
+    );
 
     await commandSuccess({
       interactionOrMsg: modalInteraction,

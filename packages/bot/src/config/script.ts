@@ -6,6 +6,8 @@ export const websiteUrl = `http://${process.env.SERVER_IP}${process.env.SERVER_P
 export const websitePages = {
   shiftPlan: (number: string) =>
     `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/plan`,
+  shiftPlanPreview: (number: string, accessToken: string) =>
+    `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/plan/podglad/${accessToken}`,
   shiftReport: (number: string) =>
     `${websiteUrl}/zmiana/${number.replaceAll("/", "-")}/raport`,
   shiftReportEdit: (number: string, accessToken: string) =>
@@ -14,7 +16,7 @@ export const websitePages = {
     `${websitePages.shiftReport(number)}/podglad/${accessToken}`,
 };
 
-export const shiftEventName = (number: string) => `Zmiana ${number}`;
+export const shiftEventName = (number: string) => `Zmiana ${number}` as const;
 
 export function getRandomImage(category: keyof typeof images) {
   const arr = images[category];

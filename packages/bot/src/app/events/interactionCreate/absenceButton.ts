@@ -1,4 +1,4 @@
-import { eventHandledAbsenceButton } from "@/app/components/zmiana/shiftPlanSubmitEmbed";
+import { eventHandledAbsenceButton } from "@/app/commands/(Kierownictwo)/[zmiana]/{plan}/zatwierdz.subcommand";
 import channels from "@/config/channels";
 import other from "@/config/other";
 import { getRandomImage, shiftEventName } from "@/config/script";
