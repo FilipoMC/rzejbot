@@ -5,7 +5,6 @@ import { ActionRow, CommandData, Logger, MessageCommand } from "commandkit";
 import { codeBlock, EmbedBuilder } from "discord.js";
 import z from "zod";
 import channels from "@/config/channels";
-import { sendShiftPlanSubmitEmbed } from "@/app/components/zmiana/shiftPlanSubmitEmbed";
 import { allRanks, rankGroups } from "@shared/config/ranks";
 import { AllRanks } from "@shared/types/other";
 import rzejEmployeeRanksStringSelect from "@/app/components/employee/rzejRanksStringSelect";
