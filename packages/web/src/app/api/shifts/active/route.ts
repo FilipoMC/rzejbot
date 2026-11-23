@@ -12,6 +12,9 @@ export async function GET() {
       include: {
         host: { select: { discordId: true } },
       },
+      omit: {
+        previewAccessTokenHash: true,
+      },
       orderBy: {
         report: {
           date: "desc",

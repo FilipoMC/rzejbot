@@ -25,8 +25,9 @@ async function getShift(number: string) {
   cacheLife("days");
 
   const res = await prisma.shift.findUnique({
-    where: { shiftNumber: number, approved: true },
+    where: { shiftNumber: number },
     include: { host: true },
+    omit: { previewAccessTokenHash: true },
   });
 
   if (!res) {
@@ -45,6 +46,16 @@ export default async function PlanZmiany(
 ) {
   const { shiftNumber } = await props.params;
 
+  return PlanZmianyComponent({ shiftNumber });
+}
+
+export async function PlanZmianyComponent({
+  shiftNumber,
+  isPreview,
+}: {
+  shiftNumber: string;
+  isPreview?: boolean;
+}) {
   const shiftNumberParsed = shiftNumberSchema.safeParse(shiftNumber);
 
   if (!shiftNumberParsed.success) {
@@ -57,13 +68,26 @@ export default async function PlanZmiany(
     notFound();
   }
 
+  if (!shift.approved && isPreview) {
+    shift.approved = true;
+  }
+
+  if (!shift.approved) {
+    notFound();
+  }
+
   return (
     <div className="flex flex-col m-4 sm:m-10 text-base sm:text-lg [&_thead]:max-sm:text-sm">
       <h1 className="text-xl sm:text-3xl font-bold text-center">
-        OGÓLNY PLAN ZMIANY
+        {isPreview ? "PODGLĄD PLANU ZMIANY" : "OGÓLNY PLAN ZMIANY"}
       </h1>
       <h2 className="text-lg sm:text-xl font-bold text-center">
-        Elektrowni Jądrowej im. <br /> Marii Skłodowskiej-Curie w Żarnowcu
+        {isPreview ?
+          "Podgląd nieopublikowanego planu zmiany"
+        : <>
+            Elektrowni Jądrowej im. <br /> Marii Skłodowskiej-Curie w Żarnowcu
+          </>
+        }
       </h2>
       <div className="h-10"></div>
       <table className="max-w-200 w-full self-center">

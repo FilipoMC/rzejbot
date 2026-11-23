@@ -13,6 +13,7 @@ import {
   shiftLogPresencePostAPIResponseSchema,
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
+  shiftPostAPIResponseSchema,
   shiftReportAPIResponseSchema,
   shiftReportPostAPIResponseSchema,
 } from "@shared/zod/apiResponses/shifts";
@@ -50,7 +51,9 @@ ApiHelper.shifts.create = async (request) => {
     .json()
     .catch(() => "JSON z prismy sie rozwalil");
 
-  const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
+  const bodyParsed = apiResponseSchema(shiftPostAPIResponseSchema).safeParse(
+    body,
+  );
 
   if (!bodyParsed.success) {
     Logger.error(z.treeifyError(bodyParsed.error));
@@ -72,6 +75,45 @@ ApiHelper.shifts.create = async (request) => {
           status: "apiError",
           errorStatus: "notFound",
           error: "Nie znaleziono pracownika pod tym ID konta na discordzie",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.resetAccessToken = async (shiftId) => {
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}/reset-token`),
+    requestOptions("POST"),
+  );
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
+
+  const bodyParsed = apiResponseSchema(shiftPostAPIResponseSchema).safeParse(
+    body,
+  );
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana nie istnieje",
         };
       default:
         Logger.error(bodyParsed.data.error);

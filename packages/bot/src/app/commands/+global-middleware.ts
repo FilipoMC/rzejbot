@@ -1,12 +1,12 @@
-import { CustomCommandMetadata } from "@/types/commands";
-import { MiddlewareContext, stopMiddlewares } from "commandkit";
 import config from "@/config/config";
-import { middlewareReply } from "@/utils/commandResponses";
-import { middlewareCheckPerms } from "@/utils/middlewareUtils";
-import kv from "@/utils/kv";
-import { EmbedBuilder } from "discord.js";
 import emoji from "@/config/emoji";
 import { kvKeys } from "@/config/other";
+import { CustomCommandMetadata } from "@/types/commands";
+import { middlewareReply } from "@/utils/commandResponses";
+import kv from "@/utils/kv";
+import { middlewareCheckPerms } from "@/utils/middlewareUtils";
+import { MiddlewareContext, stopMiddlewares } from "commandkit";
+import { EmbedBuilder } from "discord.js";
 
 export function beforeExecute(ctx: MiddlewareContext) {
   const metadata = ctx.command.metadata as CustomCommandMetadata;

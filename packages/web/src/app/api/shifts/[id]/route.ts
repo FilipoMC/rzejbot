@@ -29,6 +29,9 @@ export async function GET(
           },
         },
       },
+      omit: {
+        previewAccessTokenHash: true,
+      },
     });
 
     if (!res) {
@@ -96,6 +99,9 @@ export async function PATCH(
       },
       include: {
         host: { select: { discordId: true } },
+      },
+      omit: {
+        previewAccessTokenHash: true,
       },
     });
 

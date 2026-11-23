@@ -70,6 +70,8 @@ model Shift {
   shiftGoal               String
   notes                   String
 
+  previewAccessTokenHash String
+
   approvedByUM Boolean @default(true)
   approved     Boolean @default(false)
 

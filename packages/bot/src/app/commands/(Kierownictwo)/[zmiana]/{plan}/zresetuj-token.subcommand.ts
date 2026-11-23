@@ -1,18 +1,19 @@
+import channels from "@/config/channels";
+import { websitePages } from "@/config/script";
 import { ApiHelper } from "@/helper/apiHelper";
-import { CustomCommandMetadata } from "@/types/commands";
 import {
   commandError,
   commandSuccess,
   failedToExecute,
   loading,
 } from "@/utils/commandResponses";
-import { rankGroups } from "@shared/config/ranks";
+import { fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { ChatInputCommand, CommandData } from "commandkit";
-import { ApplicationCommandOptionType } from "discord.js";
+import { ApplicationCommandOptionType, hyperlink } from "discord.js";
 
 export const command: CommandData = {
-  name: "zatwierdz",
-  description: "Zatwierdź plan zmiany.",
+  name: "zresetuj-token",
+  description: "Zresetuj token do podglądu planu zmiany.",
   options: [
     {
       name: "zmiana",
@@ -57,32 +58,44 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
   await loading({
     interactionOrMsg: interaction,
-    description: "Aktualizowanie stanu zmiany...",
+    description: "Resetowanie tokenu...",
   });
 
   const shift = shiftRes.data;
 
-  const reportRes = await ApiHelper.shifts.changeApproval(shift.id, {
-    approved: true,
-  });
+  const reportRes = await ApiHelper.shifts.resetAccessToken(shift.id);
 
   if (reportRes.status !== "ok") {
     await commandError({
       interactionOrMsg: interaction,
-      description: "Wystąpił błąd podczas aktualizowania stanu zmiany.",
+      description: "Wystąpił błąd podczas resetowania tokenu.",
     });
     return;
   }
 
+  await loading({
+    interactionOrMsg: interaction,
+    description: "Wysyłanie stosownych wiadomości...",
+  });
+
+  const shiftPlanPreviewUrl = websitePages.shiftPlanPreview(
+    shift.shiftNumber,
+    reportRes.data.previewAccessToken,
+  );
+
+  const channel = await fetchChannelResolvable(
+    channels.kierownicy_zmian,
+    interaction.client,
+  );
+
+  if (channel?.isSendable()) {
+    await channel.send(
+      `**${shift.shiftNumber}** - ${hyperlink("podgląd planu zmiany", shiftPlanPreviewUrl)}`,
+    );
+  }
+
   await commandSuccess({
     interactionOrMsg: interaction,
-    description: undefined,
+    description: `Zresetowano token do planu zmiany, ${hyperlink("nowy link", shiftPlanPreviewUrl)}`,
   });
-};
-
-export const metadata: CustomCommandMetadata = {
-  skipLocalMiddleware: true,
-  permissions: {
-    allowedRoles: [rankGroups["Kierownictwo Elektrowni"].id],
-  },
 };

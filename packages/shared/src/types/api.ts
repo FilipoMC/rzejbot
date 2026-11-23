@@ -13,6 +13,7 @@ import {
   shiftLogPresencePostAPIResponseSchema,
   shiftLogStationsGetAPIResponseSchema,
   shiftLogStationsPostAPIResponseSchema,
+  shiftPostAPIResponseSchema,
   shiftReportAPIResponseSchema,
   shiftReportPostAPIResponseSchema,
 } from "../zod/apiResponses/shifts";
@@ -62,6 +63,7 @@ export type ShiftEmployeeLogAPIResponse = z.output<
   typeof shiftEmployeeLogAPIResponseSchema
 >;
 export type ShiftAPIResponse = z.output<typeof shiftAPIResponseSchema>;
+export type ShiftPostAPIResponse = z.output<typeof shiftPostAPIResponseSchema>;
 export type ShiftReportAPIResponse = z.output<
   typeof shiftReportAPIResponseSchema
 >;

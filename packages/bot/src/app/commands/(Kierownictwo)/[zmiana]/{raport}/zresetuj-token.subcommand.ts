@@ -9,7 +9,7 @@ import {
 } from "@/utils/commandResponses";
 import { fetchChannelResolvable } from "@/utils/utilityFunctions";
 import { ChatInputCommand, CommandData } from "commandkit";
-import { ApplicationCommandOptionType, hyperlink, spoiler } from "discord.js";
+import { ApplicationCommandOptionType, hyperlink } from "discord.js";
 
 export const command: CommandData = {
   name: "zresetuj-token",
