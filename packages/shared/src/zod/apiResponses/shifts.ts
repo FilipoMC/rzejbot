@@ -23,6 +23,10 @@ export const shiftAPIResponseSchema = z.object({
   createdAt: isoDateStringSchema,
 });
 
+export const shiftPostAPIResponseSchema = shiftAPIResponseSchema.extend({
+  previewAccessToken: z.string(),
+});
+
 export const shiftEmployeeLogAPIResponseSchema = z.object({
   id: z.number().nonnegative(),
   absence: z.boolean().nullable(),

@@ -24,5 +24,7 @@ export const kvKeys = {
   },
   other: {
     activeShiftHostId: "active-shift-host",
+    shiftPlanEventDescription: (number: string) =>
+      `shift-event-desc:${number}` as const,
   },
-};
+} as const;
