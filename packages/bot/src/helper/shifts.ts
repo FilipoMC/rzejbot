@@ -24,6 +24,7 @@ import {
   shiftLogPresencePostSchema,
   shiftLogStationsPostSchema,
   shiftNumberSchema,
+  shiftPatchSchema,
   shiftPostSchema,
   shiftReportPatchSchema,
 } from "@shared/zod/shiftSchemas";
@@ -75,6 +76,50 @@ ApiHelper.shifts.create = async (request) => {
           status: "apiError",
           errorStatus: "notFound",
           error: "Nie znaleziono pracownika pod tym ID konta na discordzie",
+        };
+      default:
+        Logger.error(bodyParsed.data.error);
+        return {
+          status: "apiError",
+          errorStatus: "serverError",
+          error: "Wystąpił błąd podczas komunikacji z serwerem.",
+        };
+    }
+  }
+};
+
+ApiHelper.shifts.update = async (shiftId, request) => {
+  const requestParsed = shiftPatchSchema.safeParse(request);
+  if (!requestParsed.success) {
+    Logger.error(z.treeifyError(requestParsed.error));
+    return { status: "badArgument" };
+  }
+
+  const res = await fetchWithErrorHandling(
+    getRequestURL(`shifts/${shiftId}`),
+    requestOptions("PATCH", JSON.stringify(requestParsed.data)),
+  );
+
+  const body: unknown = await res
+    .json()
+    .catch(() => "JSON z prismy sie rozwalil");
+
+  const bodyParsed = apiResponseSchema(shiftAPIResponseSchema).safeParse(body);
+
+  if (!bodyParsed.success) {
+    Logger.error(z.treeifyError(bodyParsed.error));
+    return { status: "apiResponseParsingError" };
+  }
+
+  if (bodyParsed.data.ok) {
+    return { status: "ok", data: bodyParsed.data.data };
+  } else {
+    switch (res.status) {
+      case 404:
+        return {
+          status: "apiError",
+          errorStatus: "notFound",
+          error: "Zmiana lub pracownik nie istnieje",
         };
       default:
         Logger.error(bodyParsed.data.error);
