@@ -1,18 +1,25 @@
 import { ApiHelper } from "@/helper/apiHelper";
 import {
+  commandError,
+  commandSuccess,
+  failedToExecute,
+} from "@/utils/commandResponses";
+import { deferAfter } from "@/utils/utilityFunctions";
+import {
   ShiftAPIResponse,
   ShiftLogStationsGetAPIResponse,
   ShiftReportAPIResponse,
 } from "@shared/types/api";
+import { nameICSchema } from "@shared/zod/employeeSchemas";
 import {
-  OnButtonKitClick,
   Button,
   ButtonKit,
+  Label,
   Logger,
   Modal,
-  Label,
-  TextInput,
+  OnButtonKitClick,
   OnModalKitSubmit,
+  TextInput,
 } from "commandkit";
 import {
   ActionRowBuilder,
@@ -20,23 +27,25 @@ import {
   TextInputStyle,
   userMention,
 } from "discord.js";
+import z from "zod";
 import {
+  createShiftManageEmbedComponentsFilter,
+  disposeShiftHandlers,
   getShiftManageEmbed,
   registerButtonHandler,
   replaceModalHandler,
-  createShiftManageEmbedComponentsFilter,
-  disposeShiftHandlers,
   shiftManageEmbedCollectorTime,
 } from "./utils";
-import {
-  commandError,
-  commandSuccess,
-  failedToExecute,
-} from "@/utils/commandResponses";
-import { deferAfter } from "@/utils/utilityFunctions";
-import { nameICSchema } from "@shared/zod/employeeSchemas";
-import z from "zod";
-import { Tuple } from "@shared/types/utils";
+
+const doseRegex =
+  /^(?<name>\S+ \S+) *- *(?<dose>\d+) *; *(?<hours>\d+) *: *(?<minutes>\d+)/gm;
+
+const groupsSchema = z.object({
+  name: nameICSchema,
+  dose: z.coerce.number(),
+  hours: z.coerce.number(),
+  minutes: z.coerce.number(),
+});
 
 export function createManageShiftEmbedStage4Components(
   shift: ShiftAPIResponse,
@@ -92,33 +101,25 @@ export function createManageShiftEmbedStage4Components(
             await ApiHelper.shifts.report.logDoses(
               shift.id,
               entries
-                .split("\n")
-                .filter((v) => {
-                  const split = v.split(" - ");
-
-                  return (
-                    split.length === 2 &&
-                    nameICSchema.safeParse(split[0]).success &&
-                    z
-                      .string()
-                      .regex(/\d; \d:\d/)
-                      .safeParse(split[1]).success
-                  );
-                })
+                .matchAll(doseRegex)
+                .toArray()
                 .map((v) => {
-                  const [employee, comb] = v.split(" - ") as Tuple<string, 2>;
+                  const {
+                    data: values,
+                    success: parseSuccess,
+                    error: parseError,
+                  } = groupsSchema.safeParse(v.groups);
 
-                  const [dose, timeComb] = comb.split("; ") as Tuple<string, 2>;
+                  if (!parseSuccess) {
+                    Logger.error(parseError);
+                    throw parseError;
+                  }
 
-                  const timeTuple = timeComb.split(":") as Tuple<string, 2>;
-
-                  const [hours, minutes] = timeTuple.map((v) =>
-                    parseInt(v),
-                  ) as Tuple<number, 2>;
+                  const { dose, hours, minutes, name: nameIC } = values;
 
                   return {
-                    employee,
-                    dose: parseInt(dose) ?? null,
+                    employee: nameIC,
+                    dose: dose ?? null,
                     time:
                       !isNaN(hours) && !isNaN(minutes) ?
                         hours * 60 + minutes
