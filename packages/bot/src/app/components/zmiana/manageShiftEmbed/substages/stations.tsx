@@ -1,18 +1,27 @@
+import client from "@/app";
+import channels from "@/config/channels";
+import { shiftEventName } from "@/config/script";
+import { ApiHelper } from "@/helper/apiHelper";
+import { commandError, commandSuccess } from "@/utils/commandResponses";
+import { deferAfter } from "@/utils/utilityFunctions";
+import { stationsGrouped } from "@shared/config/config";
 import {
   ShiftAPIResponse,
   ShiftLogStationsGetAPIResponse,
   ShiftReportAPIResponse,
 } from "@shared/types/api";
+import { Tuple } from "@shared/types/utils";
+import { nameICSchema } from "@shared/zod/employeeSchemas";
 import {
-  OnButtonKitClick,
   Button,
   ButtonKit,
-  Modal,
-  UserSelectMenu,
   Label,
   Logger,
+  Modal,
+  OnButtonKitClick,
   OnModalKitSubmit,
   TextInput,
+  UserSelectMenu,
 } from "commandkit";
 import {
   ActionRowBuilder,
@@ -24,19 +33,16 @@ import {
 } from "discord.js";
 import type { createManageShiftEmbedStage2Components } from "../stage2";
 import type { createManageShiftEmbedStage3Components } from "../stage3";
-import { stationsGrouped } from "@shared/config/config";
-import { ApiHelper } from "@/helper/apiHelper";
-import { commandError, commandSuccess } from "@/utils/commandResponses";
-import { deferAfter } from "@/utils/utilityFunctions";
-import { Tuple } from "@shared/types/utils";
 import {
-  disposeShiftHandlers,
   createShiftManageEmbedComponentsFilter,
-  registerButtonHandler,
+  disposeShiftHandlers,
   getShiftManageEmbed,
+  registerButtonHandler,
   replaceModalHandler,
+  shiftManageEmbedCollectorTime,
 } from "../utils";
-import { nameICSchema } from "@shared/zod/employeeSchemas";
+
+const stationsCollectorTime = 2 * 60 * 1000;
 
 export function createManageShiftEmbedSetStationsComponents(
   shift: ShiftAPIResponse,
@@ -70,6 +76,39 @@ export function createManageShiftEmbedSetStationsComponents(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: stationsCollectorTime,
+        onEnd: () => {
+          (async () => {
+            const channel = await client.channels.fetch(
+              channels.ogloszeniaBlokow,
+            );
+            if (!channel?.isTextBased()) {
+              return;
+            }
+            const message = channel.messages.cache
+              .sort((a, b) => a.createdTimestamp - b.createdTimestamp)
+              .find(
+                (msg) =>
+                  msg.editable &&
+                  msg.embeds[0]?.title?.startsWith(
+                    shiftEventName(shift.shiftNumber),
+                  ),
+              );
+
+            if (!message) {
+              return;
+            }
+
+            await message.edit({
+              embeds: [getShiftManageEmbed(shift, shiftReport, stations)],
+              components: createCurrentStageComponents(
+                shift,
+                shiftReport,
+                stations,
+              ),
+            });
+          })();
+        },
       }}
     >
       « Powrót
@@ -198,6 +237,7 @@ export function createManageShiftEmbedSetStationsComponents(
             filter: createShiftManageEmbedComponentsFilter(
               shift.host.discordId,
             ),
+            time: shiftManageEmbedCollectorTime,
           }}
         >
           {stationNamesArr.slice(0, 5).map((station) => {
@@ -342,6 +382,7 @@ export function createManageShiftEmbedSetStationsComponents(
         options={{
           once: false,
           filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+          time: stationsCollectorTime,
         }}
       >
         <Label label="Przydział">
@@ -394,6 +435,7 @@ export function createManageShiftEmbedSetStationsComponents(
         options={{
           once: true,
           filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+          time: stationsCollectorTime,
         }}
       >
         {group.replaceAll("_", " ")}
@@ -423,6 +465,7 @@ export function createManageShiftEmbedSetStationsComponents(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: stationsCollectorTime,
       }}
     >
       Własne

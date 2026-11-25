@@ -143,7 +143,9 @@ export const message: MessageCommand = async (ctx) => {
         { name: "⏱️ Time", value: `${(end - start).toFixed(2)}ms` },
       );
 
-    message.reply({ embeds: [embed] });
+    message
+      .reply({ embeds: [embed] })
+      .catch(() => message.channel.send({ embeds: [embed] }).catch(() => null));
 
     // eval's error can be one of many types, any doesn't matter here
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -154,7 +156,11 @@ export const message: MessageCommand = async (ctx) => {
       .setDescription(`\`\`\`js\n${err?.message ?? err}\n\`\`\``);
 
     // If it was to fail for some reason we don't want the bot to crash
-    message.reply({ embeds: [errorEmbed] }).catch(() => null);
+    message
+      .reply({ embeds: [errorEmbed] })
+      .catch(() =>
+        message.channel.send({ embeds: [errorEmbed] }).catch(() => null),
+      );
   }
 };
 

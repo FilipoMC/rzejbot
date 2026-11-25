@@ -27,6 +27,7 @@ import {
   ShiftLogPresencePost,
   ShiftLogPresencePostAPIResponse,
   ShiftPostAPIResponse,
+  ShiftPatch,
 } from "@shared/types/api";
 import { getContext, Logger } from "commandkit";
 import z from "zod";
@@ -128,6 +129,11 @@ interface ApiHelper {
     ) => Promise<
       ApiHelperReturnType<ShiftPostAPIResponse, z.ZodError<ShiftPost>>
     >;
+
+    update: (
+      shiftId: number,
+      request: ShiftPatch,
+    ) => Promise<ApiHelperReturnType<ShiftAPIResponse>>;
 
     resetAccessToken: (
       shiftId: number,

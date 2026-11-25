@@ -1,5 +1,5 @@
 import config from "@/config/config";
-import { websitePages } from "@/config/script";
+import { shiftEventName, websitePages } from "@/config/script";
 import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 import {
   ShiftAPIResponse,
@@ -12,6 +12,7 @@ import {
   EmbedBuilder,
   hyperlink,
   Interaction,
+  strikethrough,
   time,
   TimestampStyles,
   userMention,
@@ -45,6 +46,8 @@ export function createShiftManageEmbedComponentsFilter(hostId: string) {
     return hostId === interaction.user.id;
   };
 }
+
+export const shiftManageEmbedCollectorTime = 3 * 60 * 60 * 1000;
 
 function getTimes(a: string, b: string, c: string) {
   return (
@@ -93,18 +96,24 @@ export function getShiftManageEmbed(
       stations
         .map(
           ({ station, operators }) =>
-            `${station}: *${operators.map(({ employeeNameIC }) => employeeNameIC).join("*, *")}*`,
+            `${station}: *${operators
+              .map(({ employeeNameIC }, idx, arr) =>
+                idx === arr.length - 1 ?
+                  employeeNameIC
+                : strikethrough(employeeNameIC),
+              )
+              .join("*, *")}*`,
         )
         .join("\n")
     : "N/A";
 
   const embed = new EmbedBuilder()
-    .setTitle(`Zmiana ${shift.shiftNumber}`)
+    .setTitle(shiftEventName(shift.shiftNumber))
     .setDescription(
       `**Data zmiany:** ${time(shift.plannedDate, TimestampStyles.ShortDate)}\n` +
         `**Kierownik zmiany:** ${userMention(shift.host.discordId)}\n` +
         (shiftReport?.cohost?.discordId ?
-          `**Nadzorujący przełożony:** ${userMention(shiftReport.cohost.discordId)}`
+          `**Nadzorujący przełożony:** ${userMention(shiftReport.cohost.discordId)}\n`
         : "") +
         (shiftReportLink ?
           hyperlink(

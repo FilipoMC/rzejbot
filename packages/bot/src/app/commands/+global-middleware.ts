@@ -52,4 +52,16 @@ export function beforeExecute(ctx: MiddlewareContext) {
   if (metadata.permissions) {
     middlewareCheckPerms(ctx);
   }
+
+  // Anty-starszyński infrastruktura
+  // if (
+  //   ctx?.interaction?.user?.id === "1467509269208498359" ||
+  //   ctx?.message?.author?.id === "1467509269208498359"
+  // ) {
+  //   failedToExecute({
+  //     interactionOrMsg: ctx.interaction ?? ctx.message,
+  //     description: "Masz blacklista na rzejbocie, serdeczne gratulacje",
+  //   });
+  //   stopMiddlewares();
+  // }
 }

@@ -16,6 +16,7 @@ import {
   createShiftManageEmbedComponentsFilter,
   getShiftManageEmbed,
   registerButtonHandler,
+  shiftManageEmbedCollectorTime,
 } from "./utils";
 
 export function createManageShiftEmbedStage1Components(
@@ -51,7 +52,7 @@ export function createManageShiftEmbedStage1Components(
         content: `Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
       }),
       interaction.user.send(
-        `**${shift.shiftNumber}** - Link do edytowania raportu zmiany: ${websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken)}`,
+        `**${shift.shiftNumber}** - ${hyperlink("Link do edytowania raportu zmiany", websitePages.shiftReportEdit(shiftReport.shift.shiftNumber, shiftReport.accessToken))}`,
       ),
       interaction.client.channels
         .fetch(channels.kierownicy_zmian)
@@ -89,6 +90,7 @@ export function createManageShiftEmbedStage1Components(
       options={{
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
+        time: shiftManageEmbedCollectorTime,
       }}
     >
       Rozpocznij briefing

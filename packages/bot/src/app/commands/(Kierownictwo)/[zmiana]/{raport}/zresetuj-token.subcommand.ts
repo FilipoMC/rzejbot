@@ -96,6 +96,6 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
 
   await commandSuccess({
     interactionOrMsg: interaction,
-    description: `Zresetowano token do raportu zmiany, nowy link: ${shiftReportUrl}`,
+    description: `Zresetowano token do raportu zmiany, ${hyperlink("nowy link", shiftReportUrl)}`,
   });
 };

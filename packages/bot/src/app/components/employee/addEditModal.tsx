@@ -3,18 +3,19 @@ import {
   Label,
   UserSelectMenu,
   TextInput,
-  StringSelectMenu,
-  StringSelectMenuOption,
   CheckboxGroup,
   CheckboxGroupOption,
   OnModalKitSubmit,
 } from "commandkit";
-import { ChatInputCommandInteraction, TextInputStyle } from "discord.js";
-import { ApiHelperReturnType } from "@/types/apiHelper";
-import { EmployeeAPIResponse } from "@shared/types/api";
+import {
+  ChatInputCommandInteraction,
+  GuildMember,
+  TextInputStyle,
+} from "discord.js";
+import { ApiHelperReturnData } from "@/types/apiHelper";
 import { getRobloxUsersByIds } from "@/utils/api";
-import rzejEmployeeRanksStringSelect from "./rzejRanksStringSelect";
-import { mainRanks } from "@shared/config/ranks";
+import RzejEmployeeRanksStringSelect from "./rzejRanksStringSelect";
+import { ApiHelper } from "@/helper/apiHelper";
 
 export function employeeAddModal(
   interaction: ChatInputCommandInteraction,
@@ -41,6 +42,10 @@ export function employeeAddModal(
           customId="nameIC"
           style={TextInputStyle.Short}
           placeholder="Oliwier Baran"
+          value={
+            (interaction.options.getMember("uzytkownik") as GuildMember)
+              ?.displayName ?? ""
+          }
           required
         />
       </Label>
@@ -56,7 +61,7 @@ export function employeeAddModal(
         label="Ranga"
         description="Ranga którą nadać pracownikowi na start"
       >
-        {rzejEmployeeRanksStringSelect({})}
+        {RzejEmployeeRanksStringSelect({})}
       </Label>
       <Label label="Kwalifikacje/Uprawnienia">
         <CheckboxGroup customId="qualification">
@@ -75,23 +80,20 @@ export function employeeAddModal(
 
 export async function employeeEditModal(
   handler: OnModalKitSubmit,
-  employee: ApiHelperReturnType<EmployeeAPIResponse>,
+  employee: ApiHelperReturnData<typeof ApiHelper.employee.find>,
 ) {
-  if (employee.status !== "ok") {
-    return;
-  }
   return (
     <Modal
-      title="Dodaj Pracownika"
+      title="Edytuj Pracownika"
       options={{ once: false }}
       onSubmit={handler}
-      customId={`modalEmployeeAdd-${employee.data.discordId}`}
+      customId={`modalEmployeeAdd-${employee.discordId}`}
     >
       <Label label="Użytkownik">
         <UserSelectMenu
           required
           customId="user"
-          defaultValues={employee.data.discordId}
+          defaultValues={employee.discordId}
           maxValues={1}
           minValues={1}
         />
@@ -102,7 +104,7 @@ export async function employeeEditModal(
           style={TextInputStyle.Short}
           placeholder="Oliwier Baran"
           required
-          value={employee.data.nameIC}
+          value={employee.nameIC}
         />
       </Label>
       <Label label="Roblox Username" description="Nie display name">
@@ -112,52 +114,31 @@ export async function employeeEditModal(
           placeholder="Pawe_320"
           required
           value={
-            (await getRobloxUsersByIds([employee.data.robloxId]))?.[0]?.name ||
-            ""
+            (await getRobloxUsersByIds([employee.robloxId]))?.[0]?.name || ""
           }
         />
-      </Label>
-      <Label
-        label="Ranga"
-        description="Ranga którą nadać pracownikowi na start"
-      >
-        <StringSelectMenu required customId="rank" minValues={1} maxValues={1}>
-          {Object.keys(mainRanks).map((e) => {
-            return (
-              <StringSelectMenuOption
-                label={e}
-                value={e}
-                default={
-                  e === employee.data.employeeChanges.data[0]!.newRole ?
-                    true
-                  : false
-                }
-              />
-            );
-          })}
-        </StringSelectMenu>
       </Label>
       <Label label="Kwalifikacje/Uprawnienia">
         <CheckboxGroup customId="qualification">
           <CheckboxGroupOption
             label="Pracownik"
             value="pracownik"
-            default={employee.data.qualification.pracownik}
+            default={employee.qualification.pracownik}
           />
           <CheckboxGroupOption
             label="Jądrowy"
             value="jadrowy"
-            default={employee.data.qualification.jadrowy}
+            default={employee.qualification.jadrowy}
           />
           <CheckboxGroupOption
             label="Kierownik Zmiany"
             value="kierownikZmiany"
-            default={employee.data.qualification.kierownikZmiany}
+            default={employee.qualification.kierownikZmiany}
           />
           <CheckboxGroupOption
             label="Szkoleniowiec"
             value="szkoleniowiec"
-            default={employee.data.qualification.szkoleniowiec}
+            default={employee.qualification.szkoleniowiec}
           />
         </CheckboxGroup>
       </Label>
