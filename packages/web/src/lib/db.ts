@@ -30,7 +30,7 @@ export async function getManagers(time: Date) {
 
   const managers = sideRes.filter((v) =>
     (ranksAllowedToBeManagers as string[]).includes(
-      v.employeeChanges[0].newRole,
+      v.employeeChanges[0]?.newRole ?? "",
     ),
   );
 
