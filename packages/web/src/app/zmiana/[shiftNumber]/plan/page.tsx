@@ -34,7 +34,7 @@ async function getShift(number: string) {
     return null;
   }
 
-  const managers = await getManagers(res.plannedDate);
+  const managers = res.approved ? await getManagers(res.plannedDate) : null;
 
   cacheTag(`shift:id:${res.id}`);
 
