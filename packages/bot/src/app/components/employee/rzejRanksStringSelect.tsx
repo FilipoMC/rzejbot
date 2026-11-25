@@ -9,7 +9,7 @@ import { mainRanks } from "@shared/config/ranks";
 import { CacheType } from "discord.js";
 import { StringSelectMenuInteraction } from "discord.js";
 
-export default function rzejEmployeeRanksStringSelect({
+export default function RzejEmployeeRanksStringSelect({
   customId = "rank",
   defaultRank = "Operator Niejądrowy",
   handler,
@@ -33,7 +33,7 @@ export default function rzejEmployeeRanksStringSelect({
         return (
           <StringSelectMenuOption
             label={e}
-            value={e}
+            value={e.replaceAll(" ", "_")}
             default={e === defaultRank}
           />
         );

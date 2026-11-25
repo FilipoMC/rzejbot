@@ -49,9 +49,20 @@ export const otherRanks = {
   Profesor: "1573485560499142766",
   "Doktor Habilitowany": "1573485564009648199",
   Doktor: "1573485566392139776",
+  // Dodatkowe
+  "Wielce Zasłużony Działacz ŻEJ": "1573701250497773609",
+  "Zasłużony Działacz ŻEJ": "1573701253463023716",
+  "Medal Pamiątkowy PAA Za Zasługi dla Rozwoju Energetyki Atomowej":
+    "1573701257133301920",
+  "Złoty Medal Dyrektora ŻEJ Za Wybitne Osiągnięcia dla Energetyki Jądrowej":
+    "1573701260396208219",
+  "Złoty Medal Dyrektora ŻEJ Za Wybitne Osiągnięcia Naukowe":
+    "1573701263172964472",
+  "Medal Dyrektora ŻEJ Za Wkład w Rozwój Elektrowni": "1573701266037669959",
+  "Odznaka Głównego Inżyniera ŻEJ Bezpieczny Rdzeń": "1573701268827013121",
 } satisfies Record<string, string>;
 
-export const allRanks = Object.assign(mainRanks, otherRanks);
+export const allRanks = { ...mainRanks, ...otherRanks };
 /**
  * @what_is_odpierdalating_here
  * Maps organizational power plants groups and committees to their
@@ -174,7 +185,18 @@ export const rankGroups = {
     id: "1573485492643823626",
     ranks: ["Profesor", "Doktor Habilitowany", "Doktor"],
   },
-  // TODO: dodac medale, wynagrodzenie?, stopnie i tytuly?, dodatkowe role?
+  Dodatkowe: {
+    id: "1573700831667028080",
+    ranks: [
+      "Wielce Zasłużony Działacz ŻEJ",
+      "Zasłużony Działacz ŻEJ",
+      "Medal Pamiątkowy PAA Za Zasługi dla Rozwoju Energetyki Atomowej",
+      "Złoty Medal Dyrektora ŻEJ Za Wybitne Osiągnięcia dla Energetyki Jądrowej",
+      "Złoty Medal Dyrektora ŻEJ Za Wybitne Osiągnięcia Naukowe",
+      "Medal Dyrektora ŻEJ Za Wkład w Rozwój Elektrowni",
+      "Odznaka Głównego Inżyniera ŻEJ Bezpieczny Rdzeń",
+    ],
+  },
 } satisfies Record<
   string,
   {
@@ -188,9 +210,10 @@ export const committeesGrouped = {
     { allowMultiChoice: false, value: "Kadra Szkoleniowa" },
     { allowMultiChoice: false, value: "Komisje" },
   ],
-  "Stopnie Naukowe & Wynagrodzenie": [
-    { allowMultiChoice: true, value: "Stopnie I Tytuły" },
+  "Stopnie Naukowe, Wynagrodzenie I inne": [
+    { allowMultiChoice: false, value: "Stopnie I Tytuły" },
     { allowMultiChoice: true, value: "Wynagrodzenie" },
+    { allowMultiChoice: true, value: "Dodatkowe" },
   ],
 } satisfies Record<
   string,
@@ -200,19 +223,20 @@ export const committeesGrouped = {
 // TODO: Optimize via usage of role ids
 export function getGroupsForRank(role: string) {
   if (!Object.keys(allRanks).includes(role)) {
+    console.error("hit rock bottom in getgroupsforrank");
     return [];
   }
 
   const groupsIncludingRole = Object.entries(rankGroups).filter(([, v]) =>
     (v.ranks as string[]).includes(
-      role.replaceAll(/[^a-zA-Z0-9 ]/g, "").trim(),
+      role.replaceAll(/[^a-zęóąśłżźćń0-9\s]/gi, "").trim(),
     ),
   );
-  return groupsIncludingRole.map(([k]) => {
+  return groupsIncludingRole.map(([groups]) => {
     return {
       group: {
-        name: k,
-        id: rankGroups[k as keyof typeof rankGroups].id,
+        name: groups,
+        id: rankGroups[groups as keyof typeof rankGroups].id,
       },
       role: {
         name: role,
@@ -221,6 +245,12 @@ export function getGroupsForRank(role: string) {
     };
   });
 }
+
+// TODO: implement
+// export function manageEmployeeRoles(
+//   employee: EmployeeAPIResponse,
+//   newEmployee: EmployeeAPIResponse,
+// ) {}
 
 export const ranksOrder = Object.keys(mainRanks).reduce(
   (prev, v, idx) => prev.set(v, idx),
@@ -253,3 +283,12 @@ export const shortRankNames = new Map(
     "Operator Niejądrowy": "Op. Niejądr.",
   } satisfies Pick<Record<AllRanks, string>, ShortRankNameKeys>),
 );
+
+export const shortAcademicTitleNames = {
+  Profesor: "prof.",
+  "Doktor Habilitowany": "dr hab.",
+  Doktor: "dr",
+} satisfies Record<
+  (typeof rankGroups)["Stopnie I Tytuły"]["ranks"][number],
+  string
+>;

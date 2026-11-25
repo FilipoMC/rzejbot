@@ -7,7 +7,6 @@ import {
   ChatInputCommand,
   CommandData,
   Label,
-  Logger,
   MessageCommand,
   Modal,
   OnModalKitSubmit,
