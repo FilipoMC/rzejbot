@@ -1,19 +1,27 @@
-/*eslint-disable*/
-import { commandError, commandSuccess } from "@/utils/commandResponses";
-import { employeeWithChangesAPIResponseSchema } from "@shared/zod/apiResponses/employee";
-import { ActionRow, CommandData, Logger, MessageCommand } from "commandkit";
-import { codeBlock, EmbedBuilder } from "discord.js";
-import z from "zod";
-import channels from "@/config/channels";
-import { allRanks, rankGroups } from "@shared/config/ranks";
-import { AllRanks } from "@shared/types/other";
-import rzejEmployeeRanksStringSelect from "@/app/components/employee/rzejRanksStringSelect";
+import {
+  ActionRow,
+  Button,
+  ButtonKit,
+  CommandData,
+  Label,
+  Logger,
+  MessageCommand,
+  Modal,
+  ModalKit,
+  StringSelectMenu,
+  StringSelectMenuOption,
+} from "commandkit";
+import { ButtonStyle } from "discord.js";
+import { committeesGrouped, rankGroups } from "@shared/config/ranks";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 
 export const command: CommandData = {
   name: "test",
   description: "halo",
 };
 
+const btnBSHandler = new CommandkitBullshitHandler<ButtonKit>();
+const modalBSHandler = new CommandkitBullshitHandler<ModalKit>();
 export const message: MessageCommand = async (ctx) => {
   // const res = await ApiHelper.shifts.create({
   //   host: "705701074975195178",
@@ -122,6 +130,67 @@ export const message: MessageCommand = async (ctx) => {
   //     ],
   //   });
   //
+  const buttons: ButtonKit[] = [];
+  for (const group in committeesGrouped) {
+    buttons.push(
+      <Button
+        style={ButtonStyle.Secondary}
+        customId={`empedit-${ctx.message.author.id}-${group.replaceAll(" ", "_")}`}
+        onClick={async (btitx) => {
+          const modal = (
+            <Modal
+              title="Edytuj Pracownika"
+              customId={`empeditmodal-${ctx.message.author.id}`}
+              options={{ once: false }}
+              onSubmit={async (itx) => {
+                await itx.deferReply();
+                await itx.editReply(JSON.stringify(itx.fields, null, 2));
+                Logger.debug(itx);
+              }}
+            >
+              {committeesGrouped[group as keyof typeof committeesGrouped].map(
+                (k) => {
+                  const ret = (
+                    <Label label={k.value}>
+                      <StringSelectMenu
+                        customId={k.value.replaceAll(" ", "_")}
+                        maxValues={
+                          k.allowMultiChoice ?
+                            rankGroups[k.value as keyof typeof rankGroups].ranks
+                              .length
+                          : 1
+                        }
+                      >
+                        {rankGroups[
+                          k.value as keyof typeof rankGroups
+                        ].ranks.map((r) => {
+                          return (
+                            <StringSelectMenuOption
+                              label={r}
+                              value={r.replaceAll(" ", "_")}
+                            />
+                          );
+                        })}
+                      </StringSelectMenu>
+                    </Label>
+                  );
+                  return ret;
+                },
+              )}
+            </Modal>
+          );
+          modalBSHandler.replaceOldCollector(ctx.message.author.id, modal);
+          await btitx.showModal(modal);
+        }}
+      >
+        {group}
+      </Button>,
+    );
+  }
+  btnBSHandler.replaceOldCollector(ctx.message.author.id, buttons);
+  await ctx.message.reply({
+    components: [<ActionRow>{buttons}</ActionRow>],
+  });
 };
 
 // export const chatInput: ChatInputCommand = async ({ interaction }) => {

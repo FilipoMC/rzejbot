@@ -7,6 +7,7 @@ import {
 } from "@/utils/commandResponses";
 import { ChatInputCommand, CommandData } from "commandkit";
 import { ApplicationCommandOptionType } from "discord.js";
+import { allRanks } from "@shared/config/ranks";
 
 export const command: CommandData = {
   name: "wyswietl",
@@ -55,7 +56,15 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
   }
 
   await interaction.editReply({
-    embeds: [displayEditEmpEmbed(user, employee.data)],
+    embeds: [
+      displayEditEmpEmbed(
+        user,
+        employee.data,
+        interaction.guild?.roles.cache.get(
+          allRanks[employee.data.employeeChanges[0]!.newRole],
+        )?.colors.primaryColor ?? "Blurple",
+      ),
+    ],
   });
   return;
 };

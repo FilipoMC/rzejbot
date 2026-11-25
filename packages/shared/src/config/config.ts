@@ -45,8 +45,12 @@ export const sharedConfig = {
     suspension: { color: null, prettyName: "Zawieszenie" },
     demotion: { color: null, prettyName: "Wypowiedzenie Zmieniające" },
     termination: {
-      color: "#ffffff",
+      color: null,
       prettyName: "Zwolnienie Dysyplinarne",
+    },
+    resignation: {
+      color: null,
+      prettyName: "Wypowiedzenie o porozumieniu stron",
     },
   } satisfies Record<string, { color: string | null; prettyName: string }>,
 };

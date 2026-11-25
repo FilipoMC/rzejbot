@@ -2,7 +2,6 @@ import z from "zod";
 import { snowflakeSchema } from "../discordSchemas";
 import { isoDateStringSchema } from "../dateTimeSchemas";
 import {
-  allEmployeeRanksSchema,
   employeeChangeTypeSchema,
   employeeRanksSchema,
   nameICSchema,
@@ -29,7 +28,7 @@ export const employeeChangeSchema = z.object({
   createdAt: isoDateStringSchema,
 });
 
-export const employeeAPIResponseSchema = z.object({
+const employeeAPIResponseSchemaBase = z.object({
   id: z.number().positive(),
   discordId: snowflakeSchema,
   robloxId: z.number().positive(),
@@ -41,28 +40,20 @@ export const employeeAPIResponseSchema = z.object({
     kierownikZmiany: z.boolean(),
     szkoleniowiec: z.boolean(),
   }),
-  employeeChanges: z.union([
-    z
-      .array(employeeChangeSchema)
-      .min(1)
-      .transform((change) => {
-        return { includedQuals: true, data: change };
-      }),
-    z
-      .array(employeeChangeSchema.pick({ newRole: true }))
-      .length(1)
-      .transform((e) => {
-        return { includedQuals: false, data: e };
-      }),
-  ]),
 
   updatedAt: isoDateStringSchema,
   createdAt: isoDateStringSchema,
 });
 
+export const employeeAPIResponseSchema = employeeAPIResponseSchemaBase.extend({
+  employeeChanges: z
+    .array(employeeChangeSchema.pick({ newRole: true }))
+    .length(1),
+});
+
 export const employeeWithChangesAPIResponseSchema =
-  employeeAPIResponseSchema.extend({
-    employeeChanges: z.array(employeeChangeSchema),
+  employeeAPIResponseSchemaBase.extend({
+    employeeChanges: z.array(employeeChangeSchema).min(1),
   });
 
 export const employeeChangePostAPIResponseSchema = z.object({
