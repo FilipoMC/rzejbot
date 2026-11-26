@@ -77,7 +77,11 @@ export function createManageShiftEmbedSetStationsComponents(
         once: true,
         filter: createShiftManageEmbedComponentsFilter(shift.host.discordId),
         time: stationsCollectorTime,
-        onEnd: () => {
+        onEnd: (reason) => {
+          if (reason !== "time") {
+            return;
+          }
+
           (async () => {
             const channel = await client.channels.fetch(
               channels.ogloszeniaBlokow,
