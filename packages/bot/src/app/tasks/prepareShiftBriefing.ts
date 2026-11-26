@@ -1,8 +1,9 @@
 import { task } from "@commandkit/tasks";
-import { sendShiftManageEmbed } from "../components/zmiana/manageShiftEmbed";
+import { sendShiftManageEmbed } from "../components/zmiana/manageShiftEmbed/index";
 import { ApiHelper } from "@/helper/apiHelper";
 import { shiftEventName } from "@/config/script";
 import { GuildScheduledEventStatus } from "discord.js";
+import { Logger } from "commandkit";
 
 export interface PrepareShiftBriefingTaskData {
   shiftIdentifier: NonNullable<
@@ -15,6 +16,7 @@ export default task<PrepareShiftBriefingTaskData>({
   name: "prepare-shift-briefing",
   async execute(ctx) {
     const { shiftIdentifier, guildId } = ctx.data;
+    Logger.warn(ctx);
 
     let shiftNumber;
 
