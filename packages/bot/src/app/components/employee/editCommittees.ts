@@ -171,18 +171,15 @@ export const editCommitteesHandler =
       description: "Pomyślnie zmieniono komisje pracownika",
     });
     setTimeout(async () => await interaction.deleteReply(), 10 * 1000);
-    await originalInteraction.editReply({
-      embeds: [
-        displayEditEmpEmbed(
-          employeeDc.user,
-          res.data,
-          interaction.guild?.roles.cache.get(
-            allRanks[res.data.employeeChanges[0]!.newRole],
-          )?.colors.primaryColor ?? "Blurple",
-        ),
-      ],
-    });
 
+    await displayEditEmpEmbed(
+      employeeDc.user,
+      res.data,
+      interaction.guild?.roles.cache.get(
+        allRanks[res.data.employeeChanges[0]!.newRole],
+      )?.colors.primaryColor ?? "Blurple",
+      originalInteraction,
+    );
     ctx.dispose();
     return;
   };

@@ -4,6 +4,8 @@ import {
   OtherEmployeeRanks,
 } from "@shared/types/api";
 import {
+  ActionRowBuilder,
+  ButtonStyle,
   ChatInputCommandInteraction,
   ColorResolvable,
   EmbedBuilder,
@@ -18,19 +20,40 @@ import {
   commandError,
 } from "@/utils/commandResponses";
 import { robloxUsersByUsernamesAPIResponseSchema } from "@shared/zod/roblox/apiResponses";
-import { OnModalKitSubmit } from "commandkit";
+import {
+  Button,
+  ButtonKit,
+  Label,
+  Logger,
+  Modal,
+  ModalKit,
+  OnButtonKitClick,
+  OnModalKitSubmit,
+  StringSelectMenu,
+  StringSelectMenuOption,
+} from "commandkit";
 import z from "zod";
 import {
   allRanks,
+  committeesGrouped,
   getGroupsForRank,
   rankGroups,
   shortAcademicTitleNames,
 } from "@shared/config/ranks";
+import { empEditCache } from "@/app/commands/(Kierownictwo)/[pracownik]/edytuj.subcommand";
+import { addChangesModal, addChangesModalHandler } from "./addChangesModal";
+import { employeeEditModal } from "./addEditModal";
+import { editCommitteesHandler } from "./editCommittees";
+import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 
-export function displayEditEmpEmbed(
+const HandleModalBullshit = new CommandkitBullshitHandler<ModalKit>();
+const HandleButtonBullshit = new CommandkitBullshitHandler<ButtonKit>();
+export async function displayEditEmpEmbed(
   user: User,
   employee: EmployeeAPIResponse,
   color: ColorResolvable,
+  interaction: ChatInputCommandInteraction,
+  attachEditButtons: boolean = true,
 ) {
   const decideEmoji = (bool: boolean) => (bool ? emoji.yes : emoji.no);
   const academicTitle = employee.committees.filter((e) =>
@@ -68,6 +91,144 @@ export function displayEditEmpEmbed(
     });
   });
 
+  // #region dynamic btns
+  const committeeButtons: ButtonKit[] = [];
+  for (const group in committeesGrouped) {
+    const groupCustomID = group.replaceAll(" ", "_");
+
+    const buttonHandlerFunc: OnButtonKitClick = async (buttonItx) => {
+      const modal = (
+        <Modal
+          title="Pracownik Edytuj | Role Dodatkowe"
+          customId={`empeditmodal-${buttonItx.user.id}-${groupCustomID}`}
+          options={{ once: false }}
+          onSubmit={editCommitteesHandler(
+            empEditCache.get(employee.discordId) ?? employee,
+            interaction,
+          )}
+        >
+          {committeesGrouped[group as keyof typeof committeesGrouped].map(
+            (k) => {
+              const rankGroupBeingIndexed =
+                rankGroups[k.value as keyof typeof rankGroups];
+              return (
+                <Label label={k.value}>
+                  <StringSelectMenu
+                    customId={`${k.value.replaceAll(" ", "_")}`}
+                    maxValues={
+                      k.allowMultiChoice ?
+                        rankGroupBeingIndexed.ranks.length
+                      : 1
+                    }
+                  >
+                    {rankGroupBeingIndexed.ranks.map((r) => {
+                      // Logger.debug({
+                      //   r,
+                      //   b: empEditCache.get(employee.data.discordId) ?? employee.data.committees,
+                      //   c: (empEditCache.get(employee.data.discordId) ?? employee.data.committees as string[]).includes(r),
+                      // });
+                      return (
+                        <StringSelectMenuOption
+                          label={r}
+                          value={r.replaceAll(" ", "_")}
+                          default={(
+                            empEditCache.get(employee.discordId)?.committees ??
+                            (employee.committees as string[])
+                          ).includes(r)}
+                        />
+                      );
+                    })}
+                  </StringSelectMenu>
+                </Label>
+              );
+            },
+          )}
+        </Modal>
+      );
+      HandleModalBullshit.replaceOldCollector(buttonItx.user.id, modal);
+      await buttonItx.showModal(modal);
+    };
+    const button = (
+      <Button
+        customId={groupCustomID}
+        style={ButtonStyle.Secondary}
+        onClick={buttonHandlerFunc}
+      >
+        {group}
+      </Button>
+    );
+    committeeButtons.push(button);
+  }
+
+  const empEditButton = (
+    <Button
+      style={ButtonStyle.Success}
+      customId={`empEditOneTime-${interaction.user.id}`}
+      onClick={async (itx) => {
+        const modal = await employeeEditModal(
+          empEditModalHandler(interaction),
+          empEditCache.get(employee.discordId) ?? employee,
+        );
+        HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
+        await itx.showModal(modal);
+      }}
+    >
+      Edytuj
+    </Button>
+  );
+
+  const addChangesButton = (
+    <Button
+      customId={`empeditpromotiondemotion-${interaction.user.id}`}
+      style={ButtonStyle.Primary}
+      onClick={async (itx) => {
+        const modal = addChangesModal(
+          interaction,
+          empEditCache.get(employee.discordId) ?? employee,
+          addChangesModalHandler(
+            empEditCache.get(employee.discordId) ?? employee,
+          ),
+        );
+        HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
+        await itx.showModal(modal);
+      }}
+    >
+      Zmiany w rangach pracownika
+    </Button>
+  );
+  // const aRow = new ActionRowBuilder<ButtonKit>().addComponents([
+  //   empEditButton,
+  //   addChangesButton,
+  //   // TODO: fix
+  //   committeeButtons[0],
+  // ]);
+  const aRow: Array<ButtonKit[]> = [[], [], [], [], []];
+  committeeButtons.unshift(empEditButton, addChangesButton);
+  committeeButtons.forEach((button, i) => {
+    return aRow[Math.floor(i / 5)]!.push(button);
+  });
+  if (aRow.length > 5) {
+    Logger.error(
+      [import.meta.filename, "ActionRow ma więcej niż 5 wierszy"].join("\n"),
+    );
+    throw "nie";
+  }
+  HandleButtonBullshit.replaceOldCollector(
+    interaction.user.id,
+    committeeButtons,
+  );
+
+  const components = aRow.reduce(
+    (prev: Array<ActionRowBuilder<ButtonKit>>, row) => {
+      if (row.length === 0) {
+        return prev;
+      }
+      return [...prev, new ActionRowBuilder<ButtonKit>().setComponents(row)];
+    },
+    [],
+  );
+  //#endregion
+
   // Logger.debug(JSON.stringify(Object.fromEntries(additionalRoles), null, 2));
   const additionalRolesFormatted = additionalRoles
     .entries()
@@ -75,7 +236,8 @@ export function displayEditEmpEmbed(
     .map(([group, roles]) => {
       return `**${group}**\n${roles.join("\n")}\n`;
     });
-  return new EmbedBuilder()
+
+  const embed = new EmbedBuilder()
     .setTitle(
       `${employee.employeeChanges[0]?.newRole} ${shortAcademicTitle ?? ""} ${employee.nameIC}`,
     )
@@ -93,6 +255,12 @@ export function displayEditEmpEmbed(
         ].join("\n"),
       },
     ]);
+  const compos = attachEditButtons ? components : [];
+  await interaction.editReply({
+    content: null,
+    embeds: [embed],
+    components: compos,
+  });
 }
 
 export const empEditModalHandler =
@@ -196,18 +364,15 @@ export const empEditModalHandler =
       description: "Pomyślnie zapisano zmiany w bazie danych",
     });
     setTimeout(async () => await interaction.deleteReply(), 10 * 1000);
-    await originalInteraction.editReply({
-      embeds: [
-        displayEditEmpEmbed(
-          modalResponses.user,
-          prismaRes.data,
-          interaction.guild?.roles.cache.get(
-            allRanks[prismaRes.data.employeeChanges[0]!.newRole],
-          )?.colors.primaryColor ?? "Blurple",
-        ),
-      ],
-    });
 
+    await displayEditEmpEmbed(
+      modalResponses.user,
+      prismaRes.data,
+      interaction.guild?.roles.cache.get(
+        allRanks[prismaRes.data.employeeChanges[0]!.newRole],
+      )?.colors.primaryColor ?? "Blurple",
+      originalInteraction,
+    );
     ctx.dispose();
     return;
   };

@@ -55,16 +55,14 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     return;
   }
 
-  await interaction.editReply({
-    embeds: [
-      displayEditEmpEmbed(
-        user,
-        employee.data,
-        interaction.guild?.roles.cache.get(
-          allRanks[employee.data.employeeChanges[0]!.newRole],
-        )?.colors.primaryColor ?? "Blurple",
-      ),
-    ],
-  });
+  await displayEditEmpEmbed(
+    user,
+    employee.data,
+    interaction.guild?.roles.cache.get(
+      allRanks[employee.data.employeeChanges[0]!.newRole],
+    )?.colors.primaryColor ?? "Blurple",
+    interaction,
+    false,
+  );
   return;
 };
