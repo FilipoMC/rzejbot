@@ -7,47 +7,68 @@ import {
 } from "@/utils/commandResponses";
 import { allRanks, getGroupsForRank, rankGroups } from "@shared/config/ranks";
 import { OtherEmployeeRanks } from "@shared/types/api";
-import { OnModalKitSubmit } from "commandkit";
+import { Logger, OnModalKitSubmit } from "commandkit";
 import { ChatInputCommandInteraction, ComponentType } from "discord.js";
 import { displayEditEmpEmbed } from "./displayEditEmpEmbed";
+import { empEditCache } from "@/app/commands/(Kierownictwo)/[pracownik]/edytuj.subcommand";
 
 function compareCommittees(
   currentCommittees: OtherEmployeeRanks[],
-  newCommmittees: OtherEmployeeRanks[],
+  newCommittees: OtherEmployeeRanks[],
   gettingChanged: Array<keyof typeof rankGroups>,
 ) {
-  // Logger.debug([
-  //   "comparecommitt func",
-  //   currentCommittees,
-  //   newCommmittees,
-  //   gettingChanged,
-  // ]);
+  Logger.warn([
+    "comparecommitt func\n",
+    currentCommittees,
+    "\n\n",
+    newCommittees,
+    "\n\n",
+    gettingChanged,
+  ]);
   const final: OtherEmployeeRanks[] = [];
-  gettingChanged
-    .map((groupName) => {
-      const groupRanks = rankGroups[groupName].ranks;
-      const currentRank =
-        currentCommittees.filter((r) => (groupRanks as string[]).includes(r)) ??
-        [];
-      const newRank =
-        newCommmittees.filter((r) => (groupRanks as string[]).includes(r)) ??
-        [];
+  const all = [...new Set([...currentCommittees, ...newCommittees])];
+  while (all.length > 0) {
+    const e = all.pop();
+    if (!e) {
+      return;
+    }
+    const isGettingChanged = getGroupsForRank(e)
+      .map((e) => e.group.name)
+      .map((g) => gettingChanged.includes(g as keyof typeof rankGroups))
+      .some((e) => e === true);
+    const OY = currentCommittees.includes(e);
+    const ON = !currentCommittees.includes(e);
+    const NY = newCommittees.includes(e);
+    const NO = !newCommittees.includes(e);
+    Logger.debug(
+      JSON.stringify(
+        [e, { isGettingChanged }, { OY }, { ON }, { NY }, { NO }],
+        null,
+      ),
+    );
+    switch (true) {
+      case OY && NY:
+        Logger.log("OY && NY");
+        final.push(e);
+        break;
+      case OY && NO && !isGettingChanged:
+        Logger.log("OY && NO && !isGettingChanged");
+        final.push(e);
+        break;
+      case OY && NO && isGettingChanged:
+        Logger.log("OY && NO && isGettingChanged");
+        break;
+      case NY && ON:
+        Logger.log("NY && ON");
+        final.push(e);
+        break;
+      default:
+        Logger.error("unexp case");
+    }
+  }
 
-      if (newRank.length > 0) {
-        // New rank(s) in this group replace previous rank(s) in this group
-        final.push(...newRank);
-      } else if (currentRank.length > 0) {
-        // If this group is in targetGroups and has no new rank, remove it
-        if (!gettingChanged.includes(groupName)) {
-          final.push(...currentRank);
-        }
-      }
-    })
-    .filter((e) => e !== null);
-  currentCommittees
-    .filter((c) => getGroupsForRank(c).map((g) => g.group.name))
-    .forEach((c) => final.push(c));
-  return final;
+  Logger.debug(final);
+  return [...new Set(final)];
 }
 
 export const editCommitteesHandler =
@@ -60,12 +81,17 @@ export const editCommitteesHandler =
       interactionOrMsg: interaction,
       description: undefined,
     });
-
+    if (!empEditCache.has(employee.discordId)) {
+      empEditCache.set(employee.discordId, employee, 10 * 60 * 1000);
+    }
     const newCommittees = interaction.fields.fields
       .map((modalData) => {
         if (modalData.type === ComponentType.StringSelect) {
           return {
-            customId: modalData.customId.replaceAll("_", " "),
+            customId: {
+              group: modalData.customId.replaceAll("_", " ").split("-")[0],
+              rank: modalData.customId.replaceAll("_", " ").split("-")[1],
+            },
             values: modalData.values.map((r) => r.replaceAll("_", " ")),
           };
         } else {
@@ -73,15 +99,15 @@ export const editCommitteesHandler =
         }
       })
       .flat();
-    // Logger.debug(JSON.stringify(newCommittees, null, 2));
+    Logger.debug(JSON.stringify(newCommittees, null, 2));
     const temp = compareCommittees(
-      employee.committees,
+      empEditCache.get(employee.discordId)?.committees ?? employee.committees,
       newCommittees.flatMap((c) => c.values) as OtherEmployeeRanks[],
-      newCommittees.flatMap((c) => c.customId) as Array<
+      newCommittees.flatMap((c) => c.customId.group) as Array<
         keyof typeof rankGroups
       >,
     );
-    // Logger.debug(["editcomhandler", temp]);
+    Logger.debug(["editcomhandler", temp]);
 
     const res = await ApiHelper.employee.update(employee.discordId, {
       committees: temp,
@@ -93,6 +119,7 @@ export const editCommitteesHandler =
       });
       return;
     }
+    empEditCache.set(res.data.discordId, res.data, 10 * 60 * 1000);
 
     const rolesToAdd: string[] = [];
     for (const committee of newCommittees.flatMap((c) => c.values)) {
@@ -136,8 +163,8 @@ export const editCommitteesHandler =
       });
       throw "Jakim cudem employeeDc jest undefined???\n" + import.meta.filename;
     }
-    await employeeDc.roles.remove(final.rm);
-    await employeeDc.roles.add(final.add);
+    // await employeeDc.roles.remove(final.rm);
+    // await employeeDc.roles.add(final.add);
 
     await commandSuccess({
       interactionOrMsg: interaction,

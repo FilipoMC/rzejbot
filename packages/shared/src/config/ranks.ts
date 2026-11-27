@@ -246,11 +246,8 @@ export function getGroupsForRank(role: string) {
   });
 }
 
-// TODO: implement
-// export function manageEmployeeRoles(
-//   employee: EmployeeAPIResponse,
-//   newEmployee: EmployeeAPIResponse,
-// ) {}
+// TODO: make dis work
+export function manageEmployeeRoles(add: AllRanks[], rm: AllRanks[]) {}
 
 export const ranksOrder = Object.keys(mainRanks).reduce(
   (prev, v, idx) => prev.set(v, idx),

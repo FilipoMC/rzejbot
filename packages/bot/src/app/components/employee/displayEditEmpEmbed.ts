@@ -73,7 +73,7 @@ export function displayEditEmpEmbed(
     .entries()
     .toArray()
     .map(([group, roles]) => {
-      return `### ${group}\n\n${roles.join(", ")}`;
+      return `**${group}**\n${roles.join("\n")}\n`;
     });
   return new EmbedBuilder()
     .setTitle(

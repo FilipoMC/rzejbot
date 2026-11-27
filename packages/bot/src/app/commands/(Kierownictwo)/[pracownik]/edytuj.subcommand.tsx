@@ -35,9 +35,12 @@ import { allRanks, committeesGrouped, rankGroups } from "@shared/config/ranks";
 import { CommandkitBullshitHandler } from "@/utils/classes/bullshitHandler";
 import _ from "lodash";
 import { editCommitteesHandler } from "@/app/components/employee/editCommittees";
+import { CacheIt } from "@/utils/classes/cache";
+import { EmployeeAPIResponse } from "@shared/types/api";
 
 const HandleModalBullshit = new CommandkitBullshitHandler<ModalKit>();
 const HandleButtonBullshit = new CommandkitBullshitHandler<ButtonKit>();
+export const empEditCache = new CacheIt<string, EmployeeAPIResponse>();
 
 export const command: CommandData = {
   name: "edytuj",
@@ -73,6 +76,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     }
     return;
   }
+  empEditCache.set(employee.data.discordId, employee.data, 10 * 60 * 1000);
 
   // #region dynamic btns
   const committeeButtons: ButtonKit[] = [];
@@ -83,9 +87,12 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       const modal = (
         <Modal
           title="Pracownik Edytuj | Role Dodatkowe"
-          customId={`empeditmodal-${buttonItx.user.id}`}
+          customId={`empeditmodal-${buttonItx.user.id}-${groupCustomID}`}
           options={{ once: false }}
-          onSubmit={editCommitteesHandler(employee.data, interaction)}
+          onSubmit={editCommitteesHandler(
+            empEditCache.get(employee.data.discordId) ?? employee.data,
+            interaction,
+          )}
         >
           {committeesGrouped[group as keyof typeof committeesGrouped].map(
             (k) => {
@@ -104,15 +111,17 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
                     {rankGroupBeingIndexed.ranks.map((r) => {
                       // Logger.debug({
                       //   r,
-                      //   b: employee.data.committees,
-                      //   c: (employee.data.committees as string[]).includes(r),
+                      //   b: empEditCache.get(employee.data.discordId) ?? employee.data.committees,
+                      //   c: (empEditCache.get(employee.data.discordId) ?? employee.data.committees as string[]).includes(r),
                       // });
                       return (
                         <StringSelectMenuOption
                           label={r}
                           value={r.replaceAll(" ", "_")}
                           default={(
-                            employee.data.committees as string[]
+                            empEditCache.get(employee.data.discordId)
+                              ?.committees ??
+                            (employee.data.committees as string[])
                           ).includes(r)}
                         />
                       );
@@ -147,7 +156,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       onClick={async (itx) => {
         const modal = await employeeEditModal(
           empEditModalHandler(interaction),
-          employee.data,
+          empEditCache.get(employee.data.discordId) ?? employee.data,
         );
         HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
         await itx.showModal(modal);
@@ -164,8 +173,10 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
       onClick={async (itx) => {
         const modal = addChangesModal(
           interaction,
-          employee.data,
-          addChangesModalHandler(employee.data),
+          empEditCache.get(employee.data.discordId) ?? employee.data,
+          addChangesModalHandler(
+            empEditCache.get(employee.data.discordId) ?? employee.data,
+          ),
         );
         HandleModalBullshit.replaceOldCollector(interaction.user.id, modal);
         await itx.showModal(modal);
@@ -210,7 +221,7 @@ export const chatInput: ChatInputCommand = async ({ interaction }) => {
     embeds: [
       displayEditEmpEmbed(
         target,
-        employee.data,
+        empEditCache.get(employee.data.discordId) ?? employee.data,
         interaction.guild?.roles.cache.get(
           allRanks[employee.data.employeeChanges[0]!.newRole],
         )?.colors.primaryColor ?? "Blurple",
