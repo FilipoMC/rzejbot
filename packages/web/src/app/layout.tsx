@@ -1,7 +1,11 @@
+import { SignOut } from "@/components/signOut";
 import { ToggleDarkMode } from "@/components/toggleDarkMode";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { auth } from "@/lib/auth";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist_Mono, Tinos } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 
 const geistMono = Geist_Mono({
@@ -29,9 +33,33 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class">
-          <header>
+          <header className="flex">
             <div className="ml-1.5 mt-1.5">
               <ToggleDarkMode />
+            </div>
+            <div className="grow"></div>
+            <div className="mr-5 mt-1.5 flex gap-2 items-center">
+              <Suspense fallback="Ładowanie...">
+                {(async () => {
+                  const session = await auth();
+
+                  return (
+                    <div className="flex gap-2 items-center">
+                      <Avatar size="sm">
+                        <AvatarImage src={session?.user?.image?.toString()} />
+                        <AvatarFallback>
+                          {session?.user?.name
+                            ?.split(" ")
+                            .map((v) => v[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>{session?.user?.name}</div>
+                    </div>
+                  );
+                })()}
+              </Suspense>
+              <SignOut />
             </div>
           </header>
 

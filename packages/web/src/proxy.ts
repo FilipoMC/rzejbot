@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { auth } from "./lib/auth";
 
-const PUBLIC_API_PATHS = ["/api/shifts/006", "/api/site"];
+const PUBLIC_API_PATHS = ["/api/shifts/006", "/api/site", "/api/auth"];
 
-export async function proxy(request: NextRequest) {
+export const proxy = auth((request) => {
   const pathname = request.nextUrl.pathname;
 
   if (
@@ -26,10 +27,14 @@ export async function proxy(request: NextRequest) {
         { status: 403 },
       );
     }
+  } else {
+    if (!request.auth && pathname !== "/login") {
+      return Response.redirect(new URL("/login", request.nextUrl.origin));
+    }
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],

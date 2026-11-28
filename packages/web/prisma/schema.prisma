@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  User
+  Dev
+}
+
 model Employee {
   id           Int                @id @default(autoincrement())
   discordId    String             @unique
@@ -19,6 +24,8 @@ model Employee {
   loas         LOA[]
 
   system Boolean @default(false)
+  active Boolean @default(true)
+  role   Role    @default(User)
 
   employeeChanges       EmployeeChange[] @relation("EmpChanges")
   employeeChangesIssued EmployeeChange[] @relation("EmpChangesIssued")

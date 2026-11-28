@@ -33,6 +33,7 @@ import StationRows from "./stationRows";
 
 async function getShiftReport(number: string) {
   "use cache";
+
   cacheTag("all");
   cacheTag(`shiftReport:number:${number}`);
   cacheLife("days");
